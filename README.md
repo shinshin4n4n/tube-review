@@ -1,44 +1,85 @@
-# TubeReview（ちゅぶれびゅ！）
+# TubeReview - YouTubeチャンネルレビューサイト
 
-YouTube channel review and discovery platform - Find channels actively, not passively.
+YouTubeチャンネルを発見・レビュー・管理できるプラットフォーム
 
-## About
+## 🚀 開発環境セットアップ
 
-TubeReview is a platform for discovering and managing YouTube channels, inspired by Booklog (読書管理サービス).
+### 必要なツール
+- Node.js 18以上
+- npm または yarn
+- Git
 
-### Core Features (MVP)
+### セットアップ手順
 
-- 📝 Review YouTube channels with ratings and comments
-- 📚 Manage channels with "Want to Watch", "Watching", "Watched" status
-- 🔍 Discover channels through user reviews and rankings
-- 📊 Daily rankings and new channel listings
-- 📋 Create and share themed channel lists
+1. リポジトリをクローン
+```bash
+git clone https://github.com/your-username/tube-review.git
+cd tube-review
+```
 
-## Tech Stack
+2. 依存関係をインストール
+```bash
+npm install
+```
 
-- **Frontend**: Next.js 16 (App Router), TypeScript 5.9, Tailwind CSS 4.0
-- **Backend**: Supabase (PostgreSQL, Auth, Storage)
-- **External API**: YouTube Data API v3
-- **Deployment**: Vercel
+3. 環境変数設定
+```bash
+cp .env.example .env.local
+# .env.localに必要な環境変数を設定
+```
 
-## Requirements
+4. 開発サーバー起動
+```bash
+npm run dev
+```
 
-- Node.js 20 or higher
+5. ブラウザで確認
+```
+http://localhost:3000
+```
 
-## Project Structure
+## 🛠️ 技術スタック
+
+### フロントエンド
+- **Next.js 16** - React フレームワーク (App Router)
+- **TypeScript** - 型安全性
+- **Tailwind CSS** - スタイリング
+- **shadcn/ui** - UIコンポーネント
+
+### バックエンド
+- **Supabase** - 認証・データベース
+- **YouTube Data API v3** - チャンネル情報取得
+
+### 開発ツール
+- **ESLint** - コード品質
+- **Prettier** - コードフォーマット
+- **Vitest** - テスト
+- **GitHub Actions** - CI/CD
+
+## 📁 プロジェクト構成
 
 ```
 tube-review/
-├── .claude/       # Claude CLI prompts
-├── docs/          # Documentation
-├── src/           # Source code (to be created)
-└── README.md
+├── app/              # Next.js App Router
+├── components/       # 再利用可能コンポーネント
+├── lib/             # ユーティリティ関数
+├── types/           # TypeScript型定義
+├── public/          # 静的ファイル
+└── docs/            # ドキュメント
 ```
 
-## Development Setup
+## 🧪 テスト実行
 
-(To be documented)
+```bash
+npm run test
+```
 
-## License
+## 📝 コーディング規約
+
+- TypeScript strict mode
+- ESLint + Prettier
+- Conventional Commits
+
+## 📄 ライセンス
 
 MIT
