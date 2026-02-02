@@ -57,7 +57,7 @@ try {
     );
   }
 
-  process.exit(1);
+  throw new Error('Environment validation failed');
 }
 
 // 型安全な環境変数として export
