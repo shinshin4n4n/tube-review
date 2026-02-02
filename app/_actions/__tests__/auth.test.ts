@@ -22,7 +22,9 @@ vi.mock('next/cache', () => ({
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
-  redirect: vi.fn(),
+  redirect: vi.fn(() => {
+    throw new Error('NEXT_REDIRECT');
+  }),
 }));
 
 describe('signUp', () => {
@@ -135,5 +137,117 @@ describe('signUp', () => {
     // Assert
     expect(result.success).toBe(false);
     expect(result.error).toBe('An unexpected error occurred');
+  });
+});
+
+describe('signIn', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should successfully sign in with valid credentials', async () => {
+    // Arrange
+    const email = 'test@example.com';
+    const password = 'password123';
+    mockSupabase.auth.signInWithPassword.mockResolvedValue({
+      data: { user: { id: '123', email }, session: {} },
+      error: null,
+    });
+
+    // Act
+    const result = await signIn(email, password);
+
+    // Assert
+    expect(result.success).toBe(true);
+    expect(result.data?.message).toContain('Signed in successfully');
+    expect(mockSupabase.auth.signInWithPassword).toHaveBeenCalledWith({
+      email,
+      password,
+    });
+  });
+
+  it('should reject invalid email address', async () => {
+    // Arrange
+    const email = 'invalid-email';
+    const password = 'password123';
+
+    // Act
+    const result = await signIn(email, password);
+
+    // Assert
+    expect(result.success).toBe(false);
+    expect(result.error).toBeDefined();
+  });
+
+  it('should reject empty password', async () => {
+    // Arrange
+    const email = 'test@example.com';
+    const password = '';
+
+    // Act
+    const result = await signIn(email, password);
+
+    // Assert
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('Password is required');
+  });
+
+  it('should handle incorrect credentials error', async () => {
+    // Arrange
+    const email = 'test@example.com';
+    const password = 'wrongpassword';
+    mockSupabase.auth.signInWithPassword.mockResolvedValue({
+      data: null,
+      error: { message: 'Invalid login credentials' },
+    });
+
+    // Act
+    const result = await signIn(email, password);
+
+    // Assert
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Invalid login credentials');
+  });
+
+  it('should handle unexpected errors', async () => {
+    // Arrange
+    const email = 'test@example.com';
+    const password = 'password123';
+    mockSupabase.auth.signInWithPassword.mockRejectedValue(
+      new Error('Network error')
+    );
+
+    // Act
+    const result = await signIn(email, password);
+
+    // Assert
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('An unexpected error occurred');
+  });
+});
+
+describe('signOut', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should successfully sign out', async () => {
+    // Arrange
+    mockSupabase.auth.signOut.mockResolvedValue({ error: null });
+
+    // Act & Assert
+    await expect(signOut()).rejects.toThrow();
+    expect(mockSupabase.auth.signOut).toHaveBeenCalled();
+  });
+
+  it('should handle sign out errors gracefully', async () => {
+    // Arrange
+    mockSupabase.auth.signOut.mockResolvedValue({
+      error: { message: 'Sign out failed' },
+    });
+
+    // Act & Assert
+    await expect(signOut()).rejects.toThrow();
+    expect(mockSupabase.auth.signOut).toHaveBeenCalled();
   });
 });
