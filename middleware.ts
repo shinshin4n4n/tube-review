@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
   const response = await updateSession(request);
 
   // 認証が必要なページ
-  const protectedPaths = ['/my-list', '/settings', '/review'];
+  const protectedPaths = ['/my-list', '/settings', '/review', '/profile'];
   const isProtectedPath = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );

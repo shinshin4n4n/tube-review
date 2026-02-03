@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const result = magicLinkSchema.safeParse(body);
     if (!result.success) {
       return NextResponse.json(
-        { error: result.error.issues[0].message },
+        { error: result.error.issues[0]?.message || '入力内容を確認してください' },
         { status: 400 }
       );
     }
