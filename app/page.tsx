@@ -18,7 +18,7 @@ export default function Home() {
           <h1 className="text-4xl font-bold text-primary">
             ちゅぶれびゅ！
           </h1>
-          <p className="text-lg text-text-secondary max-w-2xl mx-auto">
+          <p className="text-lg text-content-secondary max-w-2xl mx-auto">
             YouTubeチャンネルを発見・レビュー・管理できるプラットフォーム
           </p>
           <div className="flex gap-4 justify-center pt-4">
@@ -33,36 +33,36 @@ export default function Home() {
 
         {/* カラーパレットデモ */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-text-primary">
+          <h2 className="text-2xl font-bold text-content">
             カラーパレット
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <div className="h-24 bg-primary rounded-lg shadow-base"></div>
               <p className="text-sm font-medium">Primary</p>
-              <p className="text-xs text-text-secondary">#6D4C41</p>
+              <p className="text-xs text-content-secondary">#6D4C41</p>
             </div>
             <div className="space-y-2">
               <div className="h-24 bg-secondary rounded-lg shadow-base"></div>
               <p className="text-sm font-medium">Secondary</p>
-              <p className="text-xs text-text-secondary">#8D6E63</p>
+              <p className="text-xs text-content-secondary">#8D6E63</p>
             </div>
             <div className="space-y-2">
               <div className="h-24 bg-accent rounded-lg shadow-base"></div>
               <p className="text-sm font-medium">Accent</p>
-              <p className="text-xs text-text-secondary">#E53935</p>
+              <p className="text-xs text-content-secondary">#E53935</p>
             </div>
             <div className="space-y-2">
-              <div className="h-24 bg-bg-base rounded-lg border border-border-base"></div>
+              <div className="h-24 bg-base rounded-lg border border-stroke"></div>
               <p className="text-sm font-medium">Background</p>
-              <p className="text-xs text-text-secondary">#FFF8F5</p>
+              <p className="text-xs text-content-secondary">#FFF8F5</p>
             </div>
           </div>
         </section>
 
         {/* ボタンデモ */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-text-primary">
+          <h2 className="text-2xl font-bold text-content">
             ボタンバリエーション
           </h2>
           <div className="flex flex-wrap gap-4">
@@ -81,7 +81,7 @@ export default function Home() {
 
         {/* カードデモ */}
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-text-primary">
+          <h2 className="text-2xl font-bold text-content">
             チャンネルカード（サンプル）
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
@@ -100,9 +100,9 @@ export default function Home() {
                         className={star <= 4 ? "fill-star-filled text-star-filled" : "text-star-empty"}
                       />
                     ))}
-                    <span className="text-sm text-text-secondary ml-1">4.0</span>
+                    <span className="text-sm text-content-secondary ml-1">4.0</span>
                   </div>
-                  <p className="text-xs text-text-secondary">(120件)</p>
+                  <p className="text-xs text-content-secondary">(120件)</p>
                   <Badge variant="secondary" className="text-xs">エンタメ</Badge>
                 </CardContent>
               </Card>
@@ -112,7 +112,7 @@ export default function Home() {
 
         {/* 準備中セクション */}
         <section className="space-y-4">
-          <Card className="bg-muted border-border-light">
+          <Card className="bg-muted border-stroke-light">
             <CardHeader>
               <CardTitle>🚧 準備中</CardTitle>
               <CardDescription>

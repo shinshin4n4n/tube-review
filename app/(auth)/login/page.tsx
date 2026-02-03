@@ -67,10 +67,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg-base px-4">
+    <div className="min-h-screen flex items-center justify-center bg-base px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl text-center text-text-primary">
+          <CardTitle className="text-2xl text-center text-content">
             ログイン
           </CardTitle>
         </CardHeader>
@@ -123,10 +123,10 @@ export default function LoginPage() {
           {/* 区切り線 */}
           <div className="relative mt-6">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border-base" />
+              <span className="w-full border-t border-stroke" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-bg-card px-2 text-text-secondary">または</span>
+              <span className="bg-surface px-2 text-content-secondary">または</span>
             </div>
           </div>
 

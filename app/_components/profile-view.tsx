@@ -29,11 +29,11 @@ export function ProfileView({ profile }: ProfileViewProps) {
   });
 
   return (
-    <div className="min-h-screen bg-bg-base py-8 px-4">
+    <div className="min-h-screen bg-base py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <Card data-testid="profile-card">
           <CardHeader>
-            <CardTitle className="text-2xl text-text-primary">
+            <CardTitle className="text-2xl text-content">
               プロフィール
             </CardTitle>
           </CardHeader>
@@ -53,11 +53,11 @@ export function ProfileView({ profile }: ProfileViewProps) {
               {/* 表示名 */}
               {profile.display_name && (
                 <div className="flex items-center gap-3">
-                  <User className="h-5 w-5 text-text-secondary" />
+                  <User className="h-5 w-5 text-content-secondary" />
                   <div>
-                    <p className="text-sm text-text-secondary">表示名</p>
+                    <p className="text-sm text-content-secondary">表示名</p>
                     <p
-                      className="text-base font-medium text-text-primary"
+                      className="text-base font-medium text-content"
                       data-testid="profile-display-name"
                     >
                       {profile.display_name}
@@ -68,11 +68,11 @@ export function ProfileView({ profile }: ProfileViewProps) {
 
               {/* ユーザー名 */}
               <div className="flex items-center gap-3">
-                <User className="h-5 w-5 text-text-secondary" />
+                <User className="h-5 w-5 text-content-secondary" />
                 <div>
-                  <p className="text-sm text-text-secondary">ユーザー名</p>
+                  <p className="text-sm text-content-secondary">ユーザー名</p>
                   <p
-                    className="text-base font-medium text-text-primary"
+                    className="text-base font-medium text-content"
                     data-testid="profile-username"
                   >
                     {profile.username}
@@ -82,11 +82,11 @@ export function ProfileView({ profile }: ProfileViewProps) {
 
               {/* メールアドレス */}
               <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-text-secondary" />
+                <Mail className="h-5 w-5 text-content-secondary" />
                 <div>
-                  <p className="text-sm text-text-secondary">メールアドレス</p>
+                  <p className="text-sm text-content-secondary">メールアドレス</p>
                   <p
-                    className="text-base font-medium text-text-primary"
+                    className="text-base font-medium text-content"
                     data-testid="profile-email"
                   >
                     {profile.email}
@@ -96,11 +96,11 @@ export function ProfileView({ profile }: ProfileViewProps) {
 
               {/* 登録日 */}
               <div className="flex items-center gap-3">
-                <CalendarDays className="h-5 w-5 text-text-secondary" />
+                <CalendarDays className="h-5 w-5 text-content-secondary" />
                 <div>
-                  <p className="text-sm text-text-secondary">登録日</p>
+                  <p className="text-sm text-content-secondary">登録日</p>
                   <p
-                    className="text-base font-medium text-text-primary"
+                    className="text-base font-medium text-content"
                     data-testid="profile-created-at"
                   >
                     {formattedDate}

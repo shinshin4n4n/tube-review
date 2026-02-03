@@ -46,17 +46,20 @@
   --color-accent-hover: oklch(0.48 0.22 25); /* #C62828 */
   --color-accent-light: oklch(0.62 0.20 25); /* #EF5350 */
 
-  --color-bg-base: oklch(0.99 0.01 50); /* #FFF8F5 */
-  --color-bg-card: oklch(1 0 0); /* #FFFFFF */
-  --color-bg-hover: oklch(0.98 0.01 50); /* #FFF3ED */
+  /* Background Colors - bg-* utilities */
+  --color-base: oklch(0.99 0.01 50); /* #FFF8F5 - Page background (bg-base) */
+  --color-surface: oklch(1 0 0); /* #FFFFFF - Card background (bg-surface) */
+  --color-elevated: oklch(0.98 0.01 50); /* #FFF3ED - Hover/elevated background (bg-elevated) */
 
-  --color-text-primary: oklch(0.2 0 0); /* #333333 */
-  --color-text-secondary: oklch(0.48 0 0); /* #6B7280 */
-  --color-text-disabled: oklch(0.62 0 0); /* #9CA3AF */
+  /* Text Colors - text-* utilities */
+  --color-content: oklch(0.2 0 0); /* #333333 - Primary text (text-content) */
+  --color-content-secondary: oklch(0.48 0 0); /* #6B7280 - Secondary text (text-content-secondary) */
+  --color-content-disabled: oklch(0.62 0 0); /* #9CA3AF - Disabled text (text-content-disabled) */
 
-  --color-border-light: oklch(0.94 0.01 40); /* #F5E6DC */
-  --color-border-base: oklch(0.92 0.005 40); /* #E8E8E8 */
-  --color-border-dark: oklch(0.84 0 0); /* #D1D5DB */
+  /* Border Colors - border-* utilities */
+  --color-stroke-light: oklch(0.94 0.01 40); /* #F5E6DC - Light border (border-stroke-light) */
+  --color-stroke: oklch(0.92 0.005 40); /* #E8E8E8 - Base border (border-stroke) */
+  --color-stroke-heavy: oklch(0.84 0 0); /* #D1D5DB - Heavy border (border-stroke-heavy) */
 
   /* Star Rating */
   --color-star-filled: oklch(0.82 0.14 75); /* #FBBF24 */
@@ -66,29 +69,29 @@
   --font-sans: var(--font-noto-sans-jp), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 
-  /* Border Radius */
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  /* Border Radius - Avoid conflicts with Tailwind's built-in sizes */
+  --radius-xs: calc(var(--radius) - 4px);
+  --radius-base: calc(var(--radius) - 2px);
+  --radius-default: var(--radius);
+  --radius-large: calc(var(--radius) + 4px);
+  --radius-xlarge: calc(var(--radius) + 8px);
+  --radius-2xlarge: calc(var(--radius) + 12px);
+  --radius-3xlarge: calc(var(--radius) + 16px);
 
-  /* Custom Spacing */
-  --spacing-xs: 0.25rem; /* 4px */
-  --spacing-sm: 0.5rem; /* 8px */
-  --spacing-md: 1rem; /* 16px */
-  --spacing-lg: 1.5rem; /* 24px */
-  --spacing-xl: 2rem; /* 32px */
-  --spacing-2xl: 3rem; /* 48px */
-  --spacing-3xl: 4rem; /* 64px */
+  /* Custom Spacing - Avoid conflicts with Tailwind's built-in sizes */
+  --space-xs: 0.25rem; /* 4px */
+  --space-sm: 0.5rem; /* 8px */
+  --space-base: 1rem; /* 16px */
+  --space-lg: 1.5rem; /* 24px */
+  --space-xl: 2rem; /* 32px */
+  --space-2xl: 3rem; /* 48px */
+  --space-3xl: 4rem; /* 64px */
 
-  /* Custom Shadows */
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+  /* Custom Shadows - These are safe as Tailwind's shadow names are different */
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.05);
   --shadow-base: 0 2px 8px rgb(0 0 0 / 0.08);
-  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 6px 16px rgb(0 0 0 / 0.12);
+  --shadow-default: 0 4px 12px rgb(0 0 0 / 0.1);
+  --shadow-large: 0 6px 16px rgb(0 0 0 / 0.12);
 }
 
 :root {

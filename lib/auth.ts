@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { ApiError } from '@/lib/api/error';
 import { API_ERROR_CODES } from '@/lib/types/api';
+import { redirect } from 'next/navigation';
 
 /**
  * 現在のユーザーを取得
@@ -16,16 +17,12 @@ export async function getUser() {
 
 /**
  * 認証を必須とする
- * 未認証の場合はエラーをスロー
+ * 未認証の場合はログインページにリダイレクト
  */
 export async function requireAuth() {
   const user = await getUser();
   if (!user) {
-    throw new ApiError(
-      API_ERROR_CODES.UNAUTHORIZED,
-      'Authentication required',
-      401
-    );
+    redirect('/login');
   }
   return user;
 }
