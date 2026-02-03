@@ -17,6 +17,15 @@ test.describe('ログイン画面', () => {
   });
 
   test('メールアドレスを入力してログインリンクを送信できる', async ({ page }) => {
+    // Mock the Magic Link API to return success
+    await page.route('**/api/auth/magic-link', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true }),
+      });
+    });
+
     await page.goto('/login');
 
     // メールアドレス入力
@@ -25,8 +34,9 @@ test.describe('ログイン画面', () => {
     // ログインボタンクリック
     await page.getByRole('button', { name: /ログインリンクを送信/ }).click();
 
-    // 成功メッセージ確認
-    await expect(page.getByText(/メールを確認してください/)).toBeVisible();
+    // 成功メッセージ確認 - 要素の存在確認に変更
+    const successMessage = page.getByTestId('success-message');
+    await expect(successMessage).toHaveText('メールを確認してください。ログインリンクを送信しました。');
   });
 
   test('無効なメールアドレスでエラーが表示される', async ({ page }) => {
@@ -38,7 +48,8 @@ test.describe('ログイン画面', () => {
     // ログインボタンクリック
     await page.getByRole('button', { name: /ログインリンクを送信/ }).click();
 
-    // エラーメッセージ確認
-    await expect(page.getByText(/有効なメールアドレスを入力してください/)).toBeVisible();
+    // エラーメッセージ確認 - 要素の存在確認に変更
+    const errorMessage = page.getByTestId('error-message');
+    await expect(errorMessage).toHaveText('有効なメールアドレスを入力してください');
   });
 });
