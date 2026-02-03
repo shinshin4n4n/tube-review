@@ -1,3 +1,21 @@
+## 🔗 関連Issue
+Closes #
+
+<!--
+このPRで解決・実装するIssueの番号を記入してください。
+PRマージ時に自動的にIssueがCloseされます。
+
+複数のIssueをCloseする場合:
+Closes #1
+Closes #2
+Closes #3
+
+または:
+Closes #1, #2, #3
+-->
+
+---
+
 ## 📋 概要
 <!-- このPRで何を実装/修正したか、1-2文で簡潔に説明してください -->
 
@@ -19,11 +37,6 @@
 ### ファイル変更サマリー
 <!-- 主要な変更ファイルとその変更理由 -->
 - `path/to/file.ts` - 変更理由
-
-
-## 🔗 関連Issue
-<!-- Issue番号を記載（自動クローズする場合は Closes #XX, Resolves #XX を使用） -->
-Resolves #
 
 
 ## 🧪 テスト
