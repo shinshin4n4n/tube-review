@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +23,7 @@ export default function LoginPage() {
     // バリデーション
     const result = magicLinkSchema.safeParse({ email });
     if (!result.success) {
-      setError(result.error.errors[0].message);
+      setError(result.error.issues[0]?.message || '入力内容を確認してください');
       return;
     }
 
@@ -46,9 +48,26 @@ export default function LoginPage() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    setError('');
+
+    const { error: googleError } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (googleError) {
+      setError('Googleログインに失敗しました。もう一度お試しください。');
+      setLoading(false);
+    }
+    // 成功時はGoogleの認証画面にリダイレクトされるのでローディング解除不要
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-bg-base px-4">
-      <title>ログイン | ちゅぶれびゅ！</title>
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl text-center text-text-primary">
@@ -56,7 +75,29 @@ export default function LoginPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* エラー・成功メッセージ */}
+          {error && (
+            <p
+              className="text-sm text-red-500 mb-4"
+              role="alert"
+              data-testid="error-message"
+            >
+              {error}
+            </p>
+          )}
+
+          {success && (
+            <p
+              className="text-sm text-green-600 mb-4"
+              role="status"
+              data-testid="success-message"
+            >
+              メールを確認してください。ログインリンクを送信しました。
+            </p>
+          )}
+
+          {/* Magic Link Form */}
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div>
               <Label htmlFor="email">メールアドレス</Label>
               <Input
@@ -70,18 +111,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {error && (
-              <p className="text-sm text-red-500" role="alert">
-                {error}
-              </p>
-            )}
-
-            {success && (
-              <p className="text-sm text-green-600" role="status">
-                メールを確認してください。ログインリンクを送信しました。
-              </p>
-            )}
-
             <Button
               type="submit"
               className="w-full bg-primary hover:bg-primary-hover"
@@ -90,6 +119,39 @@ export default function LoginPage() {
               {loading ? '送信中...' : 'ログインリンクを送信'}
             </Button>
           </form>
+
+          {/* 区切り線 */}
+          <div className="relative mt-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border-base" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-bg-card px-2 text-text-secondary">または</span>
+            </div>
+          </div>
+
+          {/* Google Login Button */}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full mt-6"
+            onClick={handleGoogleLogin}
+            disabled={loading}
+          >
+            <svg
+              className="mr-2 h-4 w-4"
+              aria-hidden="true"
+              focusable="false"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 488 512"
+            >
+              <path
+                fill="currentColor"
+                d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
+              />
+            </svg>
+            {loading ? 'ログイン中...' : 'Googleでログイン'}
+          </Button>
         </CardContent>
       </Card>
     </div>
