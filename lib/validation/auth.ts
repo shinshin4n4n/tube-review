@@ -16,5 +16,13 @@ export const signInSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
+/**
+ * Magic Linkバリデーションスキーマ
+ */
+export const magicLinkSchema = z.object({
+  email: z.string().email('有効なメールアドレスを入力してください'),
+});
+
 export type SignUpInput = z.infer<typeof signUpSchema>;
 export type SignInInput = z.infer<typeof signInSchema>;
+export type MagicLinkInput = z.infer<typeof magicLinkSchema>;
