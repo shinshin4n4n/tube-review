@@ -1,65 +1,146 @@
-import Image from "next/image";
+import { Layout } from '@/components/layout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Star } from 'lucide-react';
 
+/**
+ * トップページ
+ * - デザインシステムのデモンストレーション
+ * - カラーパレットとコンポーネントの確認
+ */
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <Layout>
+      <div className="space-y-12">
+        {/* ヒーローセクション */}
+        <section className="text-center space-y-4">
+          <h1 className="text-4xl font-bold text-primary">
+            ちゅぶれびゅ！
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-lg text-text-secondary max-w-2xl mx-auto">
+            YouTubeチャンネルを発見・レビュー・管理できるプラットフォーム
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          <div className="flex gap-4 justify-center pt-4">
+            <Button variant="default" size="lg">
+              チャンネルを探す
+            </Button>
+            <Button variant="outline" size="lg">
+              ランキングを見る
+            </Button>
+          </div>
+        </section>
+
+        {/* カラーパレットデモ */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold text-text-primary">
+            カラーパレット
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <div className="h-24 bg-primary rounded-lg shadow-base"></div>
+              <p className="text-sm font-medium">Primary</p>
+              <p className="text-xs text-text-secondary">#6D4C41</p>
+            </div>
+            <div className="space-y-2">
+              <div className="h-24 bg-secondary rounded-lg shadow-base"></div>
+              <p className="text-sm font-medium">Secondary</p>
+              <p className="text-xs text-text-secondary">#8D6E63</p>
+            </div>
+            <div className="space-y-2">
+              <div className="h-24 bg-accent rounded-lg shadow-base"></div>
+              <p className="text-sm font-medium">Accent</p>
+              <p className="text-xs text-text-secondary">#E53935</p>
+            </div>
+            <div className="space-y-2">
+              <div className="h-24 bg-bg-base rounded-lg border border-border-base"></div>
+              <p className="text-sm font-medium">Background</p>
+              <p className="text-xs text-text-secondary">#FFF8F5</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ボタンデモ */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold text-text-primary">
+            ボタンバリエーション
+          </h2>
+          <div className="flex flex-wrap gap-4">
+            <Button variant="default">Primary Button</Button>
+            <Button variant="secondary">Secondary Button</Button>
+            <Button variant="destructive">Accent Button</Button>
+            <Button variant="outline">Ghost Button</Button>
+            <Button variant="ghost">Text Button</Button>
+          </div>
+          <div className="flex flex-wrap gap-4">
+            <Button variant="default" size="sm">Small</Button>
+            <Button variant="default" size="default">Default</Button>
+            <Button variant="default" size="lg">Large</Button>
+          </div>
+        </section>
+
+        {/* カードデモ */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold text-text-primary">
+            チャンネルカード（サンプル）
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i} className="hover:shadow-md transition-shadow duration-300 cursor-pointer">
+                <CardHeader className="space-y-2">
+                  <div className="w-16 h-16 bg-secondary rounded-full mx-auto"></div>
+                  <CardTitle className="text-center text-base">チャンネル名 {i}</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center space-y-2">
+                  <div className="flex justify-center items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        size={16}
+                        className={star <= 4 ? "fill-star-filled text-star-filled" : "text-star-empty"}
+                      />
+                    ))}
+                    <span className="text-sm text-text-secondary ml-1">4.0</span>
+                  </div>
+                  <p className="text-xs text-text-secondary">(120件)</p>
+                  <Badge variant="secondary" className="text-xs">エンタメ</Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* 準備中セクション */}
+        <section className="space-y-4">
+          <Card className="bg-muted border-border-light">
+            <CardHeader>
+              <CardTitle>🚧 準備中</CardTitle>
+              <CardDescription>
+                現在、認証システムとデザインシステムの構築が完了しました。
+                次のフェーズでチャンネル検索とレビュー機能を実装します。
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  ✓ 認証システム
+                </Badge>
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  ✓ デザインシステム
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  ⏳ チャンネル検索
+                </Badge>
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  ⏳ レビュー機能
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      </div>
+    </Layout>
   );
 }

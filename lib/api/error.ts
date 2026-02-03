@@ -30,7 +30,7 @@ export function handleApiError(error: unknown): ApiResponse<never> {
     return {
       success: false,
       error: 'Validation error',
-      details: error.errors,
+      details: error.issues,
     };
   }
 
