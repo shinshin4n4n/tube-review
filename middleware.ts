@@ -13,29 +13,35 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path)
   );
 
-  if (isProtectedPath) {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return request.cookies.get(name)?.value;
-          },
-          set() {},
-          remove() {},
+  // Supabaseクライアント作成
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
         },
-      }
-    );
+        set() {},
+        remove() {},
+      },
+    }
+  );
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
+  if (isProtectedPath) {
     if (!user) {
       // 未認証ならログインページへリダイレクト
       return NextResponse.redirect(new URL('/login', request.url));
     }
+  }
+
+  // 認証済みユーザーをログインページからリダイレクト
+  if (request.nextUrl.pathname === '/login' && user) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return response;
