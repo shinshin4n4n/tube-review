@@ -3,12 +3,15 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { getChannelDetailsAction } from '@/app/_actions/youtube';
+import { getChannelReviewsAction } from '@/app/_actions/review';
 import { Users, Video, Eye, Calendar, MessageSquare } from 'lucide-react';
 import { getUser } from '@/lib/auth';
 import { ReviewForm } from '@/app/_components/review-form';
+import ReviewList from '@/app/_components/review-list';
 
 type ChannelDetailPageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string }>;
 };
 
 /**
@@ -64,8 +67,11 @@ export const revalidate = 86400; // 24時間
  */
 export default async function ChannelDetailPage({
   params,
+  searchParams,
 }: ChannelDetailPageProps) {
   const { id } = await params;
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams.page) || 1;
 
   // チャンネル詳細を取得
   const result = await getChannelDetailsAction(id);
@@ -79,6 +85,10 @@ export default async function ChannelDetailPage({
 
   // ユーザー情報を取得（認証チェック）
   const user = await getUser();
+
+  // レビュー一覧を取得
+  const reviewsResponse = await getChannelReviewsAction(id, page, 10);
+  const reviewsData = reviewsResponse.success ? reviewsResponse.data : null;
 
   // 数値フォーマット関数
   const formatNumber = (num: number): string => {
@@ -200,6 +210,25 @@ export default async function ChannelDetailPage({
             </CardContent>
           </Card>
         )}
+
+        {/* レビュー一覧セクション */}
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold text-content mb-6 flex items-center gap-2">
+              <MessageSquare className="w-5 h-5" />
+              レビュー一覧
+            </h2>
+            {reviewsData ? (
+              <ReviewList
+                initialData={reviewsData}
+                channelId={id}
+                currentUserId={user?.id}
+              />
+            ) : (
+              <p className="text-gray-500">レビューの取得に失敗しました</p>
+            )}
+          </CardContent>
+        </Card>
 
         {/* YouTubeで見るボタン */}
         <div className="text-center">
