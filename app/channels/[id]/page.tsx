@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { Layout } from '@/components/layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { getChannelDetailsAction } from '@/app/_actions/youtube';
 import { getChannelReviewsAction } from '@/app/_actions/review';
@@ -102,7 +103,7 @@ export default async function ChannelDetailPage({
   };
 
   return (
-    <div className="min-h-screen bg-base py-8 px-4">
+    <Layout>
       <div className="max-w-4xl mx-auto">
         {/* チャンネルヘッダー */}
         <Card className="mb-8">
@@ -259,6 +260,6 @@ export default async function ChannelDetailPage({
           </a>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }

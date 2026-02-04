@@ -29,9 +29,8 @@ export function ProfileView({ profile }: ProfileViewProps) {
   });
 
   return (
-    <div className="min-h-screen bg-base py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <Card data-testid="profile-card">
+    <div className="max-w-2xl mx-auto">
+      <Card data-testid="profile-card">
           <CardHeader>
             <CardTitle className="text-2xl text-content">
               プロフィール
@@ -110,7 +109,6 @@ export function ProfileView({ profile }: ProfileViewProps) {
             </div>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 }

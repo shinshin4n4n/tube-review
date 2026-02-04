@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { Layout } from '@/components/layout';
 import { getUser } from '@/lib/auth';
 import { getMyListsAction } from '@/app/_actions/list';
 import MyListsClient from './my-lists-client';
@@ -23,7 +24,7 @@ export default async function MyListsPage() {
   const listsData = listsResponse.success ? listsResponse.data : null;
 
   return (
-    <div className="min-h-screen bg-base py-8 px-4">
+    <Layout>
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-content mb-2">マイリスト</h1>
@@ -40,6 +41,6 @@ export default async function MyListsPage() {
           </div>
         )}
       </div>
-    </div>
+    </Layout>
   );
 }
