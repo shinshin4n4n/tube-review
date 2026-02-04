@@ -147,7 +147,7 @@ export class YouTubeRateLimiter {
    */
   private getCurrentDate(): string {
     const now = new Date();
-    return now.toISOString().split('T')[0];
+    return now.toISOString().split('T')[0]!;
   }
 }
 
