@@ -4,7 +4,7 @@ import { z } from 'zod';
  * チャンネルステータス型
  */
 export const channelStatusEnum = z.enum([
-  'want_to_watch',
+  'want',
   'watching',
   'watched',
 ]);

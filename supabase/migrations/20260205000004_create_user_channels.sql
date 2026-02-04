@@ -1,8 +1,6 @@
 -- ユーザーチャンネルステータステーブルの作成
 -- ユーザーがチャンネルを「見たい」「見ている」「見た」で管理
-
--- ステータスENUM型の作成
-CREATE TYPE channel_status AS ENUM ('want_to_watch', 'watching', 'watched');
+-- 注: channel_status ENUM型は initial_schema.sql で定義済み
 
 -- user_channelsテーブルの作成
 CREATE TABLE IF NOT EXISTS user_channels (
@@ -49,6 +47,6 @@ CREATE TRIGGER trigger_update_user_channels_updated_at
 COMMENT ON TABLE user_channels IS 'ユーザーのチャンネルステータス管理（見たい/見ている/見た）';
 COMMENT ON COLUMN user_channels.user_id IS 'ユーザーID';
 COMMENT ON COLUMN user_channels.channel_id IS 'チャンネルID';
-COMMENT ON COLUMN user_channels.status IS 'ステータス（want_to_watch/watching/watched）';
+COMMENT ON COLUMN user_channels.status IS 'ステータス（want/watching/watched）';
 COMMENT ON COLUMN user_channels.added_at IS 'マイリスト追加日時';
 COMMENT ON COLUMN user_channels.updated_at IS '最終更新日時';

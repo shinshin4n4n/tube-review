@@ -19,7 +19,7 @@ export const STATUS_LABELS: Record<
   ChannelStatus,
   { label: string; emoji: string; color: string }
 > = {
-  want_to_watch: {
+  want: {
     label: '見たい',
     emoji: '📌',
     color: 'bg-blue-100 text-blue-800',

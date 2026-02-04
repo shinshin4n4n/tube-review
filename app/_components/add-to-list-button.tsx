@@ -156,11 +156,11 @@ export default function AddToListButton({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem
-            onClick={() => handleAddToList('want_to_watch')}
+            onClick={() => handleAddToList('want')}
             disabled={isLoading}
           >
-            <span className="mr-2">{STATUS_LABELS.want_to_watch.emoji}</span>
-            {STATUS_LABELS.want_to_watch.label}
+            <span className="mr-2">{STATUS_LABELS.want.emoji}</span>
+            {STATUS_LABELS.want.label}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => handleAddToList('watching')}
@@ -199,14 +199,14 @@ export default function AddToListButton({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuItem
-          onClick={() => handleUpdateStatus('want_to_watch')}
+          onClick={() => handleUpdateStatus('want')}
           disabled={
-            isLoading || currentStatus.status === 'want_to_watch'
+            isLoading || currentStatus.status === 'want'
           }
         >
-          <span className="mr-2">{STATUS_LABELS.want_to_watch.emoji}</span>
-          {STATUS_LABELS.want_to_watch.label}
-          {currentStatus.status === 'want_to_watch' && (
+          <span className="mr-2">{STATUS_LABELS.want.emoji}</span>
+          {STATUS_LABELS.want.label}
+          {currentStatus.status === 'want' && (
             <Check className="ml-auto h-4 w-4" />
           )}
         </DropdownMenuItem>
