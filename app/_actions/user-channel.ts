@@ -10,8 +10,12 @@ import {
   updateMyListStatusSchema,
   type AddToMyListInput,
   type UpdateMyListStatusInput,
+  type ChannelStatus,
 } from '@/lib/validations/user-channel';
-import type { UserChannel } from '@/lib/types/user-channel';
+import type {
+  UserChannel,
+  UserChannelWithChannel,
+} from '@/lib/types/user-channel';
 
 /**
  * チャンネルをマイリストに追加
@@ -275,3 +279,84 @@ export async function getMyChannelStatusAction(
     return handleApiError(err);
   }
 }
+<<<<<<< HEAD
+
+/**
+ * マイリスト一覧を取得
+ */
+export async function getMyListAction(
+  status?: ChannelStatus
+): Promise<ApiResponse<UserChannelWithChannel[]>> {
+  try {
+    // 認証チェック
+    const user = await getUser();
+    if (!user) {
+      throw new ApiError(
+        API_ERROR_CODES.UNAUTHORIZED,
+        'ログインが必要です',
+        401
+      );
+    }
+
+    // Supabaseクライアント作成
+    const supabase = await createClient();
+
+    // クエリビルダー
+    let query = supabase
+      .from('user_channels')
+      .select(
+        `
+        id,
+        user_id,
+        channel_id,
+        status,
+        added_at,
+        updated_at,
+        channel:channels (
+          id,
+          youtube_channel_id,
+          title,
+          description,
+          thumbnail_url,
+          subscriber_count,
+          video_count,
+          created_at,
+          updated_at
+        )
+      `
+      )
+      .eq('user_id', user.id)
+      .order('added_at', { ascending: false });
+
+    // ステータスフィルタ
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Supabase error:', error);
+      throw new ApiError(
+        API_ERROR_CODES.INTERNAL_ERROR,
+        'マイリストの取得に失敗しました',
+        500
+      );
+    }
+
+    // データ変換（channelが配列の場合に対応）
+    const transformed = data.map((item) => ({
+      ...item,
+      channel: Array.isArray(item.channel) ? item.channel[0] : item.channel,
+    })) as UserChannelWithChannel[];
+
+    return {
+      success: true,
+      data: transformed,
+    };
+  } catch (err) {
+    return handleApiError(err);
+  }
+}
+=======
+>>>>>>> origin/main
