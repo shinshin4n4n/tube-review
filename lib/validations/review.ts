@@ -52,3 +52,17 @@ export const updateReviewSchema = z.object({
  * レビュー更新入力型
  */
 export type UpdateReviewInput = z.infer<typeof updateReviewSchema>;
+
+/**
+ * チャンネルレビュー取得時のバリデーションスキーマ
+ */
+export const getChannelReviewsSchema = z.object({
+  channelId: z.string().uuid('Invalid channel ID'),
+  page: z.number().int().positive('Page must be positive'),
+  limit: z.number().int().min(1).max(50).default(10),
+});
+
+/**
+ * チャンネルレビュー取得入力型
+ */
+export type GetChannelReviewsInput = z.infer<typeof getChannelReviewsSchema>;
