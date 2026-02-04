@@ -1,5 +1,6 @@
 import { requireAuth } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
+import { Layout } from '@/components/layout';
 import { ProfileView } from '@/app/_components/profile-view';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -78,5 +79,9 @@ export default async function ProfilePage() {
     });
   }
 
-  return <ProfileView profile={profile} />;
+  return (
+    <Layout>
+      <ProfileView profile={profile} />
+    </Layout>
+  );
 }

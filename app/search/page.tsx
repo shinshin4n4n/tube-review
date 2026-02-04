@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Layout } from '@/components/layout';
 import { SearchForm } from '@/app/_components/search-form';
 import { ChannelCard } from '@/app/_components/channel-card';
 import { searchChannelsAction } from '@/app/_actions/youtube';
@@ -34,7 +35,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   // 検索クエリがない場合は検索フォームのみ表示
   if (!query) {
     return (
-      <div className="min-h-screen bg-base py-8 px-4">
+      <Layout>
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-content mb-4 text-center">
@@ -51,7 +52,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </p>
           </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
@@ -59,7 +60,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const result = await searchChannelsAction(query, 20);
 
   return (
-    <div className="min-h-screen bg-base py-8 px-4">
+    <Layout>
       <div className="max-w-6xl mx-auto">
         {/* 検索フォーム */}
         <div className="mb-8">
@@ -122,6 +123,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
         )}
       </div>
-    </div>
+    </Layout>
   );
 }
