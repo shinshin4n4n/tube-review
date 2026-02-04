@@ -13,6 +13,28 @@ export interface UserChannel {
 }
 
 /**
+ * チャンネル情報
+ */
+export interface Channel {
+  id: string;
+  youtube_channel_id: string;
+  title: string;
+  description: string | null;
+  thumbnail_url: string | null;
+  subscriber_count: number;
+  video_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * ユーザーチャンネル + チャンネル詳細
+ */
+export interface UserChannelWithChannel extends UserChannel {
+  channel: Channel;
+}
+
+/**
  * ステータス表示ラベル
  */
 export const STATUS_LABELS: Record<
