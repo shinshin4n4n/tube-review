@@ -3,7 +3,9 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { getChannelDetailsAction } from '@/app/_actions/youtube';
-import { Users, Video, Eye, Calendar } from 'lucide-react';
+import { Users, Video, Eye, Calendar, MessageSquare } from 'lucide-react';
+import { getUser } from '@/lib/auth';
+import { ReviewForm } from '@/app/_components/review-form';
 
 type ChannelDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -74,6 +76,9 @@ export default async function ChannelDetailPage({
   }
 
   const channel = result.data;
+
+  // ユーザー情報を取得（認証チェック）
+  const user = await getUser();
 
   // 数値フォーマット関数
   const formatNumber = (num: number): string => {
@@ -179,6 +184,19 @@ export default async function ChannelDetailPage({
               >
                 {channel.description}
               </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* レビュー投稿セクション */}
+        {user && (
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <h2 className="text-xl font-bold text-content mb-4 flex items-center gap-2">
+                <MessageSquare className="w-5 h-5" />
+                レビューを投稿
+              </h2>
+              <ReviewForm channelId={channel.youtubeChannelId} />
             </CardContent>
           </Card>
         )}
