@@ -4,10 +4,12 @@ import { notFound } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { getChannelDetailsAction } from '@/app/_actions/youtube';
 import { getChannelReviewsAction } from '@/app/_actions/review';
+import { getMyChannelStatusAction } from '@/app/_actions/user-channel';
 import { Users, Video, Eye, Calendar, MessageSquare } from 'lucide-react';
 import { getUser } from '@/lib/auth';
 import { ReviewForm } from '@/app/_components/review-form';
 import ReviewList from '@/app/_components/review-list';
+import AddToListButton from '@/app/_components/add-to-list-button';
 
 type ChannelDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -85,6 +87,10 @@ export default async function ChannelDetailPage({
 
   // ユーザー情報を取得（認証チェック）
   const user = await getUser();
+
+  // ユーザーのチャンネルステータスを取得（マイリスト用）
+  const statusResponse = await getMyChannelStatusAction(id);
+  const currentStatus = statusResponse.success ? statusResponse.data : null;
 
   // レビュー一覧を取得
   const reviewsResponse = await getChannelReviewsAction(id, page, 10);
@@ -175,6 +181,16 @@ export default async function ChannelDetailPage({
                     </p>
                   </div>
                 </div>
+
+                {/* マイリスト追加ボタン */}
+                {user && (
+                  <div className="mt-6">
+                    <AddToListButton
+                      channelId={id}
+                      currentStatus={currentStatus}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
