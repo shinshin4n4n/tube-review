@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Layout } from '@/components/layout';
 import { Card, CardContent } from '@/components/ui/card';
+import { BackButton } from '@/components/ui/back-button';
 import { getChannelDetailsAction } from '@/app/_actions/youtube';
 import { getChannelReviewsAction } from '@/app/_actions/review';
 import { getMyChannelStatusAction } from '@/app/_actions/user-channel';
@@ -132,6 +133,9 @@ export default async function ChannelDetailPage({
           __html: JSON.stringify(breadcrumbStructuredData),
         }}
       />
+
+      {/* 戻るボタン */}
+      <BackButton />
 
       {/* ブレッドクラム */}
       <div className="mb-4">

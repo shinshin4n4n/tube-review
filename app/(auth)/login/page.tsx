@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,12 +9,31 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { magicLinkSchema } from '@/lib/validation/auth';
 
-export default function LoginPage() {
+/**
+ * リダイレクトURLのバリデーション
+ * セキュリティ対策：外部URLへのリダイレクトを防ぐ
+ */
+function isValidRedirectUrl(url: string): boolean {
+  // 相対URLのみ許可
+  if (!url.startsWith('/')) return false;
+  // プロトコル相対URL（//example.com）を防ぐ
+  if (url.startsWith('//')) return false;
+  // JavaScriptスキームを防ぐ
+  if (url.toLowerCase().startsWith('javascript:')) return false;
+  return true;
+}
+
+function LoginPageContent() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
+  const searchParams = useSearchParams();
+
+  // リダイレクト先を取得（バリデーション付き）
+  const redirect = searchParams.get('redirect') || '/';
+  const safeRedirect = isValidRedirectUrl(redirect) ? redirect : '/';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,10 +72,14 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
+    // OAuth認証後のコールバックURLにリダイレクト先を含める
+    const callbackUrl = new URL('/auth/callback', window.location.origin);
+    callbackUrl.searchParams.set('redirect', safeRedirect);
+
     const { error: googleError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: callbackUrl.toString(),
       },
     });
 
@@ -155,5 +179,13 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <LoginPageContent />
+    </Suspense>
   );
 }

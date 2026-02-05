@@ -1,11 +1,25 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { signUp } from '@/app/_actions/auth';
 
-export default function SignupPage() {
+/**
+ * リダイレクトURLのバリデーション
+ * セキュリティ対策：外部URLへのリダイレクトを防ぐ
+ */
+function isValidRedirectUrl(url: string): boolean {
+  // 相対URLのみ許可
+  if (!url.startsWith('/')) return false;
+  // プロトコル相対URL（//example.com）を防ぐ
+  if (url.startsWith('//')) return false;
+  // JavaScriptスキームを防ぐ
+  if (url.toLowerCase().startsWith('javascript:')) return false;
+  return true;
+}
+
+function SignupPageContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -15,6 +29,11 @@ export default function SignupPage() {
     text: string;
   } | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // リダイレクト先を取得（バリデーション付き）
+  const redirect = searchParams.get('redirect') || '/';
+  const safeRedirect = isValidRedirectUrl(redirect) ? redirect : '/';
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -38,9 +57,10 @@ export default function SignupPage() {
         type: 'success',
         text: result.data!.message,
       });
-      // 3秒後にログインページへ
+      // 3秒後にログインページへ（redirectパラメータを引き継ぐ）
       setTimeout(() => {
-        router.push('/login');
+        const loginUrl = `/login${safeRedirect !== '/' ? `?redirect=${encodeURIComponent(safeRedirect)}` : ''}`;
+        router.push(loginUrl);
       }, 3000);
     } else {
       setMessage({
@@ -155,5 +175,13 @@ export default function SignupPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <SignupPageContent />
+    </Suspense>
   );
 }
