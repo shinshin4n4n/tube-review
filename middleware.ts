@@ -34,8 +34,10 @@ export async function middleware(request: NextRequest) {
 
   if (isProtectedPath) {
     if (!user) {
-      // 未認証ならログインページへリダイレクト
-      return NextResponse.redirect(new URL('/login', request.url));
+      // 未認証ならログインページへリダイレクト（元のURLを保存）
+      const redirectUrl = new URL('/login', request.url);
+      redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
+      return NextResponse.redirect(redirectUrl);
     }
   }
 
