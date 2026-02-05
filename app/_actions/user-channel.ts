@@ -279,7 +279,6 @@ export async function getMyChannelStatusAction(
     return handleApiError(err);
   }
 }
-<<<<<<< HEAD
 
 /**
  * マイリスト一覧を取得
@@ -358,5 +357,3 @@ export async function getMyListAction(
     return handleApiError(err);
   }
 }
-=======
->>>>>>> origin/main
