@@ -79,6 +79,12 @@ export function MobileMenu({ user }: { user: User | null }) {
               トップ
             </button>
             <button
+              onClick={() => handleNavigation('/categories')}
+              className="text-left px-4 py-3 rounded-md hover:bg-base transition-colors"
+            >
+              カテゴリー
+            </button>
+            <button
               onClick={() => handleNavigation('/search')}
               className="text-left px-4 py-3 rounded-md hover:bg-base transition-colors"
             >
