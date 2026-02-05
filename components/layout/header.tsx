@@ -1,12 +1,19 @@
 import Link from 'next/link';
+import { getUser } from '@/lib/auth';
+import { UserMenu } from './user-menu';
+import { MobileMenu } from './mobile-menu';
 
 /**
  * ヘッダーナビゲーションコンポーネント
  * - Primary色(#6D4C41)の背景
  * - ロゴ「ちゅぶれびゅ！」
  * - メインナビゲーション
+ * - ユーザーメニュー（認証済み時）
+ * - モバイルメニュー（768px未満）
  */
-export function Header() {
+export async function Header() {
+  const user = await getUser();
+
   return (
     <header className="bg-primary text-white shadow-base">
       <div className="container mx-auto px-6 py-4">
@@ -16,8 +23,8 @@ export function Header() {
             ちゅぶれびゅ！
           </Link>
 
-          {/* ナビゲーション */}
-          <nav className="flex gap-2">
+          {/* デスクトップナビゲーション */}
+          <nav className="hidden md:flex gap-2">
             <Link
               href="/"
               className="px-4 py-2 rounded-md hover:bg-white/15 transition-colors duration-200"
@@ -25,16 +32,10 @@ export function Header() {
               トップ
             </Link>
             <Link
-              href="/ranking"
+              href="/search"
               className="px-4 py-2 rounded-md hover:bg-white/15 transition-colors duration-200"
             >
-              ランキング
-            </Link>
-            <Link
-              href="/new"
-              className="px-4 py-2 rounded-md hover:bg-white/15 transition-colors duration-200"
-            >
-              新着
+              検索
             </Link>
             <Link
               href="/my-list"
@@ -43,6 +44,25 @@ export function Header() {
               マイリスト
             </Link>
           </nav>
+
+          {/* デスクトップユーザーメニュー */}
+          <div className="hidden md:block">
+            {user ? (
+              <UserMenu user={user} />
+            ) : (
+              <Link
+                href="/login"
+                className="inline-block px-4 py-2 bg-accent rounded-md hover:bg-accent-hover transition-colors duration-200"
+              >
+                ログイン
+              </Link>
+            )}
+          </div>
+
+          {/* モバイルメニュー */}
+          <div className="md:hidden">
+            <MobileMenu user={user} />
+          </div>
         </div>
       </div>
     </header>

@@ -113,3 +113,8 @@ export async function signOut(): Promise<void> {
   revalidatePath('/', 'layout');
   redirect('/');
 }
+
+/**
+ * ログアウト（エイリアス）
+ */
+export const signOutAction = signOut;
