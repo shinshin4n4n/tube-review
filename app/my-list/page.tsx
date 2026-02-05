@@ -4,6 +4,7 @@ import { Layout } from '@/components/layout';
 import { getUser } from '@/lib/auth';
 import { getMyListAction } from '@/app/_actions/user-channel';
 import MyListClient from './my-list-client';
+import { MyListBreadcrumb } from '@/app/_components/my-list-breadcrumb';
 
 export const metadata: Metadata = {
   title: 'マイリスト | TubeReview',
@@ -41,6 +42,11 @@ export default async function MyListPage({ searchParams }: MyListPageProps) {
   if (!result.success) {
     return (
       <Layout>
+        {/* ブレッドクラム */}
+        <div className="mb-4">
+          <MyListBreadcrumb />
+        </div>
+
         <div className="max-w-6xl mx-auto">
           <h1 className="text-3xl font-bold text-content mb-8">マイリスト</h1>
           <p className="text-red-600">
@@ -63,6 +69,11 @@ export default async function MyListPage({ searchParams }: MyListPageProps) {
 
   return (
     <Layout>
+      {/* ブレッドクラム */}
+      <div className="mb-4">
+        <MyListBreadcrumb />
+      </div>
+
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold text-content mb-2">マイリスト</h1>
         <p className="text-content-secondary mb-8">

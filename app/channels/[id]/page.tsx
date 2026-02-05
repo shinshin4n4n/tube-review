@@ -11,6 +11,7 @@ import { getUser } from '@/lib/auth';
 import { ReviewForm } from '@/app/_components/review-form';
 import ReviewList from '@/app/_components/review-list';
 import AddToListButton from '@/app/_components/add-to-list-button';
+import { ChannelBreadcrumb } from '@/app/_components/channel-breadcrumb';
 
 type ChannelDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -102,8 +103,41 @@ export default async function ChannelDetailPage({
     return num.toLocaleString('ja-JP');
   };
 
+  // 構造化データ（BreadcrumbList）
+  const breadcrumbStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'トップ',
+        item: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tubereview.example.com'}/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: channel.title,
+        item: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tubereview.example.com'}/channels/${id}`,
+      },
+    ],
+  };
+
   return (
     <Layout>
+      {/* 構造化データ（SEO） */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbStructuredData),
+        }}
+      />
+
+      {/* ブレッドクラム */}
+      <div className="mb-4">
+        <ChannelBreadcrumb channelTitle={channel.title} />
+      </div>
+
       <div className="max-w-4xl mx-auto">
         {/* チャンネルヘッダー */}
         <Card className="mb-8">
