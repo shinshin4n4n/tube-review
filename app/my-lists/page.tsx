@@ -3,6 +3,7 @@ import { Layout } from '@/components/layout';
 import { getUser } from '@/lib/auth';
 import { getMyListsAction } from '@/app/_actions/list';
 import MyListsClient from './my-lists-client';
+import { MyListsBreadcrumb } from '@/app/_components/my-lists-breadcrumb';
 
 export const metadata = {
   title: 'マイリスト | TubeReview',
@@ -25,6 +26,11 @@ export default async function MyListsPage() {
 
   return (
     <Layout>
+      {/* ブレッドクラム */}
+      <div className="mb-4">
+        <MyListsBreadcrumb />
+      </div>
+
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-content mb-2">マイリスト</h1>

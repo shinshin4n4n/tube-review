@@ -4,6 +4,7 @@ import { Layout } from '@/components/layout';
 import { ProfileView } from '@/app/_components/profile-view';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
+import { ProfileBreadcrumb } from '@/app/_components/profile-breadcrumb';
 
 export const metadata: Metadata = {
   title: 'プロフィール | TubeReview',
@@ -81,6 +82,11 @@ export default async function ProfilePage() {
 
   return (
     <Layout>
+      {/* ブレッドクラム */}
+      <div className="mb-4">
+        <ProfileBreadcrumb />
+      </div>
+
       <ProfileView profile={profile} />
     </Layout>
   );

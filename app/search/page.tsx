@@ -4,6 +4,7 @@ import { SearchForm } from '@/app/_components/search-form';
 import { ChannelCard } from '@/app/_components/channel-card';
 import { searchChannelsAction } from '@/app/_actions/youtube';
 import { AlertCircle, Search as SearchIcon } from 'lucide-react';
+import { SearchBreadcrumb } from '@/app/_components/search-breadcrumb';
 
 type SearchPageProps = {
   searchParams: Promise<{ q?: string }>;
@@ -36,6 +37,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   if (!query) {
     return (
       <Layout>
+        {/* ブレッドクラム */}
+        <div className="mb-4">
+          <SearchBreadcrumb />
+        </div>
+
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-content mb-4 text-center">
@@ -61,6 +67,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   return (
     <Layout>
+      {/* ブレッドクラム */}
+      <div className="mb-4">
+        <SearchBreadcrumb />
+      </div>
+
       <div className="max-w-6xl mx-auto">
         {/* 検索フォーム */}
         <div className="mb-8">
