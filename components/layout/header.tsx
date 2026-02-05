@@ -32,6 +32,12 @@ export async function Header() {
               トップ
             </Link>
             <Link
+              href="/categories"
+              className="px-4 py-2 rounded-md hover:bg-white/15 transition-colors duration-200"
+            >
+              カテゴリー
+            </Link>
+            <Link
               href="/search"
               className="px-4 py-2 rounded-md hover:bg-white/15 transition-colors duration-200"
             >
