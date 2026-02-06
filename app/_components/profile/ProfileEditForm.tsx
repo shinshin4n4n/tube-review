@@ -32,6 +32,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
   const { toast, toasts } = useToast();
 
   const [displayName, setDisplayName] = useState(profile.display_name || '');
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || '');
   const [bio, setBio] = useState(profile.bio || '');
   const [occupation, setOccupation] = useState(profile.occupation || '');
   const [gender, setGender] = useState(profile.gender || '');
@@ -89,6 +90,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
     try {
       const result = await updateProfileAction({
         displayName: displayName || undefined,
+        avatarUrl: avatarUrl || undefined,
         bio: bio || undefined,
         occupation: occupation || undefined,
         gender: (gender as any) || undefined,
@@ -131,6 +133,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
         {/* アバター画像 */}
         <AvatarUploader
           currentAvatarUrl={profile.avatar_url}
+          onUploadComplete={(url) => setAvatarUrl(url)}
           disabled={isSubmitting}
         />
 

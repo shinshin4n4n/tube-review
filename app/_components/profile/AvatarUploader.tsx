@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Upload, Loader2 } from 'lucide-react';
+import { uploadAvatarAction } from '@/app/_actions/avatar';
 
 interface AvatarUploaderProps {
   currentAvatarUrl?: string | null;
@@ -24,21 +25,24 @@ export function AvatarUploader({
     currentAvatarUrl || null
   );
   const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setError(null);
+
     // ファイルサイズチェック（5MB）
     if (file.size > 5 * 1024 * 1024) {
-      alert('ファイルサイズは5MB以下にしてください');
+      setError('ファイルサイズは5MB以下にしてください');
       return;
     }
 
     // ファイルタイプチェック
     if (!file.type.startsWith('image/')) {
-      alert('画像ファイルを選択してください');
+      setError('画像ファイルを選択してください');
       return;
     }
 
@@ -49,22 +53,32 @@ export function AvatarUploader({
     };
     reader.readAsDataURL(file);
 
-    // TODO: Supabase Storageへのアップロード実装
-    // 現在はプレビューのみ対応
+    // Supabase Storageへアップロード
     setIsUploading(true);
     try {
-      // Supabase Storageへのアップロード処理をここに実装
-      // const url = await uploadToSupabaseStorage(file);
-      // onUploadComplete?.(url);
+      const formData = new FormData();
+      formData.append('file', file);
 
-      // 暫定実装: プレビューURLのみ設定
-      setTimeout(() => {
-        setIsUploading(false);
-      }, 1000);
+      const result = await uploadAvatarAction(formData);
+
+      if (result.success) {
+        setPreviewUrl(result.data.url);
+        onUploadComplete?.(result.data.url);
+      } else {
+        setError(result.error);
+        // エラー時はプレビューを元に戻す
+        setPreviewUrl(currentAvatarUrl || null);
+      }
     } catch (error) {
       console.error('Upload error:', error);
+      setError('アップロードに失敗しました');
+      setPreviewUrl(currentAvatarUrl || null);
+    } finally {
       setIsUploading(false);
-      alert('アップロードに失敗しました');
+      // ファイル入力をクリア
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -125,6 +139,9 @@ export function AvatarUploader({
           <p className="text-sm text-content-secondary mt-1">
             推奨: 正方形、5MB以下
           </p>
+          {error && (
+            <p className="text-sm text-red-500 mt-1">{error}</p>
+          )}
         </div>
       </div>
     </div>

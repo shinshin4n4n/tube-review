@@ -15,6 +15,11 @@ export const updateProfileSchema = z.object({
     .min(1, '表示名は必須です')
     .max(50, '表示名は50文字以内で入力してください')
     .optional(),
+  avatarUrl: z
+    .string()
+    .url('有効なURLを入力してください')
+    .optional()
+    .or(z.literal('')),
   bio: z
     .string()
     .max(500, '自己紹介は500文字以内で入力してください')

@@ -57,6 +57,7 @@ export async function updateProfileAction(
       .from('users')
       .update({
         display_name: validated.displayName,
+        avatar_url: validated.avatarUrl || null,
         bio: validated.bio,
         occupation: validated.occupation,
         gender: validated.gender,
