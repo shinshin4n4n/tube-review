@@ -40,12 +40,27 @@ export async function addToMyListAction(
     // Supabaseクライアント作成
     const supabase = await createClient();
 
+    // YouTubeチャンネルIDから内部のチャンネルID（UUID）を取得
+    const { data: channel, error: channelError } = await supabase
+      .from('channels')
+      .select('id')
+      .eq('youtube_channel_id', validated.channelId)
+      .single();
+
+    if (channelError || !channel) {
+      throw new ApiError(
+        API_ERROR_CODES.NOT_FOUND,
+        'チャンネルが見つかりません',
+        404
+      );
+    }
+
     // 既存のエントリを確認
     const { data: existing } = await supabase
       .from('user_channels')
       .select('id')
       .eq('user_id', user.id)
-      .eq('channel_id', validated.channelId)
+      .eq('channel_id', channel.id)
       .single();
 
     // 既に追加済みの場合はエラー
@@ -62,7 +77,7 @@ export async function addToMyListAction(
       .from('user_channels')
       .insert({
         user_id: user.id,
-        channel_id: validated.channelId,
+        channel_id: channel.id,
         status: validated.status,
       })
       .select()
@@ -130,7 +145,7 @@ export async function updateMyListStatusAction(
       })
       .eq('id', userChannelId)
       .eq('user_id', user.id) // 自分のデータのみ更新
-      .select()
+      .select('*, channel:channels!inner(youtube_channel_id)')
       .single();
 
     if (error) {
@@ -151,8 +166,16 @@ export async function updateMyListStatusAction(
       );
     }
 
+    // YouTubeチャンネルIDを取得
+    const channel = data.channel as any;
+    const youtubeChannelId = Array.isArray(channel)
+      ? channel[0]?.youtube_channel_id
+      : channel?.youtube_channel_id;
+
     // チャンネル詳細ページを再検証
-    revalidatePath(`/channels/${data.channel_id}`);
+    if (youtubeChannelId) {
+      revalidatePath(`/channels/${youtubeChannelId}`);
+    }
 
     return {
       success: true,
@@ -183,10 +206,10 @@ export async function removeFromMyListAction(
     // Supabaseクライアント作成
     const supabase = await createClient();
 
-    // channel_idを取得（再検証用）
+    // YouTubeチャンネルIDを取得（再検証用）
     const { data: userChannel, error: fetchError } = await supabase
       .from('user_channels')
-      .select('channel_id')
+      .select('channel:channels!inner(youtube_channel_id)')
       .eq('id', userChannelId)
       .eq('user_id', user.id)
       .single();
@@ -198,6 +221,12 @@ export async function removeFromMyListAction(
         403
       );
     }
+
+    // YouTubeチャンネルIDを取得
+    const channel = userChannel.channel as any;
+    const youtubeChannelId = Array.isArray(channel)
+      ? channel[0]?.youtube_channel_id
+      : channel?.youtube_channel_id;
 
     // user_channelsから削除（RLSで自分のデータのみ削除可能）
     const { error } = await supabase
@@ -216,7 +245,9 @@ export async function removeFromMyListAction(
     }
 
     // チャンネル詳細ページを再検証
-    revalidatePath(`/channels/${userChannel.channel_id}`);
+    if (youtubeChannelId) {
+      revalidatePath(`/channels/${youtubeChannelId}`);
+    }
 
     return {
       success: true,
@@ -229,9 +260,10 @@ export async function removeFromMyListAction(
 
 /**
  * 特定チャンネルのユーザーステータスを取得
+ * @param youtubeChannelId YouTubeチャンネルID
  */
 export async function getMyChannelStatusAction(
-  channelId: string
+  youtubeChannelId: string
 ): Promise<ApiResponse<UserChannel | null>> {
   try {
     // 認証チェック（未ログインの場合はnullを返す）
@@ -246,12 +278,27 @@ export async function getMyChannelStatusAction(
     // Supabaseクライアント作成
     const supabase = await createClient();
 
+    // YouTubeチャンネルIDから内部のチャンネルID（UUID）を取得
+    const { data: channel, error: channelError } = await supabase
+      .from('channels')
+      .select('id')
+      .eq('youtube_channel_id', youtubeChannelId)
+      .single();
+
+    // チャンネルが見つからない場合はnullを返す（まだDBに登録されていない）
+    if (channelError || !channel) {
+      return {
+        success: true,
+        data: null,
+      };
+    }
+
     // ユーザーのステータスを取得
     const { data, error } = await supabase
       .from('user_channels')
       .select('*')
       .eq('user_id', user.id)
-      .eq('channel_id', channelId)
+      .eq('channel_id', channel.id)
       .single();
 
     // データが見つからない場合はnullを返す（エラーではない）
