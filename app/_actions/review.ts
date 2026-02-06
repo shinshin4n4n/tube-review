@@ -37,12 +37,27 @@ export async function createReviewAction(
     // Supabaseクライアント作成
     const supabase = await createClient();
 
+    // YouTubeチャンネルIDから内部のチャンネルID（UUID）を取得
+    const { data: channel, error: channelError } = await supabase
+      .from('channels')
+      .select('id')
+      .eq('youtube_channel_id', validated.channelId)
+      .single();
+
+    if (channelError || !channel) {
+      throw new ApiError(
+        API_ERROR_CODES.NOT_FOUND,
+        'チャンネルが見つかりません',
+        404
+      );
+    }
+
     // レビューを挿入
     const { data, error } = await supabase
       .from('reviews')
       .insert({
         user_id: user.id,
-        channel_id: validated.channelId,
+        channel_id: channel.id,
         rating: validated.rating,
         title: validated.title || null,
         content: validated.content,
@@ -83,18 +98,43 @@ export async function createReviewAction(
 
 /**
  * チャンネルのレビュー一覧を取得（ページネーション付き）
+ * @param youtubeChannelId YouTubeチャンネルID
  */
 export async function getChannelReviewsAction(
-  channelId: string,
+  youtubeChannelId: string,
   page: number = 1,
   limit: number = 10
 ): Promise<ApiResponse<PaginatedReviews>> {
   try {
     // バリデーション
-    const validated = getChannelReviewsSchema.parse({ channelId, page, limit });
+    const validated = getChannelReviewsSchema.parse({ channelId: youtubeChannelId, page, limit });
 
     // Supabaseクライアント作成
     const supabase = await createClient();
+
+    // YouTubeチャンネルIDから内部のチャンネルID（UUID）を取得
+    const { data: channel, error: channelError } = await supabase
+      .from('channels')
+      .select('id')
+      .eq('youtube_channel_id', youtubeChannelId)
+      .single();
+
+    // チャンネルが見つからない場合は空の結果を返す
+    if (channelError || !channel) {
+      return {
+        success: true,
+        data: {
+          reviews: [],
+          pagination: {
+            page: validated.page,
+            limit: validated.limit,
+            total: 0,
+            totalPages: 0,
+          },
+        },
+      };
+    }
+
     const offset = (validated.page - 1) * validated.limit;
 
     // レビュー取得（ユーザー情報を JOIN）
@@ -121,7 +161,7 @@ export async function getChannelReviewsAction(
         )
       `
       )
-      .eq('channel_id', validated.channelId)
+      .eq('channel_id', channel.id)
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .range(offset, offset + validated.limit - 1);
@@ -130,7 +170,7 @@ export async function getChannelReviewsAction(
     const { count, error: countError } = await supabase
       .from('reviews')
       .select('*', { count: 'exact', head: true })
-      .eq('channel_id', validated.channelId)
+      .eq('channel_id', channel.id)
       .is('deleted_at', null);
 
     // エラーハンドリング
@@ -210,7 +250,7 @@ export async function updateReviewAction(
       })
       .eq('id', reviewId)
       .eq('user_id', user.id) // 自分のレビューのみ更新
-      .select()
+      .select('*, channel:channels!inner(youtube_channel_id)')
       .single();
 
     if (error) {
@@ -231,8 +271,16 @@ export async function updateReviewAction(
       );
     }
 
+    // YouTubeチャンネルIDを取得
+    const channel = data.channel as any;
+    const youtubeChannelId = Array.isArray(channel)
+      ? channel[0]?.youtube_channel_id
+      : channel?.youtube_channel_id;
+
     // チャンネル詳細ページを再検証
-    revalidatePath(`/channels/${data.channel_id}`);
+    if (youtubeChannelId) {
+      revalidatePath(`/channels/${youtubeChannelId}`);
+    }
 
     return {
       success: true,
@@ -263,10 +311,10 @@ export async function deleteReviewAction(
     // Supabaseクライアント作成
     const supabase = await createClient();
 
-    // レビューのchannel_idを取得（再検証用）
+    // YouTubeチャンネルIDを取得（再検証用）
     const { data: review, error: fetchError } = await supabase
       .from('reviews')
-      .select('channel_id')
+      .select('channel:channels!inner(youtube_channel_id)')
       .eq('id', reviewId)
       .eq('user_id', user.id)
       .single();
@@ -278,6 +326,12 @@ export async function deleteReviewAction(
         403
       );
     }
+
+    // YouTubeチャンネルIDを取得
+    const channel = review.channel as any;
+    const youtubeChannelId = Array.isArray(channel)
+      ? channel[0]?.youtube_channel_id
+      : channel?.youtube_channel_id;
 
     // ソフトデリート（deleted_atを設定）
     const { error } = await supabase
@@ -296,7 +350,9 @@ export async function deleteReviewAction(
     }
 
     // チャンネル詳細ページを再検証
-    revalidatePath(`/channels/${review.channel_id}`);
+    if (youtubeChannelId) {
+      revalidatePath(`/channels/${youtubeChannelId}`);
+    }
 
     return {
       success: true,
