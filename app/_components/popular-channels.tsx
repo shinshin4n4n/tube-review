@@ -40,7 +40,7 @@ export function PopularChannels({ channels }: PopularChannelsProps) {
       </div>
 
       {/* チャンネルグリッド */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
         {channels.map((channel, index) => (
           <Link
             key={channel.id}
@@ -48,7 +48,7 @@ export function PopularChannels({ channels }: PopularChannelsProps) {
             className="block group"
           >
             <Card className="h-full transition-all duration-300 hover:shadow-md hover:-translate-y-1 bg-surface border-stroke">
-              <CardContent className="p-4 space-y-3">
+              <CardContent className="p-3 space-y-2">
                 {/* ランキングバッジ */}
                 {index < 3 && (
                   <div className="flex justify-center">

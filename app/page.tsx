@@ -19,7 +19,7 @@ export default async function Home() {
 
   return (
     <Layout>
-      <div className="space-y-16">
+      <div className="space-y-12">
         {/* ヒーローセクション */}
         <HeroSection />
 
