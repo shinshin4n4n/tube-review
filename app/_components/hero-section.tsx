@@ -8,39 +8,31 @@ import { Search, TrendingUp } from 'lucide-react';
  */
 export function HeroSection() {
   return (
-    <section className="text-center space-y-6 py-12">
-      <div className="space-y-4">
-        <h1 className="text-4xl md:text-5xl font-bold text-primary leading-tight">
+    <section className="text-center space-y-4 py-8">
+      <div className="space-y-3">
+        <h1 className="text-3xl md:text-4xl font-bold text-primary leading-tight">
           おすすめに頼らない、
           <br />
           能動的なチャンネル発見
         </h1>
-        <p className="text-lg md:text-xl text-content-secondary max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base md:text-lg text-content-secondary max-w-2xl mx-auto">
           本音のレビューから、あなたにぴったりのチャンネルを見つけよう。
-          <br />
-          ブクログのように「見たい」「見ている」「見た」で管理できます。
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-        <Button asChild size="lg" className="gap-2">
+      <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+        <Button asChild size="default" className="gap-2">
           <Link href="/search">
-            <Search size={20} />
+            <Search size={18} />
             チャンネルを探す
           </Link>
         </Button>
-        <Button asChild variant="outline" size="lg" className="gap-2">
+        <Button asChild variant="outline" size="default" className="gap-2">
           <Link href="#ranking">
-            <TrendingUp size={20} />
+            <TrendingUp size={18} />
             人気ランキングを見る
           </Link>
         </Button>
-      </div>
-
-      <div className="pt-8 space-y-2">
-        <p className="text-sm text-content-secondary">
-          「また時間を無駄にした...」からの脱却
-        </p>
       </div>
     </section>
   );

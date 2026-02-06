@@ -19,8 +19,8 @@ export function ChannelCard({ channel }: ChannelCardProps) {
       data-testid="channel-card"
     >
       <Card className="h-full transition-all duration-200 hover:shadow-md hover:-translate-y-1 bg-surface border-stroke">
-        <CardContent className="p-4">
-          <div className="flex gap-4">
+        <CardContent className="p-3">
+          <div className="flex gap-3">
             {/* サムネイル */}
             <div className="flex-shrink-0">
               <Image
