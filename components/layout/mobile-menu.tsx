@@ -79,22 +79,28 @@ export function MobileMenu({ user }: { user: User | null }) {
               トップ
             </button>
             <button
+              onClick={() => handleNavigation('/ranking')}
+              className="text-left px-4 py-3 rounded-md hover:bg-base transition-colors"
+            >
+              ランキング
+            </button>
+            <button
               onClick={() => handleNavigation('/categories')}
               className="text-left px-4 py-3 rounded-md hover:bg-base transition-colors"
             >
               カテゴリー
             </button>
             <button
-              onClick={() => handleNavigation('/search')}
-              className="text-left px-4 py-3 rounded-md hover:bg-base transition-colors"
-            >
-              検索
-            </button>
-            <button
               onClick={() => handleNavigation('/my-list')}
               className="text-left px-4 py-3 rounded-md hover:bg-base transition-colors"
             >
               マイリスト
+            </button>
+            <button
+              onClick={() => handleNavigation('/about')}
+              className="text-left px-4 py-3 rounded-md hover:bg-base transition-colors"
+            >
+              ちゅぶれびゅ！とは
             </button>
           </nav>
 
