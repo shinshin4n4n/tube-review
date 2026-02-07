@@ -21,7 +21,7 @@ export default async function ProfilePage() {
   // RLSポリシーにより、自分のデータのみ取得可能
   let { data: profile, error } = await supabase
     .from('users')
-    .select('id, email, username, display_name, avatar_url, created_at')
+    .select('id, email, username, display_name, avatar_url, bio, occupation, gender, birth_date, prefecture, website_url, created_at')
     .eq('id', user.id)
     .single();
 
@@ -61,7 +61,7 @@ export default async function ProfilePage() {
         display_name: user.user_metadata?.name || user.user_metadata?.full_name || username,
         avatar_url: user.user_metadata?.avatar_url,
       })
-      .select('id, email, username, display_name, avatar_url, created_at')
+      .select('id, email, username, display_name, avatar_url, bio, occupation, gender, birth_date, prefecture, website_url, created_at')
       .single();
 
     if (createError) {

@@ -31,12 +31,12 @@ export function PrefectureSelect({
       <Label htmlFor="prefecture" className="text-base font-semibold mb-2 block">
         都道府県
       </Label>
-      <Select value={value || ''} onValueChange={onChange} disabled={disabled}>
+      <Select value={value || 'unspecified'} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger id="prefecture">
           <SelectValue placeholder="都道府県を選択" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">選択しない</SelectItem>
+          <SelectItem value="unspecified">選択しない</SelectItem>
           {PREFECTURES.map((prefecture) => (
             <SelectItem key={prefecture} value={prefecture}>
               {prefecture}

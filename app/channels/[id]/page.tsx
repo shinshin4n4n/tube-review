@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { Layout } from '@/components/layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { BackButton } from '@/components/ui/back-button';
-import { getChannelDetailsAction } from '@/app/_actions/youtube';
+import { getChannelDetailsByDbIdAction } from '@/app/_actions/youtube';
 import { getChannelReviewsAction } from '@/app/_actions/review';
 import { getMyChannelStatusAction } from '@/app/_actions/user-channel';
 import { Users, Video, Eye, Calendar, MessageSquare } from 'lucide-react';
@@ -26,7 +26,7 @@ export async function generateMetadata({
   params,
 }: ChannelDetailPageProps): Promise<Metadata> {
   const { id } = await params;
-  const result = await getChannelDetailsAction(id);
+  const result = await getChannelDetailsByDbIdAction(id);
 
   if (!result.success || !result.data) {
     return {
@@ -79,7 +79,7 @@ export default async function ChannelDetailPage({
   const page = Number(resolvedSearchParams.page) || 1;
 
   // チャンネル詳細を取得
-  const result = await getChannelDetailsAction(id);
+  const result = await getChannelDetailsByDbIdAction(id);
 
   // エラーハンドリング
   if (!result.success || !result.data) {

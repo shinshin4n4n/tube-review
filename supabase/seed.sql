@@ -5,6 +5,48 @@
 -- 実在する日本の人気YouTubeチャンネルを使用
 
 -- ============================================
+-- 0. 既存のシードデータを削除
+-- ============================================
+-- NOTE: この処理により既存のシードデータが削除されます
+-- 実際のユーザーデータは削除されません（特定のIDのみを削除）
+
+DO $$
+BEGIN
+  -- シードデータのユーザーIDを削除（カスケード削除により関連データも削除）
+  DELETE FROM users WHERE id IN (
+    '11111111-1111-1111-1111-111111111111',
+    '22222222-2222-2222-2222-222222222222',
+    '33333333-3333-3333-3333-333333333333',
+    '44444444-4444-4444-4444-444444444444',
+    '55555555-5555-5555-5555-555555555555',
+    '66666666-6666-6666-6666-666666666666'
+  );
+
+  -- シードデータのチャンネルIDを削除
+  DELETE FROM channels WHERE id IN (
+    'c1111111-1111-1111-1111-111111111111',
+    'c2222222-2222-2222-2222-222222222222',
+    'c3333333-3333-3333-3333-333333333333',
+    'c4444444-4444-4444-4444-444444444444',
+    'c5555555-5555-5555-5555-555555555555',
+    'c6666666-6666-6666-6666-666666666666',
+    'c7777777-7777-7777-7777-777777777777',
+    'c8888888-8888-8888-8888-888888888888',
+    'c9999999-9999-9999-9999-999999999999',
+    'ca111111-1111-1111-1111-111111111111',
+    'ca222222-2222-2222-2222-222222222222',
+    'ca333333-3333-3333-3333-333333333333',
+    'cb111111-1111-1111-1111-111111111111',
+    'cb222222-2222-2222-2222-222222222222',
+    'cb333333-3333-3333-3333-333333333333',
+    'cb444444-4444-4444-4444-444444444444',
+    'cb555555-5555-5555-5555-555555555555'
+  );
+
+  RAISE NOTICE '既存のシードデータを削除しました';
+END $$;
+
+-- ============================================
 -- 1. テストユーザー（6人）
 -- ============================================
 
@@ -40,41 +82,41 @@ INSERT INTO user_follows (follower_id, followee_id) VALUES
 
 INSERT INTO channels (id, youtube_channel_id, title, description, thumbnail_url, subscriber_count, video_count, published_at, category, tags) VALUES
   -- エンタメ系（既存の成功チャンネル）
-  ('c1111111-1111-1111-1111-111111111111', 'UCZf__ehlCEBPop-_sldpBUQ', 'HikakinTV', '日本を代表するトップYouTuber。商品レビューや実験動画、チャレンジ企画など幅広いコンテンツを配信。', 'https://yt3.googleusercontent.com/ytc/AGIKgqM8Qbx5R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 5500000, 2800, '2013-04-19 00:00:00+00', 'エンタメ', '["バラエティ", "商品レビュー", "チャレンジ", "ファミリー向け"]'),
+  ('c1111111-1111-1111-1111-111111111111', 'UCZf__ehlCEBPop-_sldpBUQ', 'HikakinTV', '日本を代表するトップYouTuber。商品レビューや実験動画、チャレンジ企画など幅広いコンテンツを配信。', 'https://yt3.googleusercontent.com/ytc/AGIKgqM8Qbx5R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 5500000, 2800, '2013-04-19 00:00:00+00', 'entertainment', '["バラエティ", "商品レビュー", "チャレンジ", "ファミリー向け"]'),
 
-  ('c2222222-2222-2222-2222-222222222222', 'UCutJqz56653xV2wwSvut_hQ', '東海オンエア', '6人組の大人気YouTuberグループ。ゲーム実況やバラエティ企画を中心に活動。', 'https://yt3.googleusercontent.com/ytc/AGIKgqNRy0Bxz8mHJdRZTxPJ1z6VzKjTkQxLQzW7Ow=s800-c-k-c0x00ffffff-no-rj', 7200000, 3500, '2013-10-20 00:00:00+00', 'エンタメ', '["バラエティ", "グループ", "ゲーム", "お笑い"]'),
+  ('c2222222-2222-2222-2222-222222222222', 'UCutJqz56653xV2wwSvut_hQ', '東海オンエア', '6人組の大人気YouTuberグループ。ゲーム実況やバラエティ企画を中心に活動。', 'https://yt3.googleusercontent.com/ytc/AGIKgqNRy0Bxz8mHJdRZTxPJ1z6VzKjTkQxLQzW7Ow=s800-c-k-c0x00ffffff-no-rj', 7200000, 3500, '2013-10-20 00:00:00+00', 'entertainment', '["バラエティ", "グループ", "ゲーム", "お笑い"]'),
 
-  ('c3333333-3333-3333-3333-333333333333', 'UCgMPP6RRjktV7krOfyUewqw', 'はじめしゃちょー（hajime）', '登録者数日本一級のYouTuber。実験動画やチャレンジ企画など、スケールの大きい企画が人気。', 'https://yt3.googleusercontent.com/ytc/AGIKgqO_5mF0nJhZxGzKQqz9z6VzKjTkQxLQzW7Ow=s800-c-k-c0x00ffffff-no-rj', 10500000, 4200, '2012-03-14 00:00:00+00', 'エンタメ', '["実験", "チャレンジ", "バラエティ", "大規模企画"]'),
+  ('c3333333-3333-3333-3333-333333333333', 'UCgMPP6RRjktV7krOfyUewqw', 'はじめしゃちょー（hajime）', '登録者数日本一級のYouTuber。実験動画やチャレンジ企画など、スケールの大きい企画が人気。', 'https://yt3.googleusercontent.com/ytc/AGIKgqO_5mF0nJhZxGzKQqz9z6VzKjTkQxLQzW7Ow=s800-c-k-c0x00ffffff-no-rj', 10500000, 4200, '2012-03-14 00:00:00+00', 'entertainment', '["実験", "チャレンジ", "バラエティ", "大規模企画"]'),
 
-  ('c6666666-6666-6666-6666-666666666666', 'UCFo4kqllbcQ4nV83WCyraiw', '中田敦彦のYouTube大学 - NAKATA UNIVERSITY', 'オリエンタルラジオ中田敦彦による教育チャンネル。歴史、経済、文学など幅広いテーマを解説。', 'https://yt3.googleusercontent.com/ytc/AGIKgqNz0mF0nJhZxGzKQqz9z6VzKjTkQxLQzW7Ow=s800-c-k-c0x00ffffff-no-rj', 5200000, 1200, '2019-04-01 00:00:00+00', '教育', '["教育", "歴史", "経済", "ビジネス"]'),
+  ('c6666666-6666-6666-6666-666666666666', 'UCFo4kqllbcQ4nV83WCyraiw', '中田敦彦のYouTube大学 - NAKATA UNIVERSITY', 'オリエンタルラジオ中田敦彦による教育チャンネル。歴史、経済、文学など幅広いテーマを解説。', 'https://yt3.googleusercontent.com/ytc/AGIKgqNz0mF0nJhZxGzKQqz9z6VzKjTkQxLQzW7Ow=s800-c-k-c0x00ffffff-no-rj', 5200000, 1200, '2019-04-01 00:00:00+00', 'education', '["教育", "歴史", "経済", "ビジネス"]'),
 
   -- 新規追加チャンネル（8個）
-  ('c4444444-4444-4444-4444-444444444444', 'UCRxPrFmRHsXGWfAyE6oqrPQ', 'コムドット', '5人組の若手人気グループYouTuber。青春をテーマにした企画やチャレンジ動画、友情を感じる掛け合いが魅力。Z世代から圧倒的な支持を集める。', 'https://yt3.googleusercontent.com/ytc/AGIKgqPComDot5R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 4210000, 1800, '2018-10-01 00:00:00+00', 'エンタメ', '["バラエティ", "グループ", "青春", "チャレンジ"]'),
+  ('c4444444-4444-4444-4444-444444444444', 'UCRxPrFmRHsXGWfAyE6oqrPQ', 'コムドット', '5人組の若手人気グループYouTuber。青春をテーマにした企画やチャレンジ動画、友情を感じる掛け合いが魅力。Z世代から圧倒的な支持を集める。', 'https://yt3.googleusercontent.com/ytc/AGIKgqPComDot5R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 4210000, 1800, '2018-10-01 00:00:00+00', 'entertainment', '["バラエティ", "グループ", "青春", "チャレンジ"]'),
 
-  ('c5555555-5555-5555-5555-555555555555', 'UCaminwG9MTO4sLYeC3s6udA', 'ヒカル', 'カリスマ的人気を誇るトップYouTuber。大規模な企画や社会実験、ビジネス系コンテンツまで幅広く配信。独特の視点と行動力が魅力。', 'https://yt3.googleusercontent.com/ytc/AGIKgqHikaru8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 4780000, 2200, '2013-06-28 00:00:00+00', 'エンタメ', '["バラエティ", "社会実験", "ビジネス", "大規模企画"]'),
+  ('c5555555-5555-5555-5555-555555555555', 'UCaminwG9MTO4sLYeC3s6udA', 'ヒカル', 'カリスマ的人気を誇るトップYouTuber。大規模な企画や社会実験、ビジネス系コンテンツまで幅広く配信。独特の視点と行動力が魅力。', 'https://yt3.googleusercontent.com/ytc/AGIKgqHikaru8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 4780000, 2200, '2013-06-28 00:00:00+00', 'entertainment', '["バラエティ", "社会実験", "ビジネス", "大規模企画"]'),
 
-  ('c7777777-7777-7777-7777-777777777777', 'UCpOjLndjOqMoffA-fr8cbKA', '水溜りボンド', '2人組のYouTuberコンビ。実験動画やバラエティ企画、都市伝説検証など多彩なコンテンツを配信。カンタとトミーの息の合った掛け合いが人気。', 'https://yt3.googleusercontent.com/ytc/AGIKgqMizutamari5R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 4060000, 3200, '2012-10-01 00:00:00+00', 'エンタメ', '["バラエティ", "実験", "都市伝説", "コンビ"]'),
+  ('c7777777-7777-7777-7777-777777777777', 'UCpOjLndjOqMoffA-fr8cbKA', '水溜りボンド', '2人組のYouTuberコンビ。実験動画やバラエティ企画、都市伝説検証など多彩なコンテンツを配信。カンタとトミーの息の合った掛け合いが人気。', 'https://yt3.googleusercontent.com/ytc/AGIKgqMizutamari5R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 4060000, 3200, '2012-10-01 00:00:00+00', 'entertainment', '["バラエティ", "実験", "都市伝説", "コンビ"]'),
 
-  ('c8888888-8888-8888-8888-888888888888', 'UCibEhpu5HP45-w7Bq1ZIulw', 'Fischer''s-フィッシャーズ-', '7人組のグループYouTuber。アスレチック動画やゲーム実況、チャレンジ企画を配信。シルクロードをはじめメンバーの身体能力の高さが魅力。', 'https://yt3.googleusercontent.com/ytc/AGIKgqFischers8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 9040000, 5100, '2012-08-24 00:00:00+00', 'エンタメ', '["アスレチック", "グループ", "ゲーム", "チャレンジ"]'),
+  ('c8888888-8888-8888-8888-888888888888', 'UCibEhpu5HP45-w7Bq1ZIulw', 'Fischer''s-フィッシャーズ-', '7人組のグループYouTuber。アスレチック動画やゲーム実況、チャレンジ企画を配信。シルクロードをはじめメンバーの身体能力の高さが魅力。', 'https://yt3.googleusercontent.com/ytc/AGIKgqFischers8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 9040000, 5100, '2012-08-24 00:00:00+00', 'entertainment', '["アスレチック", "グループ", "ゲーム", "チャレンジ"]'),
 
-  ('c9999999-9999-9999-9999-999999999999', 'UCQ_MqAw18jFTlBB-f8BP7dw', 'QuizKnock', '東大発の知識集団による教育エンタメチャンネル。クイズやゲーム、実験を通して楽しく学べる。伊沢拓司をはじめとする個性豊かなメンバーが人気。', 'https://yt3.googleusercontent.com/ytc/AGIKgqQuizKnock8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 2630000, 1800, '2016-10-01 00:00:00+00', '教育', '["クイズ", "教育", "知識", "エンタメ"]'),
+  ('c9999999-9999-9999-9999-999999999999', 'UCQ_MqAw18jFTlBB-f8BP7dw', 'QuizKnock', '東大発の知識集団による教育エンタメチャンネル。クイズやゲーム、実験を通して楽しく学べる。伊沢拓司をはじめとする個性豊かなメンバーが人気。', 'https://yt3.googleusercontent.com/ytc/AGIKgqQuizKnock8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 2630000, 1800, '2016-10-01 00:00:00+00', 'education', '["クイズ", "教育", "知識", "エンタメ"]'),
 
-  ('ca111111-1111-1111-1111-111111111111', 'UC8_wmm5DX9mb4jrLiw8ZYzw', 'スカイピース', '2人組の若手人気YouTuber。テオとイニの明るいキャラクターと、歌やダンス、バラエティ企画など多彩なコンテンツで人気。若い世代から絶大な支持。', 'https://yt3.googleusercontent.com/ytc/AGIKgqSkyPeace8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 4360000, 2600, '2016-03-18 00:00:00+00', 'エンタメ', '["バラエティ", "音楽", "コンビ", "若者向け"]'),
+  ('ca111111-1111-1111-1111-111111111111', 'UC8_wmm5DX9mb4jrLiw8ZYzw', 'スカイピース', '2人組の若手人気YouTuber。テオとイニの明るいキャラクターと、歌やダンス、バラエティ企画など多彩なコンテンツで人気。若い世代から絶大な支持。', 'https://yt3.googleusercontent.com/ytc/AGIKgqSkyPeace8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 4360000, 2600, '2016-03-18 00:00:00+00', 'entertainment', '["バラエティ", "音楽", "コンビ", "若者向け"]'),
 
-  ('ca222222-2222-2222-2222-222222222222', 'UCbCJmNKAL85O1VFeD6Wj60g', 'Bayashi TV', 'グローバルに人気の料理系YouTuber。独創的なレシピやスイーツ作り、キャラ弁など、見た目も楽しい料理動画を配信。世界中のファンから愛される。', 'https://yt3.googleusercontent.com/ytc/AGIKgqBayashi8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 34800000, 800, '2010-09-16 00:00:00+00', '料理', '["料理", "スイーツ", "レシピ", "キャラ弁"]'),
+  ('ca222222-2222-2222-2222-222222222222', 'UCbCJmNKAL85O1VFeD6Wj60g', 'Bayashi TV', 'グローバルに人気の料理系YouTuber。独創的なレシピやスイーツ作り、キャラ弁など、見た目も楽しい料理動画を配信。世界中のファンから愛される。', 'https://yt3.googleusercontent.com/ytc/AGIKgqBayashi8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 34800000, 800, '2010-09-16 00:00:00+00', 'cooking', '["料理", "スイーツ", "レシピ", "キャラ弁"]'),
 
-  ('ca333333-3333-3333-3333-333333333333', 'UCaak9sggUeIBPOd8iK_BXcQ', 'きまぐれクック', '料理系YouTuber。魚のさばき方や料理を披露。圧倒的な包丁さばきと、かねこさんの人柄が人気。魚好き・料理好き必見のチャンネル。', 'https://yt3.googleusercontent.com/ytc/AGIKgqKimagure8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 14800000, 2100, '2016-09-03 00:00:00+00', '料理', '["料理", "魚", "グルメ", "さばき方"]'),
+  ('ca333333-3333-3333-3333-333333333333', 'UCaak9sggUeIBPOd8iK_BXcQ', 'きまぐれクック', '料理系YouTuber。魚のさばき方や料理を披露。圧倒的な包丁さばきと、かねこさんの人柄が人気。魚好き・料理好き必見のチャンネル。', 'https://yt3.googleusercontent.com/ytc/AGIKgqKimagure8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 14800000, 2100, '2016-09-03 00:00:00+00', 'cooking', '["料理", "魚", "グルメ", "さばき方"]'),
 
   -- VLOG・ライフスタイル系チャンネル
-  ('cb111111-1111-1111-1111-111111111111', 'UCPlreGCqby4Qg9Vubo5glnQ', 'バイリンガール英会話', '英語学習とライフスタイルを組み合わせたVlogチャンネル。海外生活の様子や英会話レッスン、旅行記など、見ていて楽しく学べるコンテンツが魅力。', 'https://yt3.googleusercontent.com/ytc/AGIKgqBilingirl8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 1580000, 1100, '2011-05-24 00:00:00+00', 'Vlog', '["英語学習", "ライフスタイル", "海外生活", "旅行"]'),
+  ('cb111111-1111-1111-1111-111111111111', 'UCPlreGCqby4Qg9Vubo5glnQ', 'バイリンガール英会話', '英語学習とライフスタイルを組み合わせたVlogチャンネル。海外生活の様子や英会話レッスン、旅行記など、見ていて楽しく学べるコンテンツが魅力。', 'https://yt3.googleusercontent.com/ytc/AGIKgqBilingirl8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 1580000, 1100, '2011-05-24 00:00:00+00', 'vlog', '["英語学習", "ライフスタイル", "海外生活", "旅行"]'),
 
-  ('cb222222-2222-2222-2222-222222222222', 'UCOg7cnPp4z1QesL8cvVDi4g', 'ひかりんちょ', '日常生活や購入品紹介、ルーティン動画など、親しみやすいVlogを配信。自然体でリアルな日常を見せるスタイルが人気。若い女性から絶大な支持を集める。', 'https://yt3.googleusercontent.com/ytc/AGIKgqHikarincho8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 1320000, 980, '2014-03-10 00:00:00+00', 'Vlog', '["ライフスタイル", "購入品紹介", "ルーティン", "女性向け"]'),
+  ('cb222222-2222-2222-2222-222222222222', 'UCOg7cnPp4z1QesL8cvVDi4g', 'ひかりんちょ', '日常生活や購入品紹介、ルーティン動画など、親しみやすいVlogを配信。自然体でリアルな日常を見せるスタイルが人気。若い女性から絶大な支持を集める。', 'https://yt3.googleusercontent.com/ytc/AGIKgqHikarincho8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 1320000, 980, '2014-03-10 00:00:00+00', 'vlog', '["ライフスタイル", "購入品紹介", "ルーティン", "女性向け"]'),
 
-  ('cb333333-3333-3333-3333-333333333333', 'UCx1nAvtVDIsaGmCMSe8ofsQ', 'くまみき', 'ファッションやメイク、日常のVlogを配信するライフスタイル系チャンネル。おしゃれで洗練された映像と、親しみやすいキャラクターが魅力。', 'https://yt3.googleusercontent.com/ytc/AGIKgqKumamiki8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 890000, 720, '2015-08-15 00:00:00+00', 'Vlog', '["ファッション", "メイク", "ライフスタイル", "女性向け"]'),
+  ('cb333333-3333-3333-3333-333333333333', 'UCx1nAvtVDIsaGmCMSe8ofsQ', 'くまみき', 'ファッションやメイク、日常のVlogを配信するライフスタイル系チャンネル。おしゃれで洗練された映像と、親しみやすいキャラクターが魅力。', 'https://yt3.googleusercontent.com/ytc/AGIKgqKumamiki8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 890000, 720, '2015-08-15 00:00:00+00', 'vlog', '["ファッション", "メイク", "ライフスタイル", "女性向け"]'),
 
-  ('cb444444-4444-4444-4444-444444444444', 'UCYj_DsupaździKw5g', 'AKIOの東京チャンネル', '東京での日常生活や街歩き、グルメ探訪などを配信するVlogチャンネル。東京の魅力を伝える映像美と、落ち着いたナレーションが特徴。', 'https://yt3.googleusercontent.com/ytc/AGIKgqAKIO8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 650000, 450, '2017-02-20 00:00:00+00', 'Vlog', '["東京", "街歩き", "グルメ", "ライフスタイル"]'),
+  ('cb444444-4444-4444-4444-444444444444', 'UCYj_DsupaździKw5g', 'AKIOの東京チャンネル', '東京での日常生活や街歩き、グルメ探訪などを配信するVlogチャンネル。東京の魅力を伝える映像美と、落ち着いたナレーションが特徴。', 'https://yt3.googleusercontent.com/ytc/AGIKgqAKIO8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 650000, 450, '2017-02-20 00:00:00+00', 'vlog', '["東京", "街歩き", "グルメ", "ライフスタイル"]'),
 
-  ('cb555555-5555-5555-5555-555555555555', 'UCwwA_bJ0d6jz5gbQ83dY9hA', 'かおるTV', '日常生活、料理、旅行など、幅広いテーマでVlogを配信。温かい雰囲気と丁寧な暮らしぶりが人気。視聴者に癒しを与えるチャンネル。', 'https://yt3.googleusercontent.com/ytc/AGIKgqKaoruTV8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 780000, 620, '2016-11-08 00:00:00+00', 'Vlog', '["ライフスタイル", "料理", "旅行", "癒し"]');
+  ('cb555555-5555-5555-5555-555555555555', 'UCwwA_bJ0d6jz5gbQ83dY9hA', 'かおるTV', '日常生活、料理、旅行など、幅広いテーマでVlogを配信。温かい雰囲気と丁寧な暮らしぶりが人気。視聴者に癒しを与えるチャンネル。', 'https://yt3.googleusercontent.com/ytc/AGIKgqKaoruTV8R8t_SjJjZPYzCQqKOh-9z6JZGzc7OQ=s800-c-k-c0x00ffffff-no-rj', 780000, 620, '2016-11-08 00:00:00+00', 'vlog', '["ライフスタイル", "料理", "旅行", "癒し"]');
 
 -- ============================================
 -- 3. 代表作動画
@@ -414,7 +456,7 @@ BEGIN
   RAISE NOTICE 'シードデータの投入が完了しました';
   RAISE NOTICE '========================================';
   RAISE NOTICE 'ユーザー数: 6';
-  RAISE NOTICE 'チャンネル数: 17 (エンタメ: 8, 教育: 2, 料理: 2, Vlog: 5)';
+  RAISE NOTICE 'チャンネル数: 17 (entertainment: 8, education: 2, cooking: 2, vlog: 5)';
   RAISE NOTICE 'レビュー数: %', (SELECT COUNT(*) FROM reviews);
   RAISE NOTICE 'リスト数: 7';
   RAISE NOTICE '========================================';

@@ -23,7 +23,16 @@ import type { User } from '@supabase/supabase-js';
  * - ナビゲーションリスト
  * - 認証状態に応じた表示切り替え
  */
-export function MobileMenu({ user }: { user: User | null }) {
+interface MobileMenuProps {
+  user: User | null;
+  profile?: {
+    avatar_url: string | null;
+    display_name: string | null;
+    username: string;
+  } | null;
+}
+
+export function MobileMenu({ user, profile }: MobileMenuProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
 
@@ -39,7 +48,15 @@ export function MobileMenu({ user }: { user: User | null }) {
     router.push(path);
   };
 
-  const initials = user?.email?.[0]?.toUpperCase() || 'U';
+  // プロフィールから表示名とアバターURLを取得
+  const displayName = profile?.display_name || profile?.username || user?.email?.split('@')[0] || 'User';
+  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url;
+  const initials = displayName
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -61,11 +78,12 @@ export function MobileMenu({ user }: { user: User | null }) {
           {user && (
             <div className="flex items-center gap-3 pb-4">
               <Avatar className="h-12 w-12">
-                <AvatarImage src={user.user_metadata?.avatar_url} alt="ユーザーアバター" />
+                <AvatarImage src={avatarUrl || undefined} alt="ユーザーアバター" />
                 <AvatarFallback className="bg-primary text-white">{initials}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                <span className="text-sm font-medium">{user.email}</span>
+                <span className="text-sm font-medium">{displayName}</span>
+                <span className="text-xs text-content-secondary">{user.email}</span>
               </div>
             </div>
           )}

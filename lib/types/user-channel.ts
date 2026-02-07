@@ -8,7 +8,7 @@ export interface UserChannel {
   user_id: string;
   channel_id: string;
   status: ChannelStatus;
-  added_at: string;
+  created_at: string;
   updated_at: string;
 }
 

@@ -12,7 +12,7 @@ import {
   type CreateReviewInput,
   type UpdateReviewInput,
 } from '@/lib/validations/review';
-import type { Review, PaginatedReviews, ReviewWithUser } from '@/lib/types/review';
+import type { Review, PaginatedReviews, ReviewWithUser, ReviewWithUserAndChannel, PaginatedMyReviews } from '@/lib/types/review';
 
 /**
  * レビューを作成
@@ -37,19 +37,46 @@ export async function createReviewAction(
     // Supabaseクライアント作成
     const supabase = await createClient();
 
-    // YouTubeチャンネルIDから内部のチャンネルID（UUID）を取得
-    const { data: channel, error: channelError } = await supabase
-      .from('channels')
-      .select('id')
-      .eq('youtube_channel_id', validated.channelId)
-      .single();
+    // channelIdがUUID形式かどうかをチェック
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(validated.channelId);
 
-    if (channelError || !channel) {
-      throw new ApiError(
-        API_ERROR_CODES.NOT_FOUND,
-        'チャンネルが見つかりません',
-        404
-      );
+    let channelDbId: string;
+
+    if (isUUID) {
+      // UUID形式の場合は直接データベースIDとして使用
+      channelDbId = validated.channelId;
+
+      // チャンネルの存在確認
+      const { data: channel, error: channelError } = await supabase
+        .from('channels')
+        .select('id')
+        .eq('id', channelDbId)
+        .single();
+
+      if (channelError || !channel) {
+        throw new ApiError(
+          API_ERROR_CODES.NOT_FOUND,
+          'チャンネルが見つかりません',
+          404
+        );
+      }
+    } else {
+      // YouTube IDの場合は検索
+      const { data: channel, error: channelError } = await supabase
+        .from('channels')
+        .select('id')
+        .eq('youtube_channel_id', validated.channelId)
+        .single();
+
+      if (channelError || !channel) {
+        throw new ApiError(
+          API_ERROR_CODES.NOT_FOUND,
+          'チャンネルが見つかりません',
+          404
+        );
+      }
+
+      channelDbId = channel.id;
     }
 
     // レビューを挿入
@@ -57,7 +84,7 @@ export async function createReviewAction(
       .from('reviews')
       .insert({
         user_id: user.id,
-        channel_id: channel.id,
+        channel_id: channelDbId,
         rating: validated.rating,
         title: validated.title || null,
         content: validated.content,
@@ -115,27 +142,60 @@ export async function getChannelReviewsAction(
     // 現在のユーザーを取得（オプショナル）
     const user = await getUser();
 
-    // YouTubeチャンネルIDから内部のチャンネルID（UUID）を取得
-    const { data: channel, error: channelError } = await supabase
-      .from('channels')
-      .select('id')
-      .eq('youtube_channel_id', youtubeChannelId)
-      .single();
+    // channelIdがUUID形式かどうかをチェック
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(youtubeChannelId);
 
-    // チャンネルが見つからない場合は空の結果を返す
-    if (channelError || !channel) {
-      return {
-        success: true,
-        data: {
-          reviews: [],
-          pagination: {
-            page: validated.page,
-            limit: validated.limit,
-            total: 0,
-            totalPages: 0,
+    let channelDbId: string;
+
+    if (isUUID) {
+      // UUID形式の場合は直接データベースIDとして使用
+      channelDbId = youtubeChannelId;
+
+      // チャンネルの存在確認
+      const { data: channel, error: channelError } = await supabase
+        .from('channels')
+        .select('id')
+        .eq('id', channelDbId)
+        .single();
+
+      if (channelError || !channel) {
+        return {
+          success: true,
+          data: {
+            reviews: [],
+            pagination: {
+              page: validated.page,
+              limit: validated.limit,
+              total: 0,
+              totalPages: 0,
+            },
           },
-        },
-      };
+        };
+      }
+    } else {
+      // YouTube IDの場合は検索
+      const { data: channel, error: channelError } = await supabase
+        .from('channels')
+        .select('id')
+        .eq('youtube_channel_id', youtubeChannelId)
+        .single();
+
+      if (channelError || !channel) {
+        return {
+          success: true,
+          data: {
+            reviews: [],
+            pagination: {
+              page: validated.page,
+              limit: validated.limit,
+              total: 0,
+              totalPages: 0,
+            },
+          },
+        };
+      }
+
+      channelDbId = channel.id;
     }
 
     const offset = (validated.page - 1) * validated.limit;
@@ -156,7 +216,7 @@ export async function getChannelReviewsAction(
         created_at,
         updated_at,
         deleted_at,
-        user:users!inner(
+        user:users!reviews_user_id_fkey(
           id,
           username,
           display_name,
@@ -164,7 +224,7 @@ export async function getChannelReviewsAction(
         )
       `
       )
-      .eq('channel_id', channel.id)
+      .eq('channel_id', channelDbId)
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .range(offset, offset + validated.limit - 1);
@@ -173,7 +233,7 @@ export async function getChannelReviewsAction(
     const { count, error: countError } = await supabase
       .from('reviews')
       .select('*', { count: 'exact', head: true })
-      .eq('channel_id', channel.id)
+      .eq('channel_id', channelDbId)
       .is('deleted_at', null);
 
     // エラーハンドリング
@@ -512,6 +572,95 @@ export async function toggleHelpfulAction(
       data: {
         isHelpful,
         helpfulCount: count || 0,
+      },
+    };
+  } catch (err) {
+    return handleApiError(err);
+  }
+}
+
+/**
+ * 自分のレビュー一覧を取得
+ */
+export async function getMyReviewsAction(
+  page: number = 1,
+  limit: number = 20
+): Promise<ApiResponse<PaginatedMyReviews>> {
+  try {
+    // 認証チェック
+    const user = await getUser();
+    if (!user) {
+      throw new ApiError(
+        API_ERROR_CODES.UNAUTHORIZED,
+        'ログインが必要です',
+        401
+      );
+    }
+
+    // Supabaseクライアント作成
+    const supabase = await createClient();
+    const offset = (page - 1) * limit;
+
+    // レビュー取得
+    const { data: reviews, error } = await supabase
+      .from('reviews')
+      .select(
+        `
+        *,
+        user:users!reviews_user_id_fkey (
+          id,
+          username,
+          display_name,
+          avatar_url
+        ),
+        channel:channels!inner (
+          id,
+          youtube_channel_id,
+          title,
+          thumbnail_url
+        )
+      `
+      )
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    // 総件数取得
+    const { count, error: countError } = await supabase
+      .from('reviews')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+
+    // エラーハンドリング
+    if (error || countError) {
+      console.error('Supabase error:', error || countError);
+      throw new ApiError(
+        API_ERROR_CODES.INTERNAL_ERROR,
+        'レビューの取得に失敗しました',
+        500
+      );
+    }
+
+    // データ変換（userとchannelが配列の場合に対応）
+    const transformed = (reviews || []).map((review) => ({
+      ...review,
+      user: Array.isArray(review.user) ? review.user[0] : review.user,
+      channel: Array.isArray(review.channel) ? review.channel[0] : review.channel,
+    })) as ReviewWithUserAndChannel[];
+
+    // ページネーション情報を構築
+    const totalPages = Math.ceil((count || 0) / limit);
+
+    return {
+      success: true,
+      data: {
+        reviews: transformed,
+        pagination: {
+          page,
+          limit,
+          total: count || 0,
+          totalPages,
+        },
       },
     };
   } catch (err) {

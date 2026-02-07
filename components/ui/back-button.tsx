@@ -17,7 +17,7 @@ export function BackButton() {
     <Button
       variant="ghost"
       onClick={() => router.back()}
-      className="mb-4 text-content-secondary hover:text-primary"
+      className="mb-4 text-content-secondary hover:text-content hover:bg-muted"
       aria-label="前のページに戻る"
       data-testid="back-button"
     >

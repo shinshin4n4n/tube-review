@@ -40,19 +40,46 @@ export async function addToMyListAction(
     // Supabaseクライアント作成
     const supabase = await createClient();
 
-    // YouTubeチャンネルIDから内部のチャンネルID（UUID）を取得
-    const { data: channel, error: channelError } = await supabase
-      .from('channels')
-      .select('id')
-      .eq('youtube_channel_id', validated.channelId)
-      .single();
+    // channelIdがUUID形式かどうかをチェック
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(validated.channelId);
 
-    if (channelError || !channel) {
-      throw new ApiError(
-        API_ERROR_CODES.NOT_FOUND,
-        'チャンネルが見つかりません',
-        404
-      );
+    let channelDbId: string;
+
+    if (isUUID) {
+      // UUID形式の場合は直接データベースIDとして使用
+      channelDbId = validated.channelId;
+
+      // チャンネルの存在確認
+      const { data: channel, error: channelError } = await supabase
+        .from('channels')
+        .select('id')
+        .eq('id', channelDbId)
+        .single();
+
+      if (channelError || !channel) {
+        throw new ApiError(
+          API_ERROR_CODES.NOT_FOUND,
+          'チャンネルが見つかりません',
+          404
+        );
+      }
+    } else {
+      // YouTube IDの場合は検索
+      const { data: channel, error: channelError } = await supabase
+        .from('channels')
+        .select('id')
+        .eq('youtube_channel_id', validated.channelId)
+        .single();
+
+      if (channelError || !channel) {
+        throw new ApiError(
+          API_ERROR_CODES.NOT_FOUND,
+          'チャンネルが見つかりません',
+          404
+        );
+      }
+
+      channelDbId = channel.id;
     }
 
     // 既存のエントリを確認
@@ -60,7 +87,7 @@ export async function addToMyListAction(
       .from('user_channels')
       .select('id')
       .eq('user_id', user.id)
-      .eq('channel_id', channel.id)
+      .eq('channel_id', channelDbId)
       .single();
 
     // 既に追加済みの場合はエラー
@@ -77,7 +104,7 @@ export async function addToMyListAction(
       .from('user_channels')
       .insert({
         user_id: user.id,
-        channel_id: channel.id,
+        channel_id: channelDbId,
         status: validated.status,
       })
       .select()
@@ -263,7 +290,7 @@ export async function removeFromMyListAction(
  * @param youtubeChannelId YouTubeチャンネルID
  */
 export async function getMyChannelStatusAction(
-  youtubeChannelId: string
+  channelId: string
 ): Promise<ApiResponse<UserChannel | null>> {
   try {
     // 認証チェック（未ログインの場合はnullを返す）
@@ -278,19 +305,44 @@ export async function getMyChannelStatusAction(
     // Supabaseクライアント作成
     const supabase = await createClient();
 
-    // YouTubeチャンネルIDから内部のチャンネルID（UUID）を取得
-    const { data: channel, error: channelError } = await supabase
-      .from('channels')
-      .select('id')
-      .eq('youtube_channel_id', youtubeChannelId)
-      .single();
+    // channelIdがUUID形式かどうかをチェック
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(channelId);
 
-    // チャンネルが見つからない場合はnullを返す（まだDBに登録されていない）
-    if (channelError || !channel) {
-      return {
-        success: true,
-        data: null,
-      };
+    let channelDbId: string;
+
+    if (isUUID) {
+      // UUID形式の場合は直接データベースIDとして使用
+      channelDbId = channelId;
+
+      // チャンネルの存在確認
+      const { data: channel, error: channelError } = await supabase
+        .from('channels')
+        .select('id')
+        .eq('id', channelDbId)
+        .single();
+
+      if (channelError || !channel) {
+        return {
+          success: true,
+          data: null,
+        };
+      }
+    } else {
+      // YouTube IDの場合は検索
+      const { data: channel, error: channelError } = await supabase
+        .from('channels')
+        .select('id')
+        .eq('youtube_channel_id', channelId)
+        .single();
+
+      if (channelError || !channel) {
+        return {
+          success: true,
+          data: null,
+        };
+      }
+
+      channelDbId = channel.id;
     }
 
     // ユーザーのステータスを取得
@@ -298,7 +350,7 @@ export async function getMyChannelStatusAction(
       .from('user_channels')
       .select('*')
       .eq('user_id', user.id)
-      .eq('channel_id', channel.id)
+      .eq('channel_id', channelDbId)
       .single();
 
     // データが見つからない場合はnullを返す（エラーではない）
@@ -356,7 +408,7 @@ export async function getMyListAction(
         user_id,
         channel_id,
         status,
-        added_at,
+        created_at,
         updated_at,
         channel:channels (
           id,
@@ -372,7 +424,7 @@ export async function getMyListAction(
       `
       )
       .eq('user_id', user.id)
-      .order('added_at', { ascending: false });
+      .order('created_at', { ascending: false });
 
     // ステータスフィルタ
     if (status) {

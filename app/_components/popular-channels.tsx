@@ -44,7 +44,7 @@ export function PopularChannels({ channels }: PopularChannelsProps) {
         {channels.map((channel, index) => (
           <Link
             key={channel.id}
-            href={`/channels/${channel.youtube_channel_id}`}
+            href={`/channels/${channel.id}`}
             className="block group"
           >
             <Card className="h-full transition-all duration-300 hover:shadow-md hover:-translate-y-1 bg-surface border-stroke">

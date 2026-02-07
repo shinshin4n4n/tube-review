@@ -3,9 +3,10 @@
 import { ReviewWithUser } from '@/lib/types/review';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StarRating } from './star-rating';
 import HelpfulButton from './helpful-button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ja } from 'date-fns/locale';
 
@@ -27,7 +28,12 @@ export default function ReviewCard({
   onDelete,
 }: ReviewCardProps) {
   const [isSpoilerExpanded, setIsSpoilerExpanded] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const isOwner = currentUserId === review.user_id;
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   return (
     <Card data-testid="review-card">
@@ -36,18 +42,26 @@ export default function ReviewCard({
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             {/* Avatar */}
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
-              {review.user.display_name?.[0] || review.user.username[0]}
-            </div>
+            <Avatar className="h-10 w-10">
+              <AvatarImage
+                src={review.user.avatar_url || undefined}
+                alt={review.user.display_name || review.user.username}
+              />
+              <AvatarFallback className="bg-accent text-white">
+                {(review.user.display_name?.[0] || review.user.username[0]).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
             <div>
               <p className="font-medium">
                 {review.user.display_name || review.user.username}
               </p>
               <p className="text-sm text-gray-500" data-testid="review-date">
-                {formatDistanceToNow(new Date(review.created_at), {
-                  addSuffix: true,
-                  locale: ja,
-                })}
+                {isClient
+                  ? formatDistanceToNow(new Date(review.created_at), {
+                      addSuffix: true,
+                      locale: ja,
+                    })
+                  : new Date(review.created_at).toLocaleDateString('ja-JP')}
               </p>
             </div>
           </div>

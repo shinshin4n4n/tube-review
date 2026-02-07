@@ -12,13 +12,26 @@ export default function AboutPage() {
     <Layout>
       <div className="container mx-auto px-6 py-12 max-w-4xl">
         {/* ヘッダー */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-16 space-y-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
             ちゅぶれびゅ！とは
           </h1>
-          <p className="text-xl text-gray-600">
-            YouTubeチャンネルのレビュー・発見プラットフォーム
-          </p>
+
+          <div className="space-y-4">
+            <p className="text-lg md:text-xl text-gray-600 font-medium">
+              あなたのレビューが、誰かの発見になる
+            </p>
+          </div>
+
+          <div className="max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+              本音のレビューで、新しいチャンネルを発掘。
+              <br />
+              同じ興味を持つ人のリアルな声が、本当に面白いチャンネルを教えてくれます。
+              <br />
+              あなたの感想が、今度は誰かの道しるべになります。
+            </p>
+          </div>
         </div>
 
         <div className="space-y-16">

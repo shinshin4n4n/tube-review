@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   updateMyListStatusAction,
   removeFromMyListAction,
@@ -35,6 +35,11 @@ export default function MyListCard({ item }: MyListCardProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleStatusChange = async (newStatus: ChannelStatus) => {
     if (newStatus === item.status) return;
@@ -112,10 +117,12 @@ export default function MyListCard({ item }: MyListCardProps) {
   };
 
   const currentLabel = STATUS_LABELS[item.status];
-  const addedDate = formatDistanceToNow(new Date(item.added_at), {
-    addSuffix: true,
-    locale: ja,
-  });
+  const addedDate = isClient
+    ? formatDistanceToNow(new Date(item.created_at), {
+        addSuffix: true,
+        locale: ja,
+      })
+    : new Date(item.created_at).toLocaleDateString('ja-JP');
 
   return (
     <Card className="hover:shadow-lg transition-shadow">

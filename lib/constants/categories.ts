@@ -70,7 +70,13 @@ export const CATEGORIES = [
     slug: 'travel',
     name: '旅行',
     icon: '✈️',
-    description: '旅行、観光、vlog系チャンネル',
+    description: '旅行、観光系チャンネル',
+  },
+  {
+    slug: 'vlog',
+    name: 'Vlog',
+    icon: '📹',
+    description: '日常Vlog、ライフスタイル系チャンネル',
   },
 ] as const satisfies readonly Category[];
 

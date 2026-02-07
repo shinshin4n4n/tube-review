@@ -46,7 +46,7 @@ export function RecentReviews({ reviews }: RecentReviewsProps) {
         {reviews.map((review) => (
           <Link
             key={review.id}
-            href={`/channels/${review.channel.youtube_channel_id}`}
+            href={`/channels/${review.channel.id}`}
             className="block group"
           >
             <Card className="h-full transition-all duration-200 hover:shadow-md hover:-translate-y-1 bg-surface border-stroke">
@@ -77,7 +77,7 @@ export function RecentReviews({ reviews }: RecentReviewsProps) {
                     <div className="flex items-center gap-2 text-xs text-content-secondary">
                       <span>{review.user.display_name || review.user.username}</span>
                       <span>•</span>
-                      <span>
+                      <span suppressHydrationWarning>
                         {formatDistanceToNow(new Date(review.created_at), {
                           addSuffix: true,
                           locale: ja,

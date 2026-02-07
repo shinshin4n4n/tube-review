@@ -4,19 +4,17 @@ import { Search, TrendingUp } from 'lucide-react';
 
 /**
  * トップページのヒーローセクション
- * コンセプト: 「おすすめに頼らない、能動的なチャンネル発見」
+ * コンセプト: 「本音で見つける、次のチャンネル」
  */
 export function HeroSection() {
   return (
-    <section className="text-center space-y-4 py-8">
-      <div className="space-y-3">
-        <h1 className="text-3xl md:text-4xl font-bold text-primary leading-tight">
-          おすすめに頼らない、
-          <br />
-          能動的なチャンネル発見
+    <section className="text-center space-y-6 py-8">
+      <div className="space-y-4">
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight tracking-tight">
+          本音で見つける、次のチャンネル
         </h1>
-        <p className="text-base md:text-lg text-content-secondary max-w-2xl mx-auto">
-          本音のレビューから、あなたにぴったりのチャンネルを見つけよう。
+        <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto font-medium">
+          あなたのレビューが、誰かの発見になる
         </p>
       </div>
 
