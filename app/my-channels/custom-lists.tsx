@@ -4,28 +4,24 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ListFormDialog from '@/app/_components/list-form-dialog';
 import DeleteReviewDialog from '@/app/_components/delete-review-dialog';
-import { deleteMyListAction } from '@/app/_actions/list';
-import type { PaginatedLists, MyList } from '@/lib/types/list';
+import { deleteMyListAction, getMyListsAction } from '@/app/_actions/list';
+import type { MyList } from '@/lib/types/list';
 import { formatDistanceToNow } from 'date-fns';
 import { ja } from 'date-fns/locale';
 
-interface MyListsClientProps {
-  initialData: PaginatedLists;
-  userId: string;
-}
-
 /**
- * マイリスト管理クライアントコンポーネント
+ * カスタムリストコンポーネント
  */
-export default function MyListsClient({
-  initialData,
-}: MyListsClientProps) {
+export default function CustomLists() {
   const router = useRouter();
   const { toast } = useToast();
+  const [lists, setLists] = useState<MyList[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingList, setEditingList] = useState<MyList | null>(null);
   const [deletingListId, setDeletingListId] = useState<string | null>(null);
@@ -34,6 +30,26 @@ export default function MyListsClient({
 
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  // データ取得
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      const result = await getMyListsAction();
+
+      if (result.success) {
+        setLists(result.data.lists);
+      } else {
+        setError(result.error || 'データの取得に失敗しました');
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchData();
   }, []);
 
   const handleEdit = (list: MyList) => {
@@ -59,7 +75,7 @@ export default function MyListsClient({
         });
 
         setDeletingListId(null);
-        router.refresh();
+        setLists((prev) => prev.filter((list) => list.id !== deletingListId));
       } else {
         toast({
           title: 'エラー',
@@ -79,11 +95,46 @@ export default function MyListsClient({
     }
   };
 
-  if (initialData.lists.length === 0) {
+  const handleDialogClose = (open: boolean) => {
+    if (!open) {
+      setShowCreateDialog(false);
+      setEditingList(null);
+      // リストを再取得
+      fetchLists();
+    }
+  };
+
+  const fetchLists = async () => {
+    const result = await getMyListsAction();
+    if (result.success) {
+      setLists(result.data.lists);
+    }
+  };
+
+  if (error) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-red-600">{error}</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  if (lists.length === 0) {
     return (
       <>
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">まだリストがありません</p>
+          <p className="text-sm text-gray-400 mb-6">
+            カスタムリストを作成して、お気に入りのチャンネルをテーマ別にグループ化できます
+          </p>
           <Button
             onClick={() => setShowCreateDialog(true)}
             className="bg-accent hover:bg-accent-hover"
@@ -95,7 +146,7 @@ export default function MyListsClient({
 
         <ListFormDialog
           open={showCreateDialog}
-          onOpenChange={setShowCreateDialog}
+          onOpenChange={handleDialogClose}
         />
       </>
     );
@@ -104,9 +155,7 @@ export default function MyListsClient({
   return (
     <>
       <div className="mb-6 flex justify-between items-center">
-        <p className="text-content-secondary">
-          {initialData.pagination.total} 件のリスト
-        </p>
+        <p className="text-content-secondary">{lists.length} 件のリスト</p>
         <Button
           onClick={() => setShowCreateDialog(true)}
           className="bg-accent hover:bg-accent-hover"
@@ -117,14 +166,17 @@ export default function MyListsClient({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {initialData.lists.map((list) => (
+        {lists.map((list) => (
           <Card key={list.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg truncate">
+                  <a
+                    href={`/my-channels/lists/${list.id}`}
+                    className="font-semibold text-lg truncate hover:text-accent transition-colors block"
+                  >
                     {list.title}
-                  </h3>
+                  </a>
                   {list.is_public && (
                     <span className="inline-block mt-1 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
                       公開
@@ -176,14 +228,14 @@ export default function MyListsClient({
       {/* 作成ダイアログ */}
       <ListFormDialog
         open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
+        onOpenChange={handleDialogClose}
       />
 
       {/* 編集ダイアログ */}
       {editingList && (
         <ListFormDialog
           open={!!editingList}
-          onOpenChange={(open) => !open && setEditingList(null)}
+          onOpenChange={(open) => handleDialogClose(open)}
           list={editingList}
         />
       )}

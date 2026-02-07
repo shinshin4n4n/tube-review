@@ -29,10 +29,35 @@ export interface ReviewWithUser extends Review {
 }
 
 /**
+ * レビューとユーザー・チャンネル情報を含む型
+ */
+export interface ReviewWithUserAndChannel extends ReviewWithUser {
+  channel: {
+    id: string;
+    youtube_channel_id: string;
+    title: string;
+    thumbnail_url: string | null;
+  };
+}
+
+/**
  * ページネーション付きレビューリスト
  */
 export interface PaginatedReviews {
   reviews: ReviewWithUser[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+/**
+ * ページネーション付きマイレビューリスト
+ */
+export interface PaginatedMyReviews {
+  reviews: ReviewWithUserAndChannel[];
   pagination: {
     page: number;
     limit: number;

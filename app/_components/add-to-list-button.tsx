@@ -151,7 +151,7 @@ export default function AddToListButton({
             className="bg-accent hover:bg-accent-hover"
           >
             <Plus className="mr-2 h-4 w-4" />
-            マイリストに追加
+            マイチャンネルに追加
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">

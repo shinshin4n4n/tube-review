@@ -4,7 +4,7 @@ import { z } from 'zod';
  * リスト作成時のバリデーションスキーマ
  */
 export const createListSchema = z.object({
-  name: z
+  title: z
     .string({ message: 'リスト名は必須です' })
     .min(1, 'リスト名を入力してください')
     .max(50, 'リスト名は50文字以内で入力してください')
@@ -26,7 +26,7 @@ export type CreateListInput = z.infer<typeof createListSchema>;
  * リスト更新時のバリデーションスキーマ
  */
 export const updateListSchema = z.object({
-  name: z
+  title: z
     .string({ message: 'リスト名は必須です' })
     .min(1, 'リスト名を入力してください')
     .max(50, 'リスト名は50文字以内で入力してください')

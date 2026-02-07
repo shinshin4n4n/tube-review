@@ -41,7 +41,7 @@ export async function createMyListAction(
       .from('lists')
       .insert({
         user_id: user.id,
-        name: validated.name,
+        title: validated.title,
         description: validated.description || null,
         is_public: validated.isPublic || false,
       })
@@ -95,11 +95,11 @@ export async function updateMyListAction(
 
     // 更新データを構築
     const updateData: Record<string, unknown> = {};
-    if (validated.name !== undefined) updateData.name = validated.name;
+    if (validated.title !== undefined) updateData.title = validated.title;
     if (validated.description !== undefined)
       updateData.description = validated.description;
     if (validated.isPublic !== undefined)
-      updateData.isPublic = validated.isPublic;
+      updateData.is_public = validated.isPublic;
 
     // リストを更新（RLSで自分のリストのみ更新可能）
     const { data, error } = await supabase

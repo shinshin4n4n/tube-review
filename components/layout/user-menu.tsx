@@ -15,10 +15,19 @@ import type { User } from '@supabase/supabase-js';
 /**
  * ユーザーメニューコンポーネント
  * - DropdownMenuを使用したユーザーメニュー
- * - Avatar表示
+ * - Avatar表示（プロフィールで設定した画像を使用）
  * - プロフィール、マイリスト管理、ログアウト
  */
-export function UserMenu({ user }: { user: User }) {
+interface UserMenuProps {
+  user: User;
+  profile?: {
+    avatar_url: string | null;
+    display_name: string | null;
+    username: string;
+  } | null;
+}
+
+export function UserMenu({ user, profile }: UserMenuProps) {
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -27,7 +36,15 @@ export function UserMenu({ user }: { user: User }) {
     router.refresh();
   };
 
-  const initials = user.email?.[0]?.toUpperCase() || 'U';
+  // プロフィールから表示名とアバターURLを取得
+  const displayName = profile?.display_name || profile?.username || user.email?.split('@')[0] || 'User';
+  const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url;
+  const initials = displayName
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 
   return (
     <DropdownMenu>
@@ -37,7 +54,7 @@ export function UserMenu({ user }: { user: User }) {
           aria-label="ユーザーメニュー"
         >
           <Avatar className="h-9 w-9">
-            <AvatarImage src={user.user_metadata?.avatar_url} alt="ユーザーアバター" />
+            <AvatarImage src={avatarUrl || undefined} alt="ユーザーアバター" />
             <AvatarFallback className="bg-accent text-white">{initials}</AvatarFallback>
           </Avatar>
         </button>
@@ -46,8 +63,8 @@ export function UserMenu({ user }: { user: User }) {
         <DropdownMenuItem onClick={() => router.push('/profile')} className="cursor-pointer">
           プロフィール
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push('/my-lists')} className="cursor-pointer">
-          マイリスト管理
+        <DropdownMenuItem onClick={() => router.push('/my-channels')} className="cursor-pointer">
+          マイチャンネル
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600">

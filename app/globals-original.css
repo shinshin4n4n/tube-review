@@ -38,27 +38,27 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* TubeReview Custom Colors - Option M */
-  --color-primary-hover: oklch(0.36 0.025 40); /* Darker grey-brown */
-  --color-primary-light: oklch(0.48 0.025 40); /* Lighter grey-brown */
-  --color-secondary-hover: oklch(0.51 0.025 40); /* Darker grey-brown */
-  --color-secondary-light: oklch(0.63 0.02 40); /* Lighter grey-brown */
+  /* TubeReview Custom Colors */
+  --color-primary-hover: oklch(0.32 0.04 40); /* #5D4037 */
+  --color-primary-light: oklch(0.52 0.04 40); /* #8D6E63 */
+  --color-secondary-hover: oklch(0.38 0.04 40); /* #6D4C41 */
+  --color-secondary-light: oklch(0.58 0.03 40); /* #A1887F */
   --color-accent-hover: oklch(0.48 0.22 25); /* #C62828 */
   --color-accent-light: oklch(0.62 0.20 25); /* #EF5350 */
 
-  /* Background Colors - bg-* utilities - Option M */
-  --color-base: oklch(0.96 0 0); /* #F5F5F5 - Page background (bg-base) */
+  /* Background Colors - bg-* utilities */
+  --color-base: oklch(0.99 0.01 50); /* #FFF8F5 - Page background (bg-base) */
   --color-surface: oklch(1 0 0); /* #FFFFFF - Card background (bg-surface) */
-  --color-elevated: oklch(0.98 0 0); /* Hover/elevated background (bg-elevated) */
+  --color-elevated: oklch(0.98 0.01 50); /* #FFF3ED - Hover/elevated background (bg-elevated) */
 
   /* Text Colors - text-* utilities */
   --color-content: oklch(0.2 0 0); /* #333333 - Primary text (text-content) */
   --color-content-secondary: oklch(0.48 0 0); /* #6B7280 - Secondary text (text-content-secondary) */
   --color-content-disabled: oklch(0.62 0 0); /* #9CA3AF - Disabled text (text-content-disabled) */
 
-  /* Border Colors - border-* utilities - Option M */
-  --color-stroke-light: oklch(0.94 0 0); /* Light neutral border (border-stroke-light) */
-  --color-stroke: oklch(0.92 0 0); /* Base neutral border (border-stroke) */
+  /* Border Colors - border-* utilities */
+  --color-stroke-light: oklch(0.94 0.01 40); /* #F5E6DC - Light border (border-stroke-light) */
+  --color-stroke: oklch(0.92 0.005 40); /* #E8E8E8 - Base border (border-stroke) */
   --color-stroke-heavy: oklch(0.84 0 0); /* #D1D5DB - Heavy border (border-stroke-heavy) */
 
   /* Star Rating */
@@ -97,9 +97,9 @@
 :root {
   --radius: 0.75rem;
 
-  /* TubeReview Custom Colors - Option M (グレイッシュブラウン - ★推奨) */
-  /* Background - ニュートラルグレー #F5F5F5 */
-  --background: oklch(0.96 0 0);
+  /* TubeReview Custom Colors - UI_DESIGN.md準拠 */
+  /* Background - 温かみのあるベージュ #FFF8F5 */
+  --background: oklch(0.99 0.01 50);
   --foreground: oklch(0.2 0 0); /* #333333 */
 
   /* Card */
@@ -110,16 +110,16 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0 0);
 
-  /* Primary - グレイッシュブラウン #6B5B52 */
-  --primary: oklch(0.42 0.025 40);
+  /* Primary - 暗めの茶色 #6D4C41 */
+  --primary: oklch(0.38 0.04 40);
   --primary-foreground: oklch(1 0 0);
 
-  /* Secondary - ライトグレイブラウン #8C7B75 */
-  --secondary: oklch(0.57 0.025 40);
+  /* Secondary - ライトブラウン #8D6E63 */
+  --secondary: oklch(0.52 0.04 40);
   --secondary-foreground: oklch(1 0 0);
 
   /* Muted */
-  --muted: oklch(0.98 0 0); /* Neutral hover background */
+  --muted: oklch(0.98 0.01 50); /* #FFF3ED - hover background */
   --muted-foreground: oklch(0.48 0 0); /* #6B7280 */
 
   /* Accent - 赤 #E53935 */
@@ -131,9 +131,9 @@
   --destructive-foreground: oklch(1 0 0);
 
   /* Border */
-  --border: oklch(0.92 0 0); /* Neutral grey border */
-  --input: oklch(0.92 0 0);
-  --ring: oklch(0.42 0.025 40); /* primary */
+  --border: oklch(0.92 0.005 40); /* #E8E8E8 */
+  --input: oklch(0.92 0.005 40);
+  --ring: oklch(0.38 0.04 40); /* primary */
 
   /* Chart colors */
   --chart-1: oklch(0.646 0.222 41.116);
@@ -143,14 +143,14 @@
   --chart-5: oklch(0.769 0.188 70.08);
 
   /* Sidebar */
-  --sidebar: oklch(0.96 0 0);
+  --sidebar: oklch(0.99 0.01 50);
   --sidebar-foreground: oklch(0.2 0 0);
-  --sidebar-primary: oklch(0.42 0.025 40);
+  --sidebar-primary: oklch(0.38 0.04 40);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.98 0.01 50);
   --sidebar-accent-foreground: oklch(0.2 0 0);
-  --sidebar-border: oklch(0.92 0 0);
-  --sidebar-ring: oklch(0.42 0.025 40);
+  --sidebar-border: oklch(0.92 0.005 40);
+  --sidebar-ring: oklch(0.38 0.04 40);
 }
 
 .dark {

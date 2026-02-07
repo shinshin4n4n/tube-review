@@ -3,48 +3,53 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { Home, TrendingUp, Grid, List, Info } from 'lucide-react';
 
 /**
  * ナビゲーションメニューコンポーネント
  * - ヘッダー2行目に配置
  * - 現在のページをハイライト表示
+ * - アイコン付きのメニュー項目
  */
 
 interface NavItem {
   label: string;
   href: string;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 const navItems: NavItem[] = [
-  { label: 'トップ', href: '/' },
-  { label: 'ランキング', href: '/ranking' },
-  { label: 'カテゴリー', href: '/categories' },
-  { label: 'マイリスト', href: '/my-list' },
-  { label: 'ちゅぶれびゅ！とは', href: '/about' },
+  { label: 'トップ', href: '/', icon: Home },
+  { label: 'ランキング', href: '/ranking', icon: TrendingUp },
+  { label: 'カテゴリー', href: '/categories', icon: Grid },
+  { label: 'マイチャンネル', href: '/my-channels', icon: List },
+  { label: 'ちゅぶれびゅ！とは', href: '/about', icon: Info },
 ];
 
 export function NavMenu() {
   const pathname = usePathname();
 
   return (
-    <nav className="border-t border-white/10">
+    <nav className="bg-background border-t border-stroke-light">
       <div className="container mx-auto px-6">
-        <ul className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
+        <ul className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
+            const Icon = item.icon;
 
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
                   className={cn(
-                    'block px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors duration-200',
+                    'flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200 rounded-t-md',
                     isActive
-                      ? 'text-white bg-white/20 border-b-2 border-white'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                      ? 'text-primary bg-surface border-b-2 border-primary shadow-sm'
+                      : 'text-content-secondary hover:text-content hover:bg-elevated'
                   )}
                 >
-                  {item.label}
+                  <Icon className="h-4 w-4" />
+                  <span>{item.label}</span>
                 </Link>
               </li>
             );

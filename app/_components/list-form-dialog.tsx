@@ -38,12 +38,12 @@ export default function ListFormDialog({
 }: ListFormDialogProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const [name, setName] = useState('');
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{
-    name?: string;
+    title?: string;
     description?: string;
   }>({});
 
@@ -53,11 +53,11 @@ export default function ListFormDialog({
   useEffect(() => {
     if (open) {
       if (list) {
-        setName(list.name);
+        setTitle(list.title);
         setDescription(list.description || '');
         setIsPublic(list.is_public);
       } else {
-        setName('');
+        setTitle('');
         setDescription('');
         setIsPublic(false);
       }
@@ -68,10 +68,10 @@ export default function ListFormDialog({
   const validateForm = (): boolean => {
     const newErrors: typeof errors = {};
 
-    if (name.trim().length === 0) {
-      newErrors.name = 'リスト名を入力してください';
-    } else if (name.length > 50) {
-      newErrors.name = 'リスト名は50文字以内で入力してください';
+    if (title.trim().length === 0) {
+      newErrors.title = 'リスト名を入力してください';
+    } else if (title.length > 50) {
+      newErrors.title = 'リスト名は50文字以内で入力してください';
     }
 
     if (description.length > 200) {
@@ -97,14 +97,14 @@ export default function ListFormDialog({
       if (isEditing && list) {
         // 編集
         result = await updateMyListAction(list.id, {
-          name,
+          title,
           description: description || undefined,
           isPublic,
         });
       } else {
         // 作成
         result = await createMyListAction({
-          name,
+          title,
           description: description || undefined,
           isPublic,
         });
@@ -160,30 +160,30 @@ export default function ListFormDialog({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* リスト名 */}
           <div>
-            <Label htmlFor="name" className="text-base font-semibold">
+            <Label htmlFor="title" className="text-base font-semibold text-gray-900 dark:text-gray-100">
               リスト名 <span className="text-red-500">*</span>
             </Label>
             <Input
-              id="name"
+              id="title"
               type="text"
               placeholder="例: お気に入りの技術チャンネル"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               maxLength={50}
               disabled={isSubmitting}
-              className="mt-2"
+              className="mt-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             />
             <p className="text-sm text-content-secondary mt-1">
-              {name.length} / 50文字
+              {title.length} / 50文字
             </p>
-            {errors.name && (
-              <p className="text-sm text-red-500 mt-1">{errors.name}</p>
+            {errors.title && (
+              <p className="text-sm text-red-500 mt-1">{errors.title}</p>
             )}
           </div>
 
           {/* 説明 */}
           <div>
-            <Label htmlFor="description" className="text-base font-semibold">
+            <Label htmlFor="description" className="text-base font-semibold text-gray-900 dark:text-gray-100">
               説明（オプション）
             </Label>
             <Textarea
@@ -194,7 +194,7 @@ export default function ListFormDialog({
               rows={4}
               maxLength={200}
               disabled={isSubmitting}
-              className="mt-2 resize-none"
+              className="mt-2 resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             />
             <p className="text-sm text-content-secondary mt-1">
               {description.length} / 200文字
@@ -214,7 +214,7 @@ export default function ListFormDialog({
               disabled={isSubmitting}
               className="w-4 h-4"
             />
-            <Label htmlFor="isPublic" className="text-sm cursor-pointer">
+            <Label htmlFor="isPublic" className="text-sm cursor-pointer text-gray-900 dark:text-gray-100">
               このリストを公開する
             </Label>
           </div>
@@ -230,7 +230,7 @@ export default function ListFormDialog({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || name.trim().length === 0}
+              disabled={isSubmitting || title.trim().length === 0}
               className="bg-accent hover:bg-accent-hover"
             >
               {isSubmitting ? (

@@ -112,7 +112,7 @@ export function ReviewForm({ channelId }: ReviewFormProps) {
       <form onSubmit={handleSubmit} className="space-y-6">
       {/* 星評価 */}
       <div>
-        <Label htmlFor="rating" className="text-base font-semibold mb-2 block">
+        <Label htmlFor="rating" className="text-base font-semibold mb-2 block text-foreground">
           評価 <span className="text-red-500">*</span>
         </Label>
         <StarRating
@@ -127,7 +127,7 @@ export function ReviewForm({ channelId }: ReviewFormProps) {
 
       {/* タイトル（オプション） */}
       <div>
-        <Label htmlFor="title" className="text-base font-semibold mb-2 block">
+        <Label htmlFor="title" className="text-base font-semibold mb-2 block text-foreground">
           タイトル（オプション）
         </Label>
         <Input
@@ -149,7 +149,7 @@ export function ReviewForm({ channelId }: ReviewFormProps) {
 
       {/* レビュー本文 */}
       <div>
-        <Label htmlFor="content" className="text-base font-semibold mb-2 block">
+        <Label htmlFor="content" className="text-base font-semibold mb-2 block text-foreground">
           レビュー本文 <span className="text-red-500">*</span>
         </Label>
         <Textarea

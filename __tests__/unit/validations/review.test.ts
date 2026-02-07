@@ -42,16 +42,14 @@ describe('createReviewSchema', () => {
   });
 
   describe('invalid channelId', () => {
-    it('should reject non-UUID channelId', () => {
-      const invalidInput = {
-        channelId: 'not-a-uuid',
+    it('should accept non-UUID channelId (YouTube ID support)', () => {
+      const validInput = {
+        channelId: 'UCxxxxxxxxxxxxxxxxxxxxxx', // YouTube ID format
         rating: 5,
         content: 'This is a review with enough content to pass validation requirements successfully.',
       };
 
-      expect(() => createReviewSchema.parse(invalidInput)).toThrow(
-        '有効なチャンネルIDを指定してください'
-      );
+      expect(() => createReviewSchema.parse(validInput)).not.toThrow();
     });
 
     it('should reject missing channelId', () => {

@@ -93,9 +93,9 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
         avatarUrl: avatarUrl || undefined,
         bio: bio || undefined,
         occupation: occupation || undefined,
-        gender: (gender as any) || undefined,
+        gender: (gender && gender !== 'unspecified') ? (gender as any) : undefined,
         birthDate: birthDate || undefined,
-        prefecture: (prefecture as any) || undefined,
+        prefecture: (prefecture && prefecture !== 'unspecified') ? (prefecture as any) : undefined,
         websiteUrl: websiteUrl || undefined,
       });
 
@@ -214,7 +214,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
               <SelectValue placeholder="性別を選択" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">選択しない</SelectItem>
+              <SelectItem value="unspecified">選択しない</SelectItem>
               <SelectItem value="male">男性</SelectItem>
               <SelectItem value="female">女性</SelectItem>
               <SelectItem value="other">その他</SelectItem>

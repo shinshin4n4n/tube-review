@@ -4,6 +4,7 @@ import { UserMenu } from './user-menu';
 import { MobileMenu } from './mobile-menu';
 import { SearchBar } from './SearchBar';
 import { NavMenu } from './NavMenu';
+import { createClient } from '@/lib/supabase/server';
 
 /**
  * ヘッダーナビゲーションコンポーネント（2段構成）
@@ -22,6 +23,18 @@ import { NavMenu } from './NavMenu';
  */
 export async function Header() {
   const user = await getUser();
+
+  // プロフィール情報を取得（avatar_urlを含む）
+  let profile = null;
+  if (user) {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from('users')
+      .select('avatar_url, display_name, username')
+      .eq('id', user.id)
+      .single();
+    profile = data;
+  }
 
   return (
     <header className="bg-primary text-white shadow-base sticky top-0 z-50">
@@ -43,7 +56,7 @@ export async function Header() {
             {/* デスクトップユーザーメニュー */}
             <div className="hidden md:flex items-center shrink-0">
               {user ? (
-                <UserMenu user={user} />
+                <UserMenu user={user} profile={profile} />
               ) : (
                 <Link
                   href="/login"
@@ -56,7 +69,7 @@ export async function Header() {
 
             {/* モバイルメニュー */}
             <div className="md:hidden shrink-0">
-              <MobileMenu user={user} />
+              <MobileMenu user={user} profile={profile} />
             </div>
           </div>
         </div>

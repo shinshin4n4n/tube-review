@@ -9,6 +9,7 @@ import {
 import { searchChannels, getChannelDetails } from '@/lib/youtube/api';
 import type { ChannelSearchResult, ChannelDetails } from '@/lib/youtube/types';
 import { YouTubeApiError, YouTubeErrorCode } from '@/lib/youtube/types';
+import { createClient } from '@/lib/supabase/server';
 
 /**
  * YouTubeチャンネルを検索
@@ -75,6 +76,38 @@ export async function getChannelDetailsAction(
     // チャンネル詳細取得
     const details = await getChannelDetails(validated.youtubeChannelId);
 
+    // チャンネルデータをDBに保存（upsert）
+    try {
+      const supabase = await createClient();
+      const { error: upsertError } = await supabase
+        .from('channels')
+        .upsert(
+          {
+            youtube_channel_id: details.youtubeChannelId,
+            title: details.title,
+            description: details.description || null,
+            thumbnail_url: details.thumbnailUrl,
+            subscriber_count: details.subscriberCount,
+            video_count: details.videoCount,
+            view_count: details.viewCount,
+            cache_updated_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          {
+            onConflict: 'youtube_channel_id',
+            ignoreDuplicates: false,
+          }
+        );
+
+      if (upsertError) {
+        console.error('Failed to upsert channel to DB:', upsertError);
+        // DBへの保存に失敗してもYouTubeデータは返す
+      }
+    } catch (dbError) {
+      console.error('Database error while saving channel:', dbError);
+      // DBエラーでもYouTubeデータは返す
+    }
+
     return {
       success: true,
       data: details,
@@ -103,6 +136,71 @@ export async function getChannelDetailsAction(
     return {
       success: false,
       error: 'An unexpected error occurred while fetching channel details',
+    };
+  }
+}
+
+/**
+ * データベースのチャンネルIDからチャンネル詳細を取得
+ * @param channelId データベースのチャンネルID（UUID）
+ */
+export async function getChannelDetailsByDbIdAction(
+  channelId: string
+): Promise<ApiResponse<ChannelDetails>> {
+  try {
+    const supabase = await createClient();
+
+    // UUIDかYouTube IDかを判定
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(channelId);
+
+    // データベースからチャンネル情報を取得
+    let query = supabase
+      .from('channels')
+      .select('youtube_channel_id, title, description, thumbnail_url, subscriber_count, video_count, view_count, published_at');
+
+    // UUIDの場合はIDで検索、そうでない場合はYouTube IDで検索
+    if (isUUID) {
+      query = query.eq('id', channelId);
+    } else {
+      query = query.eq('youtube_channel_id', channelId);
+    }
+
+    const { data: channel, error: dbError } = await query.single();
+
+    if (dbError || !channel) {
+      console.error('Channel not found in database:', dbError);
+      // データベースにない場合は、YouTube APIから取得
+      if (!isUUID) {
+        return await getChannelDetailsAction(channelId);
+      }
+      return {
+        success: false,
+        error: 'チャンネルが見つかりませんでした',
+      };
+    }
+
+    // データベースの情報をChannelDetails形式に変換
+    const channelDetails: ChannelDetails = {
+      youtubeChannelId: channel.youtube_channel_id,
+      title: channel.title,
+      description: channel.description || undefined,
+      thumbnailUrl: channel.thumbnail_url || '',
+      subscriberCount: channel.subscriber_count || 0,
+      videoCount: channel.video_count || 0,
+      viewCount: channel.view_count || 0,
+      publishedAt: channel.published_at || '',
+      customUrl: undefined, // データベースには保存していない
+    };
+
+    return {
+      success: true,
+      data: channelDetails,
+    };
+  } catch (err) {
+    console.error('Get channel details by DB ID error:', err);
+    return {
+      success: false,
+      error: 'チャンネル詳細の取得に失敗しました',
     };
   }
 }

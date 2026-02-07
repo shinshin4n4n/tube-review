@@ -6,7 +6,7 @@ import { z } from 'zod';
 export const createReviewSchema = z.object({
   channelId: z
     .string({ message: 'チャンネルIDは必須です' })
-    .uuid('有効なチャンネルIDを指定してください'),
+    .min(1, 'チャンネルIDを指定してください'),
   rating: z
     .number({ message: '評価は必須です' })
     .int('評価は整数でなければなりません')
@@ -57,7 +57,7 @@ export type UpdateReviewInput = z.infer<typeof updateReviewSchema>;
  * チャンネルレビュー取得時のバリデーションスキーマ
  */
 export const getChannelReviewsSchema = z.object({
-  channelId: z.string().uuid('Invalid channel ID'),
+  channelId: z.string().min(1, 'Channel ID is required'), // UUID or YouTube ID
   page: z.number().int().positive('Page must be positive'),
   limit: z.number().int().min(1).max(50).default(10),
 });

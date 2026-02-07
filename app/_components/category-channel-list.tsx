@@ -29,7 +29,7 @@ export function CategoryChannelList({ channels }: CategoryChannelListProps) {
       {channels.map((channel) => (
         <Link
           key={channel.id}
-          href={`/channels/${channel.youtube_channel_id}`}
+          href={`/channels/${channel.id}`}
           data-testid="channel-card"
         >
           <Card className="h-full transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer">
