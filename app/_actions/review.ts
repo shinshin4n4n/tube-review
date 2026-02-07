@@ -112,6 +112,9 @@ export async function getChannelReviewsAction(
     // Supabaseクライアント作成
     const supabase = await createClient();
 
+    // 現在のユーザーを取得（オプショナル）
+    const user = await getUser();
+
     // YouTubeチャンネルIDから内部のチャンネルID（UUID）を取得
     const { data: channel, error: channelError } = await supabase
       .from('channels')
@@ -183,13 +186,29 @@ export async function getChannelReviewsAction(
       );
     }
 
-    // レビューデータを変換（user を配列から単一オブジェクトに）
+    // ログインユーザーの投票状態を取得
+    let userHelpfulVotes: Set<string> = new Set();
+    if (user && reviews && reviews.length > 0) {
+      const reviewIds = reviews.map((r) => r.id);
+      const { data: helpfulData } = await supabase
+        .from('review_helpful')
+        .select('review_id')
+        .in('review_id', reviewIds)
+        .eq('user_id', user.id);
+
+      if (helpfulData) {
+        userHelpfulVotes = new Set(helpfulData.map((h) => h.review_id));
+      }
+    }
+
+    // レビューデータを変換（user を配列から単一オブジェクトに、is_helpful を追加）
     const transformedReviews: ReviewWithUser[] = (reviews || []).map(
       (review) => {
-        const user = Array.isArray(review.user) ? review.user[0] : review.user;
+        const reviewUser = Array.isArray(review.user) ? review.user[0] : review.user;
         return {
           ...review,
-          user,
+          user: reviewUser,
+          is_helpful: userHelpfulVotes.has(review.id),
         } as ReviewWithUser;
       }
     );
@@ -357,6 +376,143 @@ export async function deleteReviewAction(
     return {
       success: true,
       data: undefined,
+    };
+  } catch (err) {
+    return handleApiError(err);
+  }
+}
+
+/**
+ * レビューの「参考になった」をトグル
+ * 投票していない場合は追加、投票済みの場合は削除
+ */
+export async function toggleHelpfulAction(
+  reviewId: string
+): Promise<ApiResponse<{ isHelpful: boolean; helpfulCount: number }>> {
+  try {
+    // 認証チェック
+    const user = await getUser();
+    if (!user) {
+      throw new ApiError(
+        API_ERROR_CODES.UNAUTHORIZED,
+        'ログインが必要です',
+        401
+      );
+    }
+
+    // Supabaseクライアント作成
+    const supabase = await createClient();
+
+    // 既存の投票を確認
+    const { data: existingVote, error: checkError } = await supabase
+      .from('review_helpful')
+      .select('*')
+      .eq('review_id', reviewId)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (checkError) {
+      console.error('Supabase error:', checkError);
+      throw new ApiError(
+        API_ERROR_CODES.INTERNAL_ERROR,
+        '投票状態の確認に失敗しました',
+        500
+      );
+    }
+
+    let isHelpful: boolean;
+
+    if (existingVote) {
+      // 既に投票済み → 投票を削除
+      const { error: deleteError } = await supabase
+        .from('review_helpful')
+        .delete()
+        .eq('review_id', reviewId)
+        .eq('user_id', user.id);
+
+      if (deleteError) {
+        console.error('Supabase error:', deleteError);
+        throw new ApiError(
+          API_ERROR_CODES.INTERNAL_ERROR,
+          '投票の取り消しに失敗しました',
+          500
+        );
+      }
+
+      isHelpful = false;
+    } else {
+      // まだ投票していない → 投票を追加
+      const { error: insertError } = await supabase
+        .from('review_helpful')
+        .insert({
+          review_id: reviewId,
+          user_id: user.id,
+        });
+
+      if (insertError) {
+        console.error('Supabase error:', insertError);
+        throw new ApiError(
+          API_ERROR_CODES.INTERNAL_ERROR,
+          '投票の追加に失敗しました',
+          500
+        );
+      }
+
+      isHelpful = true;
+    }
+
+    // 最新の投票数を取得
+    const { count, error: countError } = await supabase
+      .from('review_helpful')
+      .select('*', { count: 'exact', head: true })
+      .eq('review_id', reviewId);
+
+    if (countError) {
+      console.error('Supabase error:', countError);
+      throw new ApiError(
+        API_ERROR_CODES.INTERNAL_ERROR,
+        '投票数の取得に失敗しました',
+        500
+      );
+    }
+
+    // reviews テーブルの helpful_count を更新
+    const { error: updateError } = await supabase
+      .from('reviews')
+      .update({ helpful_count: count || 0 })
+      .eq('id', reviewId);
+
+    if (updateError) {
+      console.error('Supabase error:', updateError);
+      // helpful_count の更新失敗は致命的ではないので、警告のみ
+    }
+
+    // チャンネル詳細ページを再検証（YouTubeチャンネルIDを取得）
+    const { data: review } = await supabase
+      .from('reviews')
+      .select('channel:channels!inner(youtube_channel_id)')
+      .eq('id', reviewId)
+      .single();
+
+    if (review) {
+      const channel = review.channel as
+        | { youtube_channel_id: string }[]
+        | { youtube_channel_id: string };
+      const youtubeChannelId = Array.isArray(channel)
+        ? channel[0]?.youtube_channel_id
+        : channel?.youtube_channel_id;
+
+      if (youtubeChannelId) {
+        revalidatePath(`/channels/${youtubeChannelId}`);
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        isHelpful,
+        helpfulCount: count || 0,
+      },
     };
   } catch (err) {
     return handleApiError(err);

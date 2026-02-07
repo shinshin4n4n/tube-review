@@ -25,6 +25,7 @@ export interface ReviewWithUser extends Review {
     display_name: string | null;
     avatar_url: string | null;
   };
+  is_helpful?: boolean; // 現在のユーザーが「参考になった」を投票しているか
 }
 
 /**

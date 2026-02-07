@@ -4,6 +4,7 @@ import { ReviewWithUser } from '@/lib/types/review';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { StarRating } from './star-rating';
+import HelpfulButton from './helpful-button';
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ja } from 'date-fns/locale';
@@ -75,6 +76,16 @@ export default function ReviewCard({
         ) : (
           <p className="text-gray-700 whitespace-pre-wrap">{review.content}</p>
         )}
+
+        {/* 参考になったボタン */}
+        <div className="mt-4">
+          <HelpfulButton
+            reviewId={review.id}
+            initialIsHelpful={review.is_helpful || false}
+            initialHelpfulCount={review.helpful_count}
+            currentUserId={currentUserId}
+          />
+        </div>
 
         {/* 編集・削除ボタン（自分のレビューのみ） */}
         {isOwner && (
