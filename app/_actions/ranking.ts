@@ -26,6 +26,8 @@ export async function getRankingChannels(limit = 10): Promise<RankingChannel[]> 
       average_rating,
       recent_review_count
     `)
+    .not('recent_review_count', 'is', null) // NULL値を除外
+    .gte('recent_review_count', 1) // 最低1件のレビューが必要
     .order('recent_review_count', { ascending: false })
     .order('average_rating', { ascending: false })
     .limit(limit);
