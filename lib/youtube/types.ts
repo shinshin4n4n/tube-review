@@ -87,6 +87,7 @@ export interface ChannelDetails {
   subscriberCount: number;
   videoCount: number;
   viewCount: number;
+  publishedAt?: string;
 }
 
 // ==================== Rate Limiter Types ====================

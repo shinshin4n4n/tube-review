@@ -48,7 +48,7 @@ export default function ReviewCard({
                 alt={review.user.display_name || review.user.username}
               />
               <AvatarFallback className="bg-accent text-white">
-                {(review.user.display_name?.[0] || review.user.username[0]).toUpperCase()}
+                {(review.user.display_name?.[0] || review.user.username?.[0] || 'U').toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
