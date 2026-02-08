@@ -36,13 +36,35 @@ export async function generateMetadata({
   }
 
   const channel = result.data;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.vercel.app';
+  const pageUrl = `${siteUrl}/channels/${id}`;
+
+  // ディスクリプションを160文字以内に調整
+  const description = channel.description
+    ? (channel.description.length > 160
+        ? `${channel.description.substring(0, 157)}...`
+        : channel.description)
+    : `${channel.title}のチャンネル詳細、レビュー、評価をチェック。YouTubeで人気のコンテンツクリエイター情報。`;
 
   return {
-    title: `${channel.title} | TubeReview`,
-    description: channel.description || `${channel.title}のチャンネル詳細情報`,
+    title: `${channel.title}`,
+    description,
+    keywords: [
+      channel.title,
+      'YouTube',
+      'チャンネル',
+      'レビュー',
+      '評価',
+      'クリエイター',
+    ],
+    alternates: {
+      canonical: pageUrl,
+    },
     openGraph: {
       title: channel.title,
-      description: channel.description || `${channel.title}のチャンネル詳細情報`,
+      description,
+      url: pageUrl,
+      siteName: 'TubeReview',
       images: [
         {
           url: channel.thumbnailUrl,
@@ -52,11 +74,12 @@ export async function generateMetadata({
         },
       ],
       type: 'profile',
+      locale: 'ja_JP',
     },
     twitter: {
       card: 'summary_large_image',
       title: channel.title,
-      description: channel.description || `${channel.title}のチャンネル詳細情報`,
+      description,
       images: [channel.thumbnailUrl],
     },
   };

@@ -15,17 +15,45 @@ export async function generateMetadata({
 }: SearchPageProps): Promise<Metadata> {
   const params = await searchParams;
   const query = params.q;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.vercel.app';
 
   if (query) {
+    const title = `「${query}」の検索結果`;
+    const description = `「${query}」に関連するYouTubeチャンネルの検索結果。レビューや評価をチェックして、お気に入りのチャンネルを見つけよう。`;
+
     return {
-      title: `「${query}」の検索結果 | TubeReview`,
-      description: `「${query}」に関連するYouTubeチャンネルの検索結果`,
+      title,
+      description,
+      keywords: [query, 'YouTube', 'チャンネル', '検索', 'レビュー'],
+      robots: {
+        index: false, // 検索結果ページはインデックスしない
+        follow: true,
+      },
+      openGraph: {
+        title,
+        description,
+        url: `${siteUrl}/search?q=${encodeURIComponent(query)}`,
+        siteName: 'TubeReview',
+      },
     };
   }
 
+  const title = 'チャンネル検索';
+  const description = 'YouTubeチャンネルを検索してレビューを見つけよう。お気に入りのクリエイターや新しい発見があなたを待っています。';
+
   return {
-    title: 'チャンネル検索 | TubeReview',
-    description: 'YouTubeチャンネルを検索してレビューを見つけよう',
+    title,
+    description,
+    keywords: ['YouTube', 'チャンネル', '検索', 'レビュー', '発見'],
+    alternates: {
+      canonical: `${siteUrl}/search`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}/search`,
+      siteName: 'TubeReview',
+    },
   };
 }
 
