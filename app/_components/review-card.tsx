@@ -31,8 +31,10 @@ export default function ReviewCard({
   const [isClient, setIsClient] = useState(false);
   const isOwner = currentUserId === review.user_id;
 
+  // マウント後にクライアントサイドフラグを設定
   useEffect(() => {
-    setIsClient(true);
+    const timer = setTimeout(() => setIsClient(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   return (

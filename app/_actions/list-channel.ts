@@ -162,11 +162,29 @@ export async function removeChannelFromListAction(
 }
 
 /**
+ * リストチャンネル型（チャンネル情報を含む）
+ */
+interface ListChannelWithChannel {
+  id: string;
+  order_index: number;
+  created_at: string;
+  channel: {
+    id: string;
+    youtube_channel_id: string;
+    title: string;
+    description: string | null;
+    thumbnail_url: string;
+    subscriber_count: number;
+    video_count: number;
+  };
+}
+
+/**
  * リストのチャンネル一覧を取得
  */
 export async function getListChannelsAction(
   listId: string
-): Promise<ApiResponse<any[]>> {
+): Promise<ApiResponse<ListChannelWithChannel[]>> {
   try {
     const supabase = await createClient();
 
@@ -201,7 +219,7 @@ export async function getListChannelsAction(
     }
 
     // データ変換
-    const transformed = (data || []).map((item) => ({
+    const transformed = (data || []).map((item: ListChannelWithChannel) => ({
       ...item,
       channel: Array.isArray(item.channel) ? item.channel[0] : item.channel,
     }));
@@ -216,11 +234,22 @@ export async function getListChannelsAction(
 }
 
 /**
+ * チャンネル検索結果型
+ */
+interface SearchChannelResult {
+  id: string;
+  youtube_channel_id: string;
+  title: string;
+  thumbnail_url: string;
+  subscriber_count: number;
+}
+
+/**
  * チャンネルを検索（リスト追加用）
  */
 export async function searchChannelsForListAction(
   query: string
-): Promise<ApiResponse<any[]>> {
+): Promise<ApiResponse<SearchChannelResult[]>> {
   try {
     const supabase = await createClient();
 

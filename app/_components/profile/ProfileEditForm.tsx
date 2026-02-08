@@ -18,6 +18,7 @@ import { Toaster } from '@/components/ui/toast';
 import { Loader2 } from 'lucide-react';
 import { updateProfileAction, type UserProfile } from '@/app/_actions/profile';
 import { AvatarUploader } from './AvatarUploader';
+import { GENDER_OPTIONS } from '@/lib/validations/profile';
 import { PrefectureSelect } from './PrefectureSelect';
 
 interface ProfileEditFormProps {
@@ -93,9 +94,9 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
         avatarUrl: avatarUrl || undefined,
         bio: bio || undefined,
         occupation: occupation || undefined,
-        gender: (gender && gender !== 'unspecified') ? (gender as any) : undefined,
+        gender: (gender && gender !== 'unspecified') ? (gender as typeof GENDER_OPTIONS[number]) : undefined,
         birthDate: birthDate || undefined,
-        prefecture: (prefecture && prefecture !== 'unspecified') ? (prefecture as any) : undefined,
+        prefecture: (prefecture && prefecture !== 'unspecified') ? prefecture : undefined,
         websiteUrl: websiteUrl || undefined,
       });
 

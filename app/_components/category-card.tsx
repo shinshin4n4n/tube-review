@@ -42,7 +42,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
           {/* 代表的なチャンネルのサムネイル（最大4つ） */}
           {category.topChannels.length > 0 && (
             <div className="grid grid-cols-4 gap-2">
-              {category.topChannels.map((channel, index) => (
+              {category.topChannels.map((channel) => (
                 <div
                   key={channel.id}
                   className="aspect-square relative rounded-lg overflow-hidden bg-gray-100"

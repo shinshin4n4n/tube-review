@@ -194,7 +194,7 @@ export async function updateMyListStatusAction(
     }
 
     // YouTubeチャンネルIDを取得
-    const channel = data.channel as any;
+    const channel = data.channel as unknown as { youtube_channel_id?: string } | { youtube_channel_id?: string }[];
     const youtubeChannelId = Array.isArray(channel)
       ? channel[0]?.youtube_channel_id
       : channel?.youtube_channel_id;
@@ -250,7 +250,7 @@ export async function removeFromMyListAction(
     }
 
     // YouTubeチャンネルIDを取得
-    const channel = userChannel.channel as any;
+    const channel = userChannel.channel as unknown as { youtube_channel_id?: string } | { youtube_channel_id?: string }[];
     const youtubeChannelId = Array.isArray(channel)
       ? channel[0]?.youtube_channel_id
       : channel?.youtube_channel_id;

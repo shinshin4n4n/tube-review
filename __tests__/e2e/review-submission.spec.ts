@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Review Submission', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     // Note: This test requires a logged-in user
     // In a real scenario, you would need to implement login flow or use stored auth state
   });

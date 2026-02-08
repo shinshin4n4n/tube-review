@@ -7,6 +7,32 @@ import type { UserChannelWithChannel } from '@/lib/types/user-channel';
 import type { ChannelStatus } from '@/lib/validations/user-channel';
 import { STATUS_LABELS } from '@/lib/types/user-channel';
 
+/**
+ * 空の状態を表示するコンポーネント
+ */
+const EmptyState = ({ message }: { message: string }) => (
+  <div className="text-center py-16">
+    <p className="text-content-secondary text-lg">{message}</p>
+  </div>
+);
+
+/**
+ * チャンネルグリッド表示コンポーネント
+ */
+const ChannelGrid = ({ channels }: { channels: UserChannelWithChannel[] }) => {
+  if (channels.length === 0) {
+    return <EmptyState message="まだチャンネルを追加していません" />;
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {channels.map((item) => (
+        <MyListCard key={item.id} item={item} />
+      ))}
+    </div>
+  );
+};
+
 interface MyListClientProps {
   items: UserChannelWithChannel[];
   stats: {
@@ -46,26 +72,6 @@ export default function MyListClient({
   const filterByStatus = (status?: ChannelStatus) => {
     if (!status) return items;
     return items.filter((item) => item.status === status);
-  };
-
-  const EmptyState = ({ message }: { message: string }) => (
-    <div className="text-center py-16">
-      <p className="text-content-secondary text-lg">{message}</p>
-    </div>
-  );
-
-  const ChannelGrid = ({ channels }: { channels: UserChannelWithChannel[] }) => {
-    if (channels.length === 0) {
-      return <EmptyState message="まだチャンネルを追加していません" />;
-    }
-
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {channels.map((item) => (
-          <MyListCard key={item.id} item={item} />
-        ))}
-      </div>
-    );
   };
 
   return (

@@ -37,7 +37,13 @@ export default function AddChannelDialog({
 }: AddChannelDialogProps) {
   const { toast } = useToast();
   const [query, setQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<Array<{
+    id: string;
+    youtube_channel_id: string;
+    title: string;
+    thumbnail_url: string;
+    subscriber_count: number;
+  }>>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [addingChannelId, setAddingChannelId] = useState<string | null>(null);
 

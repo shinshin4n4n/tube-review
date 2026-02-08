@@ -351,7 +351,7 @@ export async function updateReviewAction(
     }
 
     // YouTubeチャンネルIDを取得
-    const channel = data.channel as any;
+    const channel = data.channel as unknown as { youtube_channel_id?: string } | { youtube_channel_id?: string }[];
     const youtubeChannelId = Array.isArray(channel)
       ? channel[0]?.youtube_channel_id
       : channel?.youtube_channel_id;
@@ -407,7 +407,7 @@ export async function deleteReviewAction(
     }
 
     // YouTubeチャンネルIDを取得
-    const channel = review.channel as any;
+    const channel = review.channel as unknown as { youtube_channel_id?: string } | { youtube_channel_id?: string }[];
     const youtubeChannelId = Array.isArray(channel)
       ? channel[0]?.youtube_channel_id
       : channel?.youtube_channel_id;

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Plus, Edit, Trash2, Loader2 } from 'lucide-react';
@@ -17,7 +16,6 @@ import { ja } from 'date-fns/locale';
  * カスタムリストコンポーネント
  */
 export default function CustomLists() {
-  const router = useRouter();
   const { toast } = useToast();
   const [lists, setLists] = useState<MyList[]>([]);
   const [isLoading, setIsLoading] = useState(true);

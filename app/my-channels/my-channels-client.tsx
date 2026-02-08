@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import WatchingManagement from './watching-management';
@@ -20,15 +19,9 @@ export default function MyChannelsClient({
 }: MyChannelsClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState(initialTab);
-
-  useEffect(() => {
-    const tab = searchParams.get('tab') || 'watching';
-    setActiveTab(tab);
-  }, [searchParams]);
+  const activeTab = searchParams.get('tab') || initialTab;
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
     router.push(`/my-channels?tab=${value}`, { scroll: false });
   };
 

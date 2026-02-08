@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Edit, Trash2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { StarRating } from '@/app/_components/star-rating';
 import DeleteReviewDialog from '@/app/_components/delete-review-dialog';
@@ -20,7 +19,6 @@ import { ja } from 'date-fns/locale';
  * マイれびゅ!コンポーネント
  */
 export default function MyReviews() {
-  const router = useRouter();
   const { toast } = useToast();
   const [reviews, setReviews] = useState<ReviewWithUserAndChannel[]>([]);
   const [isLoading, setIsLoading] = useState(true);

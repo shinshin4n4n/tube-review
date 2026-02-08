@@ -9,10 +9,6 @@ const notoSansJP = Noto_Sans_JP({
   display: "swap",
 });
 
-const geistMono = {
-  variable: "--font-geist-mono",
-};
-
 export const metadata: Metadata = {
   title: "TubeReview - YouTubeチャンネルレビューサイト",
   description: "YouTubeチャンネルを発見・レビュー・管理できるプラットフォーム",

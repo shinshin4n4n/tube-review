@@ -19,7 +19,7 @@ export default async function ProfilePage() {
   const supabase = await createClient();
 
   // RLSポリシーにより、自分のデータのみ取得可能
-  let { data: profile, error } = await supabase
+  const { data: profile, error } = await supabase
     .from('users')
     .select('id, email, username, display_name, avatar_url, bio, occupation, gender, birth_date, prefecture, website_url, created_at')
     .eq('id', user.id)

@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -18,13 +17,27 @@ interface ListDetailClientProps {
   listId: string;
 }
 
+interface ListChannelWithChannel {
+  id: string;
+  order_index: number;
+  created_at: string;
+  channel: {
+    id: string;
+    youtube_channel_id: string;
+    title: string;
+    description: string | null;
+    thumbnail_url: string;
+    subscriber_count: number;
+    video_count: number;
+  };
+}
+
 /**
  * リスト詳細クライアントコンポーネント
  */
 export default function ListDetailClient({ listId }: ListDetailClientProps) {
-  const router = useRouter();
   const { toast } = useToast();
-  const [channels, setChannels] = useState<any[]>([]);
+  const [channels, setChannels] = useState<ListChannelWithChannel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -33,7 +46,7 @@ export default function ListDetailClient({ listId }: ListDetailClientProps) {
   );
 
   // データ取得
-  const fetchChannels = async () => {
+  const fetchChannels = useCallback(async () => {
     setIsLoading(true);
     setError(null);
 
@@ -46,11 +59,11 @@ export default function ListDetailClient({ listId }: ListDetailClientProps) {
     }
 
     setIsLoading(false);
-  };
+  }, [listId]);
 
   useEffect(() => {
     fetchChannels();
-  }, [listId]);
+  }, [fetchChannels]);
 
   const handleDelete = async (channelId: string) => {
     if (!confirm('このチャンネルをリストから削除しますか？')) {

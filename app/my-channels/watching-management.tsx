@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MyListCard from '@/app/_components/my-list-card';
 import type { UserChannelWithChannel } from '@/lib/types/user-channel';
@@ -11,10 +10,35 @@ import { getMyListAction } from '@/app/_actions/user-channel';
 import { Loader2 } from 'lucide-react';
 
 /**
+ * 空の状態を表示するコンポーネント
+ */
+const EmptyState = ({ message }: { message: string }) => (
+  <div className="text-center py-16">
+    <p className="text-content-secondary text-lg">{message}</p>
+  </div>
+);
+
+/**
+ * チャンネルグリッド表示コンポーネント
+ */
+const ChannelGrid = ({ channels }: { channels: UserChannelWithChannel[] }) => {
+  if (channels.length === 0) {
+    return <EmptyState message="まだチャンネルを追加していません" />;
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {channels.map((item) => (
+        <MyListCard key={item.id} item={item} />
+      ))}
+    </div>
+  );
+};
+
+/**
  * 視聴管理コンポーネント
  */
 export default function WatchingManagement() {
-  const router = useRouter();
   const [items, setItems] = useState<UserChannelWithChannel[]>([]);
   const [currentStatus, setCurrentStatus] = useState<ChannelStatus | 'all'>('all');
   const [isLoading, setIsLoading] = useState(true);
@@ -57,26 +81,6 @@ export default function WatchingManagement() {
   const filterByStatus = (status?: ChannelStatus) => {
     if (!status) return items;
     return items.filter((item) => item.status === status);
-  };
-
-  const EmptyState = ({ message }: { message: string }) => (
-    <div className="text-center py-16">
-      <p className="text-content-secondary text-lg">{message}</p>
-    </div>
-  );
-
-  const ChannelGrid = ({ channels }: { channels: UserChannelWithChannel[] }) => {
-    if (channels.length === 0) {
-      return <EmptyState message="まだチャンネルを追加していません" />;
-    }
-
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {channels.map((item) => (
-          <MyListCard key={item.id} item={item} />
-        ))}
-      </div>
-    );
   };
 
   if (error) {

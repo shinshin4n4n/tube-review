@@ -45,7 +45,7 @@ test.describe('Layout Component - Header & Footer Display', () => {
     await expect(page.locator('footer:has-text("TubeReview")')).toBeVisible();
   });
 
-  test('マイリストページでヘッダー・フッターが表示される（認証必要）', async ({ page, context }) => {
+  test('マイリストページでヘッダー・フッターが表示される（認証必要）', async ({ page }) => {
     // ログイン処理（必要に応じて）
     // TODO: 実際のログイン処理を実装
 
