@@ -10,6 +10,12 @@ export const metadata = {
 };
 
 /**
+ * ISR設定（1時間ごとに再生成）
+ * ランキングは頻繁に変わるため
+ */
+export const revalidate = 3600; // 1時間
+
+/**
  * ランキングページ
  * 今週の人気チャンネルを表示
  */
