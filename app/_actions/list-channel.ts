@@ -218,11 +218,11 @@ export async function getListChannelsAction(
       );
     }
 
-    // データ変換
-    const transformed = (data || []).map((item: ListChannelWithChannel) => ({
+    // データ変換（Supabaseは channel を配列で返すため、最初の要素を取得）
+    const transformed = (data || []).map((item) => ({
       ...item,
       channel: Array.isArray(item.channel) ? item.channel[0] : item.channel,
-    }));
+    })) as ListChannelWithChannel[];
 
     return {
       success: true,
