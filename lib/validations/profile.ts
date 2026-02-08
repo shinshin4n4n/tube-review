@@ -46,7 +46,7 @@ export const updateProfileSchema = z.object({
     .optional(),
   prefecture: z
     .string()
-    .refine((val) => !val || PREFECTURES.includes(val), {
+    .refine((val) => !val || (PREFECTURES as readonly string[]).includes(val), {
       message: '有効な都道府県を選択してください',
     })
     .optional(),
