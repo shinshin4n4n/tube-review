@@ -5,6 +5,12 @@ import { RecentReviews } from '@/app/_components/recent-reviews';
 import { getRankingChannels, getRecentReviews } from '@/app/_actions/ranking';
 
 /**
+ * ISR設定（1時間ごとに再生成）
+ * ランキングと新着レビューは頻繁に変わるため
+ */
+export const revalidate = 3600; // 1時間
+
+/**
  * トップページ
  * - ヒーローセクション
  * - 今週の人気チャンネルランキング
