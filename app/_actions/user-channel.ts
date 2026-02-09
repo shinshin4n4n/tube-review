@@ -435,9 +435,10 @@ export async function getMyListAction(
 
     if (error) {
       console.error('Supabase error:', error);
+      // 一時的にエラー詳細を含める
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'マイリストの取得に失敗しました',
+        `マイリストの取得に失敗しました: ${error.message || JSON.stringify(error)}`,
         500
       );
     }
