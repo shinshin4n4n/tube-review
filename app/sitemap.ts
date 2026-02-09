@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 
 /**
  * サイトマップ生成
@@ -41,7 +41,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let channelPages: MetadataRoute.Sitemap = [];
 
   try {
-    const supabase = await createClient();
+    // ビルド時は認証不要のデータのみアクセス（cookiesを使わない）
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
     // 公開されているチャンネル一覧を取得（最大1000件）
     const { data: channels } = await supabase
