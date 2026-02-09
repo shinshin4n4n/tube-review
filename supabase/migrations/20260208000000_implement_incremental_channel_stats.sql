@@ -25,7 +25,7 @@ CREATE TABLE channel_stats (
 );
 
 -- Step 3: インデックス作成
-CREATE INDEX idx_channel_stats_recent_reviews ON channel_stats(recent_review_count DESC, average_rating DESC);
+CREATE INDEX IF NOT EXISTS idx_channel_stats_recent_reviews ON channel_stats(recent_review_count DESC, average_rating DESC);
 CREATE INDEX idx_channel_stats_rating ON channel_stats(average_rating DESC);
 CREATE INDEX idx_channel_stats_updated ON channel_stats(updated_at DESC);
 

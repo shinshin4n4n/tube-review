@@ -36,7 +36,7 @@ GROUP BY c.id;
 
 -- Step 4: インデックス作成
 CREATE UNIQUE INDEX idx_channel_stats_channel ON channel_stats(channel_id);
-CREATE INDEX idx_channel_stats_recent_reviews ON channel_stats(recent_review_count DESC, average_rating DESC);
+CREATE INDEX IF NOT EXISTS idx_channel_stats_recent_reviews ON channel_stats(recent_review_count DESC, average_rating DESC);
 
 -- Step 5: Viewを再作成
 CREATE OR REPLACE VIEW channels_with_stats AS
@@ -54,4 +54,4 @@ LEFT JOIN channel_stats cs ON c.id = cs.channel_id;
 -- Step 6: 初回更新
 REFRESH MATERIALIZED VIEW channel_stats;
 
-RAISE NOTICE '⚠️ Materialized Viewに戻しました。定期的にREFRESHが必要です。';
+-- ⚠️ Materialized Viewに戻しました。定期的にREFRESHが必要です。

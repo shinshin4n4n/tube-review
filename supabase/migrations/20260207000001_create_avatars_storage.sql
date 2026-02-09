@@ -18,11 +18,13 @@ ON CONFLICT (id) DO NOTHING;
 -- ============================================
 
 -- 全員が画像を閲覧可能
+DROP POLICY IF EXISTS "Avatar images are publicly accessible" ON storage.objects;
 CREATE POLICY "Avatar images are publicly accessible"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'avatars');
 
 -- 認証済みユーザーは自分のフォルダにアップロード可能
+DROP POLICY IF EXISTS "Users can upload their own avatar" ON storage.objects;
 CREATE POLICY "Users can upload their own avatar"
 ON storage.objects FOR INSERT
 WITH CHECK (
@@ -31,6 +33,7 @@ WITH CHECK (
 );
 
 -- 認証済みユーザーは自分のアバターを更新可能
+DROP POLICY IF EXISTS "Users can update their own avatar" ON storage.objects;
 CREATE POLICY "Users can update their own avatar"
 ON storage.objects FOR UPDATE
 USING (
@@ -43,6 +46,7 @@ WITH CHECK (
 );
 
 -- 認証済みユーザーは自分のアバターを削除可能
+DROP POLICY IF EXISTS "Users can delete their own avatar" ON storage.objects;
 CREATE POLICY "Users can delete their own avatar"
 ON storage.objects FOR DELETE
 USING (

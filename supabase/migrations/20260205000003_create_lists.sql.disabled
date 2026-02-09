@@ -15,19 +15,21 @@ CREATE TABLE IF NOT EXISTS lists (
 );
 
 -- インデックス
-CREATE INDEX idx_lists_user_id ON lists(user_id);
-CREATE INDEX idx_lists_created_at ON lists(created_at DESC);
-CREATE INDEX idx_lists_public ON lists(is_public) WHERE is_public = true;
+CREATE INDEX IF NOT EXISTS idx_lists_user_id ON lists(user_id);
+CREATE INDEX IF NOT EXISTS idx_lists_created_at ON lists(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_lists_public ON lists(is_public) WHERE is_public = true;
 
 -- RLS有効化
 ALTER TABLE lists ENABLE ROW LEVEL SECURITY;
 
 -- RLSポリシー: 自分のリストは読み書き可能
+DROP POLICY IF EXISTS lists_crud_own ON lists;
 CREATE POLICY lists_crud_own ON lists
   FOR ALL
   USING (auth.uid() = user_id);
 
 -- RLSポリシー: 公開リストは誰でも閲覧可能
+DROP POLICY IF EXISTS lists_select_public ON lists;
 CREATE POLICY lists_select_public ON lists
   FOR SELECT
   USING (is_public = true);

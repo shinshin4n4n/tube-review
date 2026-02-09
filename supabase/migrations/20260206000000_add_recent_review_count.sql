@@ -23,7 +23,7 @@ GROUP BY c.id;
 
 -- インデックス作成
 CREATE UNIQUE INDEX idx_channel_stats_channel ON channel_stats(channel_id);
-CREATE INDEX idx_channel_stats_recent_reviews ON channel_stats(recent_review_count DESC, average_rating DESC);
+CREATE INDEX IF NOT EXISTS idx_channel_stats_recent_reviews ON channel_stats(recent_review_count DESC, average_rating DESC);
 
 -- 初回更新
 REFRESH MATERIALIZED VIEW channel_stats;
