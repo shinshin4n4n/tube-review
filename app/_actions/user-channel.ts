@@ -172,7 +172,7 @@ export async function updateMyListStatusAction(
         status: validated.status,
       })
       .eq('id', userChannelId)
-      .eq('user_id', user.id) // 自分のデータのみ更新
+      // RLSポリシー 'user_channels_update_own' で user_id チェック済み
       .select('*, channel:channels!inner(youtube_channel_id)')
       .single();
 
@@ -256,12 +256,12 @@ export async function removeFromMyListAction(
       ? channel[0]?.youtube_channel_id
       : channel?.youtube_channel_id;
 
-    // user_channelsから削除（RLSで自分のデータのみ削除可能）
+    // user_channelsから削除
+    // RLSポリシー 'user_channels_delete_own' で user_id チェック済み
     const { error } = await supabase
       .from('user_channels')
       .delete()
-      .eq('id', userChannelId)
-      .eq('user_id', user.id); // 自分のデータのみ削除
+      .eq('id', userChannelId);
 
     if (error) {
       console.error('Supabase error:', error);
