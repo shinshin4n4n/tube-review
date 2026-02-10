@@ -6,16 +6,24 @@ import { MessageSquare, Star } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import type { RecentReviewWithChannel } from '@/lib/types/ranking';
+import Pagination from '@/components/common/pagination';
 
 interface RecentReviewsProps {
   reviews: RecentReviewWithChannel[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 /**
  * 新着レビュー表示コンポーネント
  * トップページに最新20件のレビューを表示
+ * レビュー一覧ページではページネーション対応
  */
-export function RecentReviews({ reviews }: RecentReviewsProps) {
+export function RecentReviews({ reviews, pagination }: RecentReviewsProps) {
   if (reviews.length === 0) {
     return (
       <section className="space-y-6">
@@ -116,15 +124,27 @@ export function RecentReviews({ reviews }: RecentReviewsProps) {
         ))}
       </div>
 
-      {/* もっと見るリンク */}
-      <div className="text-center pt-4">
-        <Link
-          href="/reviews"
-          className="text-primary hover:text-primary-hover font-medium transition-colors"
-        >
-          すべてのレビューを見る →
-        </Link>
-      </div>
+      {/* ページネーションまたはもっと見るリンク */}
+      {pagination ? (
+        // レビュー一覧ページの場合: ページネーション表示
+        pagination.totalPages > 1 && (
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            baseUrl="/reviews"
+          />
+        )
+      ) : (
+        // トップページの場合: もっと見るリンク表示
+        <div className="text-center pt-4">
+          <Link
+            href="/reviews"
+            className="text-primary hover:text-primary-hover font-medium transition-colors"
+          >
+            すべてのレビューを見る →
+          </Link>
+        </div>
+      )}
     </section>
   );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Layout } from '@/components/layout';
 import { getCategories } from '@/app/_actions/category';
-import { CategoryCard } from '@/app/_components/category-card';
+import { CategoryCard } from '@/components/common/category-card';
 
 /**
  * メタデータ生成（SEO最適化）

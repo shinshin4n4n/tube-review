@@ -41,14 +41,36 @@ export async function getRankingChannels(limit = 10): Promise<RankingChannel[]> 
 }
 
 /**
- * 新着レビューを取得
+ * 新着レビューを取得（ページネーション対応）
  * チャンネル情報とユーザー情報を含む
  *
+ * @param page - ページ番号（デフォルト: 1）
  * @param limit - 取得件数（デフォルト: 20）
- * @returns 新着レビュー一覧
+ * @returns 新着レビュー一覧とページネーション情報
  */
-export async function getRecentReviews(limit = 20): Promise<RecentReviewWithChannel[]> {
+export async function getRecentReviews(
+  page = 1,
+  limit = 20
+): Promise<{
+  reviews: RecentReviewWithChannel[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}> {
   const supabase = await createClient();
+
+  // 総件数を取得
+  const { count } = await supabase
+    .from('reviews')
+    .select('*', { count: 'exact', head: true })
+    .is('deleted_at', null);
+
+  const total = count || 0;
+  const totalPages = Math.ceil(total / limit);
+  const offset = (page - 1) * limit;
 
   const { data, error } = await supabase
     .from('reviews')
@@ -76,7 +98,7 @@ export async function getRecentReviews(limit = 20): Promise<RecentReviewWithChan
     `)
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
-    .limit(limit);
+    .range(offset, offset + limit - 1);
 
   if (error) {
     console.error('Error fetching recent reviews:', error);
@@ -84,7 +106,7 @@ export async function getRecentReviews(limit = 20): Promise<RecentReviewWithChan
   }
 
   // データの型を変換
-  return (data || []).map((review) => ({
+  const reviews = (data || []).map((review) => ({
     id: review.id,
     user_id: review.user_id,
     channel_id: review.channel_id,
@@ -96,4 +118,14 @@ export async function getRecentReviews(limit = 20): Promise<RecentReviewWithChan
     user: Array.isArray(review.user) ? review.user[0] : review.user,
     channel: Array.isArray(review.channel) ? review.channel[0] : review.channel,
   })) as RecentReviewWithChannel[];
+
+  return {
+    reviews,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+    },
+  };
 }

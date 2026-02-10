@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PaginatedReviews, ReviewWithUser } from '@/lib/types/review';
-import ReviewCard from './review-card';
-import Pagination from './pagination';
+import ReviewCard from '@/components/common/review-card';
+import Pagination from '@/components/common/pagination';
 import ReviewEditDialog from './review-edit-dialog';
 import DeleteReviewDialog from './delete-review-dialog';
 import { deleteReviewAction } from '@/app/_actions/review';

@@ -8,13 +8,20 @@ export const metadata = {
   description: '新着レビュー一覧',
 };
 
+type ReviewsPageProps = {
+  searchParams: Promise<{ page?: string }>;
+};
+
 /**
  * レビュー一覧ページ
  * 全てのレビューをページネーション付きで表示
  */
-export default async function ReviewsPage() {
-  // レビューを取得（50件）
-  const reviews = await getRecentReviews(50);
+export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+
+  // レビューを取得（20件/ページ）
+  const data = await getRecentReviews(page, 20);
 
   return (
     <Layout>
@@ -28,12 +35,12 @@ export default async function ReviewsPage() {
             </h1>
           </div>
           <p className="text-content-secondary">
-            ユーザーの投稿したレビューを新着順に表示しています
+            ユーザーの投稿したレビューを新着順に表示しています（全{data.pagination.total}件）
           </p>
         </div>
 
         {/* レビュー一覧 */}
-        <RecentReviews reviews={reviews} />
+        <RecentReviews reviews={data.reviews} pagination={data.pagination} />
       </div>
     </Layout>
   );

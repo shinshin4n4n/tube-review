@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { StarRating } from './star-rating';
+import { StarRating } from '@/components/common/star-rating';
 import { createReviewAction } from '@/app/_actions/review';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';

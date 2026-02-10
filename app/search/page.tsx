@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Layout } from '@/components/layout';
 import { SearchForm } from '@/app/_components/search-form';
-import { ChannelCard } from '@/app/_components/channel-card';
+import { ChannelCard } from '@/components/common/channel-card';
 import { searchChannelsAction } from '@/app/_actions/youtube';
 import { AlertCircle, Search as SearchIcon } from 'lucide-react';
 import { SearchBreadcrumb } from '@/app/_components/search-breadcrumb';
