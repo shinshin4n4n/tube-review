@@ -5,8 +5,18 @@
  * npx tsx scripts/generate-demo-data.ts
  */
 
+import { config } from 'dotenv';
+import { resolve } from 'path';
 import { createClient } from '@supabase/supabase-js';
 import { CATEGORIES } from '../lib/constants/categories';
+
+// NODE_ENV=productionの場合は.env.production.localを読み込む
+const envFile = process.env.NODE_ENV === 'production'
+  ? '.env.production.local'
+  : '.env.local';
+
+config({ path: resolve(process.cwd(), envFile) });
+console.log(`📝 環境変数ファイル: ${envFile}`);
 
 // Supabaseクライアント初期化
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;

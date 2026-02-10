@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { StarRating } from '@/app/_components/star-rating';
+import { StarRating } from '@/components/common/star-rating';
 import DeleteReviewDialog from '@/app/_components/delete-review-dialog';
 import { getMyReviewsAction } from '@/app/_actions/review';
 import { deleteReviewAction } from '@/app/_actions/review';

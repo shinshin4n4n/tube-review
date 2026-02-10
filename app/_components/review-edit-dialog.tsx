@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { StarRating } from './star-rating';
+import { StarRating } from '@/components/common/star-rating';
 import { updateReviewAction } from '@/app/_actions/review';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
