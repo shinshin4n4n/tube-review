@@ -88,7 +88,7 @@ export function AvatarUploader({
 
   return (
     <div>
-      <Label className="text-base font-semibold mb-2 block">
+      <Label className="text-base mb-2 block text-foreground">
         プロフィール画像
       </Label>
       <div className="flex items-center gap-4">
