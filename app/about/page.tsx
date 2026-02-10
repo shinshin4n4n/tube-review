@@ -205,16 +205,16 @@ export default function AboutPage() {
           <section className="text-center">
             <div className="bg-gradient-to-r from-primary to-primary-dark rounded-lg p-12 text-white">
               <h2 className="text-3xl font-bold mb-4">
-                さあ、始めましょう！
+                チャンネルを探す
               </h2>
               <p className="text-xl mb-8 text-white/90">
                 あなたの能動的なYouTube視聴体験をサポートします
               </p>
               <a
-                href="/signup"
+                href="/"
                 className="inline-block px-8 py-4 bg-white text-primary rounded-lg font-bold hover:bg-gray-100 transition-colors duration-200 shadow-lg"
               >
-                無料で始める
+                トップページへ
               </a>
             </div>
           </section>
