@@ -255,7 +255,7 @@ export async function searchChannelsForListAction(
     console.log('[searchChannelsForListAction] Start YouTube API search with query:', query);
 
     // YouTube APIから検索
-    const { searchChannels } = await import('@/lib/youtube/api');
+    const { searchChannels, getChannelDetails } = await import('@/lib/youtube/api');
     const youtubeResults = await searchChannels(query, 10);
 
     console.log('[searchChannelsForListAction] YouTube API results count:', youtubeResults.length);
@@ -270,20 +270,25 @@ export async function searchChannelsForListAction(
     const supabase = await createClient();
     const searchResults: SearchChannelResult[] = [];
 
-    // 各チャンネルをデータベースに保存（upsert）
+    // 各チャンネルの詳細情報を取得してデータベースに保存（upsert）
     for (const ytChannel of youtubeResults) {
       try {
+        // チャンネル詳細情報を取得（登録者数などを含む）
+        console.log('[searchChannelsForListAction] Fetching details for:', ytChannel.youtubeChannelId);
+        const channelDetails = await getChannelDetails(ytChannel.youtubeChannelId);
+
         // データベースにチャンネルを保存
         const { data: upsertedChannel, error: upsertError } = await supabase
           .from('channels')
           .upsert(
             {
-              youtube_channel_id: ytChannel.youtubeChannelId,
-              title: ytChannel.title,
-              description: ytChannel.description || null,
-              thumbnail_url: ytChannel.thumbnailUrl,
-              subscriber_count: ytChannel.subscriberCount || 0,
-              video_count: ytChannel.videoCount || 0,
+              youtube_channel_id: channelDetails.youtubeChannelId,
+              title: channelDetails.title,
+              description: channelDetails.description || null,
+              thumbnail_url: channelDetails.thumbnailUrl,
+              subscriber_count: channelDetails.subscriberCount || 0,
+              video_count: channelDetails.videoCount || 0,
+              view_count: channelDetails.viewCount || 0,
               cache_updated_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
             },
