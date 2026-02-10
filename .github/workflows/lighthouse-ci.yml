@@ -1,0 +1,74 @@
+name: Lighthouse CI
+
+on:
+  # PRが作成・更新されたときに実行
+  pull_request:
+    branches:
+      - main
+
+  # mainブランチへのプッシュ時に実行（マージ後）
+  push:
+    branches:
+      - main
+
+  # 手動実行を許可
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          # 環境変数を設定（必要に応じて）
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          # Supabase関連の環境変数（GitHub Secretsから取得）
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli@0.15.x
+          lhci autorun
+        env:
+          # Lighthouse CI 用の環境変数
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-results
+          path: .lighthouseci
+          retention-days: 30
+
+      - name: Comment PR with Lighthouse results
+        uses: treosh/lighthouse-ci-action@v12
+        if: github.event_name == 'pull_request'
+        with:
+          urls: |
+            http://localhost:3000/
+            http://localhost:3000/about
+            http://localhost:3000/ranking
+            http://localhost:3000/search
+            http://localhost:3000/categories
+          uploadArtifacts: true
+          temporaryPublicStorage: true
