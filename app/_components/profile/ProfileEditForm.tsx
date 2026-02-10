@@ -140,7 +140,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
 
         {/* 表示名 */}
         <div>
-          <Label htmlFor="displayName" className="text-base font-semibold mb-2 block text-foreground">
+          <Label htmlFor="displayName" className="text-base mb-2 block text-foreground">
             表示名
           </Label>
           <Input
@@ -162,7 +162,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
 
         {/* 自己紹介 */}
         <div>
-          <Label htmlFor="bio" className="text-base font-semibold mb-2 block text-foreground">
+          <Label htmlFor="bio" className="text-base mb-2 block text-foreground">
             自己紹介
           </Label>
           <Textarea
@@ -185,7 +185,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
 
         {/* 職業 */}
         <div>
-          <Label htmlFor="occupation" className="text-base font-semibold mb-2 block text-foreground">
+          <Label htmlFor="occupation" className="text-base mb-2 block text-foreground">
             職業
           </Label>
           <Input
@@ -207,7 +207,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
 
         {/* 性別 */}
         <div>
-          <Label htmlFor="gender" className="text-base font-semibold mb-2 block text-foreground">
+          <Label htmlFor="gender" className="text-base mb-2 block text-foreground">
             性別
           </Label>
           <Select value={gender} onValueChange={setGender} disabled={isSubmitting}>
@@ -229,7 +229,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
 
         {/* 生年月日 */}
         <div>
-          <Label htmlFor="birthDate" className="text-base font-semibold mb-2 block text-foreground">
+          <Label htmlFor="birthDate" className="text-base mb-2 block text-foreground">
             生年月日
           </Label>
           <Input
@@ -255,7 +255,7 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
 
         {/* ウェブサイトURL */}
         <div>
-          <Label htmlFor="websiteUrl" className="text-base font-semibold mb-2 block text-foreground">
+          <Label htmlFor="websiteUrl" className="text-base mb-2 block text-foreground">
             ウェブサイトURL
           </Label>
           <Input
