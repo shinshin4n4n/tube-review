@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUser } from '@/lib/auth';
 import { ApiError, handleApiError } from '@/lib/api/error';
 import { API_ERROR_CODES, type ApiResponse } from '@/lib/types/api';
+import { DB_ERROR_CODES } from '@/lib/constants/database-errors';
 import {
   createReviewSchema,
   updateReviewSchema,
@@ -95,7 +96,7 @@ export async function createReviewAction(
 
     if (error) {
       // 重複エラーチェック（UNIQUE制約違反）
-      if (error.code === '23505') {
+      if (error.code === DB_ERROR_CODES.UNIQUE_VIOLATION) {
         throw new ApiError(
           API_ERROR_CODES.DUPLICATE,
           'このチャンネルにはすでにレビューを投稿しています',

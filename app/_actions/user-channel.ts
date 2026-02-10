@@ -16,6 +16,7 @@ import type {
   UserChannel,
   UserChannelWithChannel,
 } from '@/lib/types/user-channel';
+import { DB_ERROR_CODES } from '@/lib/constants/database-errors';
 
 /**
  * チャンネルをマイリストに追加
@@ -112,7 +113,7 @@ export async function addToMyListAction(
 
     if (error) {
       // 重複エラーチェック（UNIQUE制約違反）
-      if (error.code === '23505') {
+      if (error.code === DB_ERROR_CODES.UNIQUE_VIOLATION) {
         throw new ApiError(
           API_ERROR_CODES.DUPLICATE,
           'このチャンネルは既にマイリストに追加されています',
