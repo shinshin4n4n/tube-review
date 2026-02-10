@@ -203,16 +203,16 @@ export default function AboutPage() {
 
           {/* CTA */}
           <section className="text-center">
-            <div className="bg-gradient-to-r from-primary to-primary-dark rounded-lg p-12 text-white">
-              <h2 className="text-3xl font-bold mb-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
                 チャンネルを探す
               </h2>
-              <p className="text-xl mb-8 text-white/90">
+              <p className="text-lg text-gray-600 mb-8">
                 あなたの能動的なYouTube視聴体験をサポートします
               </p>
               <a
                 href="/"
-                className="inline-block px-8 py-4 bg-white text-primary rounded-lg font-bold hover:bg-gray-100 transition-colors duration-200 shadow-lg"
+                className="inline-block px-8 py-4 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition-colors duration-200 shadow-md"
               >
                 トップページへ
               </a>
