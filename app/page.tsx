@@ -18,9 +18,9 @@ export const revalidate = 3600; // 1時間
  */
 export default async function Home() {
   // 並列でデータ取得
-  const [rankingChannels, recentReviews] = await Promise.all([
+  const [rankingChannels, recentReviewsData] = await Promise.all([
     getRankingChannels(10),
-    getRecentReviews(20),
+    getRecentReviews(1, 20),
   ]);
 
   return (
@@ -33,7 +33,7 @@ export default async function Home() {
         <PopularChannels channels={rankingChannels} />
 
         {/* 新着レビュー */}
-        <RecentReviews reviews={recentReviews} />
+        <RecentReviews reviews={recentReviewsData.reviews} />
       </div>
     </Layout>
   );
