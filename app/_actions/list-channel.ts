@@ -246,33 +246,96 @@ interface SearchChannelResult {
 
 /**
  * チャンネルを検索（リスト追加用）
+ * YouTube APIから直接検索し、結果をデータベースに保存
  */
 export async function searchChannelsForListAction(
   query: string
 ): Promise<ApiResponse<SearchChannelResult[]>> {
   try {
-    const supabase = await createClient();
+    console.log('[searchChannelsForListAction] Start YouTube API search with query:', query);
 
-    const { data, error } = await supabase
-      .from('channels')
-      .select('id, youtube_channel_id, title, thumbnail_url, subscriber_count')
-      .ilike('title', `%${query}%`)
-      .limit(20);
+    // YouTube APIから検索
+    const { searchChannels } = await import('@/lib/youtube/api');
+    const youtubeResults = await searchChannels(query, 10);
 
-    if (error) {
-      console.error('Supabase error:', error);
-      throw new ApiError(
-        API_ERROR_CODES.INTERNAL_ERROR,
-        'チャンネル検索に失敗しました',
-        500
-      );
+    console.log('[searchChannelsForListAction] YouTube API results count:', youtubeResults.length);
+
+    if (youtubeResults.length === 0) {
+      return {
+        success: true,
+        data: [],
+      };
     }
+
+    const supabase = await createClient();
+    const searchResults: SearchChannelResult[] = [];
+
+    // 各チャンネルをデータベースに保存（upsert）
+    for (const ytChannel of youtubeResults) {
+      try {
+        // データベースにチャンネルを保存
+        const { data: upsertedChannel, error: upsertError } = await supabase
+          .from('channels')
+          .upsert(
+            {
+              youtube_channel_id: ytChannel.youtubeChannelId,
+              title: ytChannel.title,
+              description: ytChannel.description || null,
+              thumbnail_url: ytChannel.thumbnailUrl,
+              subscriber_count: ytChannel.subscriberCount || 0,
+              video_count: ytChannel.videoCount || 0,
+              cache_updated_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            {
+              onConflict: 'youtube_channel_id',
+              ignoreDuplicates: false,
+            }
+          )
+          .select('id, youtube_channel_id, title, thumbnail_url, subscriber_count')
+          .single();
+
+        if (upsertError) {
+          console.error('[searchChannelsForListAction] Upsert error for channel:', ytChannel.youtubeChannelId, upsertError);
+          continue;
+        }
+
+        if (upsertedChannel) {
+          searchResults.push(upsertedChannel);
+        }
+      } catch (channelError) {
+        console.error('[searchChannelsForListAction] Error processing channel:', ytChannel.youtubeChannelId, channelError);
+        // 個別のチャンネルでエラーが発生しても、他のチャンネルの処理を続行
+        continue;
+      }
+    }
+
+    console.log('[searchChannelsForListAction] Final search results count:', searchResults.length);
 
     return {
       success: true,
-      data: data || [],
+      data: searchResults,
     };
   } catch (err) {
+    console.error('[searchChannelsForListAction] Caught error:', err);
+
+    // YouTube APIエラーの場合
+    if (err && typeof err === 'object' && 'code' in err) {
+      const ytError = err as any;
+      if (ytError.code === 'QUOTA_EXCEEDED') {
+        return {
+          success: false,
+          error: 'YouTube APIのクォータを超過しました。しばらくしてから再度お試しください。',
+        };
+      }
+      if (ytError.code === 'RATE_LIMIT') {
+        return {
+          success: false,
+          error: 'リクエスト制限に達しました。しばらくしてから再度お試しください。',
+        };
+      }
+    }
+
     return handleApiError(err);
   }
 }

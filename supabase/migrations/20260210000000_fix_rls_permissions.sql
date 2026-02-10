@@ -2,32 +2,65 @@
 -- RLS権限修正: 公開データと認証データへのアクセスを許可
 -- ============================================
 
--- 1. reviews テーブル: 誰でも閲覧可能
+-- 1. reviews テーブル: 誰でも閲覧可能、認証ユーザーは自分のレビューを投稿・編集・削除可能
 DROP POLICY IF EXISTS "reviews_select_active" ON reviews;
 CREATE POLICY "reviews_select_active" ON reviews
   FOR SELECT
   USING (true);
 
-GRANT SELECT ON reviews TO anon;
-GRANT SELECT ON reviews TO authenticated;
+DROP POLICY IF EXISTS "reviews_insert_own" ON reviews;
+CREATE POLICY "reviews_insert_own" ON reviews
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
 
--- 2. channels テーブル: 誰でも閲覧可能
+DROP POLICY IF EXISTS "reviews_update_own" ON reviews;
+CREATE POLICY "reviews_update_own" ON reviews
+  FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "reviews_delete_own" ON reviews;
+CREATE POLICY "reviews_delete_own" ON reviews
+  FOR DELETE
+  USING (auth.uid() = user_id);
+
+GRANT SELECT ON reviews TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON reviews TO authenticated;
+
+-- 2. channels テーブル: 誰でも閲覧可能、認証ユーザーは追加・更新可能
 DROP POLICY IF EXISTS "channels_select_all" ON channels;
 CREATE POLICY "channels_select_all" ON channels
   FOR SELECT
   USING (true);
 
-GRANT SELECT ON channels TO anon;
-GRANT SELECT ON channels TO authenticated;
+DROP POLICY IF EXISTS "channels_insert_authenticated" ON channels;
+CREATE POLICY "channels_insert_authenticated" ON channels
+  FOR INSERT
+  WITH CHECK (auth.uid() IS NOT NULL);
 
--- 3. users テーブル: 誰でも閲覧可能
+DROP POLICY IF EXISTS "channels_update_authenticated" ON channels;
+CREATE POLICY "channels_update_authenticated" ON channels
+  FOR UPDATE
+  USING (auth.uid() IS NOT NULL)
+  WITH CHECK (auth.uid() IS NOT NULL);
+
+GRANT SELECT ON channels TO anon;
+GRANT SELECT, INSERT, UPDATE ON channels TO authenticated;
+
+-- 3. users テーブル: 誰でも閲覧可能、認証ユーザーは自分のプロフィールを更新可能
 DROP POLICY IF EXISTS "users_select_public" ON users;
 CREATE POLICY "users_select_public" ON users
   FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "users_update_own" ON users;
+CREATE POLICY "users_update_own" ON users
+  FOR UPDATE
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
+
 GRANT SELECT ON users TO anon;
-GRANT SELECT ON users TO authenticated;
+GRANT SELECT, UPDATE ON users TO authenticated;
 
 -- 4. channels_with_stats ビュー: SELECT権限を付与
 GRANT SELECT ON channels_with_stats TO anon;
@@ -165,6 +198,20 @@ CREATE POLICY "user_settings_update_own" ON user_settings
   WITH CHECK (auth.uid() = user_id);
 
 GRANT SELECT, INSERT, UPDATE ON user_settings TO authenticated;
+
+-- 10. review_helpful テーブル: 誰でも閲覧可能、認証ユーザーは自分の投票を追加・削除可能
+DROP POLICY IF EXISTS "review_helpful_crud_own" ON review_helpful;
+CREATE POLICY "review_helpful_crud_own" ON review_helpful
+  FOR ALL
+  USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "review_helpful_select_all" ON review_helpful;
+CREATE POLICY "review_helpful_select_all" ON review_helpful
+  FOR SELECT
+  USING (true);
+
+GRANT SELECT ON review_helpful TO anon;
+GRANT SELECT, INSERT, DELETE ON review_helpful TO authenticated;
 
 -- 確認メッセージ
 SELECT 'All RLS permissions and GRANT privileges configured successfully' AS status;

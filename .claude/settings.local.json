@@ -43,7 +43,9 @@
       "Bash(supabase:*)",
       "Bash(netstat:*)",
       "Bash(node:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(ls:*)",
+      "Bash(grep:*)"
     ]
   }
 }
