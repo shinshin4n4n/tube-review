@@ -28,7 +28,7 @@ export function PrefectureSelect({
 }: PrefectureSelectProps) {
   return (
     <div>
-      <Label htmlFor="prefecture" className="text-base font-semibold mb-2 block">
+      <Label htmlFor="prefecture" className="text-base font-semibold mb-2 block text-foreground">
         都道府県
       </Label>
       <Select value={value || 'unspecified'} onValueChange={onChange} disabled={disabled}>
