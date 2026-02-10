@@ -1,5 +1,5 @@
 /**
- * 日本の47都道府県リスト
+ * 日本の47都道府県と海外
  */
 export const PREFECTURES = [
   '北海道',
@@ -49,6 +49,7 @@ export const PREFECTURES = [
   '宮崎県',
   '鹿児島県',
   '沖縄県',
+  '海外',
 ] as const;
 
 export type Prefecture = (typeof PREFECTURES)[number];
