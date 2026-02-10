@@ -101,12 +101,12 @@ export async function updateMyListAction(
     if (validated.isPublic !== undefined)
       updateData.is_public = validated.isPublic;
 
-    // リストを更新（RLSで自分のリストのみ更新可能）
+    // リストを更新
+    // RLSポリシー 'lists_update_own' で user_id チェック済み
     const { data, error } = await supabase
       .from('lists')
       .update(updateData)
       .eq('id', listId)
-      .eq('user_id', user.id) // 自分のリストのみ更新
       .select()
       .single();
 
@@ -160,12 +160,12 @@ export async function deleteMyListAction(
     // Supabaseクライアント作成
     const supabase = await createClient();
 
-    // リストを削除（RLSで自分のリストのみ削除可能）
+    // リストを削除
+    // RLSポリシー 'lists_delete_own' で user_id チェック済み
     const { error } = await supabase
       .from('lists')
       .delete()
-      .eq('id', listId)
-      .eq('user_id', user.id); // 自分のリストのみ削除
+      .eq('id', listId);
 
     if (error) {
       console.error('Supabase error:', error);

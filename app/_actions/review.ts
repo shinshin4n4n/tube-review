@@ -329,7 +329,7 @@ export async function updateReviewAction(
         updated_at: new Date().toISOString(),
       })
       .eq('id', reviewId)
-      .eq('user_id', user.id) // 自分のレビューのみ更新
+      // RLSポリシー 'reviews_update_own' で user_id チェック済み
       .select('*, channel:channels!inner(youtube_channel_id)')
       .single();
 
@@ -414,11 +414,11 @@ export async function deleteReviewAction(
       : channel?.youtube_channel_id;
 
     // ソフトデリート（deleted_atを設定）
+    // RLSポリシー 'reviews_update_own' で user_id チェック済み
     const { error } = await supabase
       .from('reviews')
       .update({ deleted_at: new Date().toISOString() })
-      .eq('id', reviewId)
-      .eq('user_id', user.id); // 自分のレビューのみ削除
+      .eq('id', reviewId);
 
     if (error) {
       console.error('Supabase error:', error);
