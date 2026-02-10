@@ -3,6 +3,8 @@ import { HeroSection } from '@/app/_components/hero-section';
 import { PopularChannels } from '@/app/_components/popular-channels';
 import { RecentReviews } from '@/app/_components/recent-reviews';
 import { getRankingChannels, getRecentReviews } from '@/app/_actions/ranking';
+import { formatDistanceToNow } from 'date-fns';
+import { ja } from 'date-fns/locale';
 
 /**
  * ISR設定（1時間ごとに再生成）
@@ -23,6 +25,15 @@ export default async function Home() {
     getRecentReviews(1, 20),
   ]);
 
+  // 日付を事前フォーマット
+  const reviewsWithFormattedDates = recentReviewsData.reviews.map((review) => ({
+    ...review,
+    formattedDate: formatDistanceToNow(new Date(review.created_at), {
+      addSuffix: true,
+      locale: ja,
+    }),
+  }));
+
   return (
     <Layout>
       <div className="space-y-12">
@@ -33,7 +44,7 @@ export default async function Home() {
         <PopularChannels channels={rankingChannels} />
 
         {/* 新着レビュー */}
-        <RecentReviews reviews={recentReviewsData.reviews} />
+        <RecentReviews reviews={reviewsWithFormattedDates} />
       </div>
     </Layout>
   );
