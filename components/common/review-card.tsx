@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { StarRating } from './star-rating';
 import HelpfulButton from '@/app/_components/helpful-button';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ja } from 'date-fns/locale';
 
 interface ReviewCardProps {
   review: ReviewWithUser;
   currentUserId?: string;
+  formattedDate?: string;
   onEdit?: (reviewId: string) => void;
   onDelete?: (reviewId: string) => void;
 }
@@ -24,18 +25,18 @@ interface ReviewCardProps {
 export default function ReviewCard({
   review,
   currentUserId,
+  formattedDate,
   onEdit,
   onDelete,
 }: ReviewCardProps) {
   const [isSpoilerExpanded, setIsSpoilerExpanded] = useState(false);
-  const [isClient, setIsClient] = useState(false);
   const isOwner = currentUserId === review.user_id;
 
-  // マウント後にクライアントサイドフラグを設定
-  useEffect(() => {
-    const timer = setTimeout(() => setIsClient(true), 0);
-    return () => clearTimeout(timer);
-  }, []);
+  // 日付フォーマット（propsで渡されていない場合はクライアント側でフォーマット）
+  const displayDate = formattedDate || formatDistanceToNow(new Date(review.created_at), {
+    addSuffix: true,
+    locale: ja,
+  });
 
   return (
     <Card data-testid="review-card">
@@ -58,12 +59,7 @@ export default function ReviewCard({
                 {review.user.display_name || review.user.username}
               </p>
               <p className="text-sm text-gray-500" data-testid="review-date">
-                {isClient
-                  ? formatDistanceToNow(new Date(review.created_at), {
-                      addSuffix: true,
-                      locale: ja,
-                    })
-                  : new Date(review.created_at).toLocaleDateString('ja-JP')}
+                {displayDate}
               </p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { PaginatedReviews, ReviewWithUser } from '@/lib/types/review';
 import ReviewCard from '@/components/common/review-card';
@@ -9,6 +9,8 @@ import ReviewEditDialog from './review-edit-dialog';
 import DeleteReviewDialog from './delete-review-dialog';
 import { deleteReviewAction } from '@/app/_actions/review';
 import { useToast } from '@/hooks/use-toast';
+import { formatDistanceToNow } from 'date-fns';
+import { ja } from 'date-fns/locale';
 
 interface ReviewListProps {
   initialData: PaginatedReviews;
@@ -32,6 +34,17 @@ export default function ReviewList({
   );
   const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // レビューの日付を事前フォーマット
+  const reviewsWithFormattedDates = useMemo(() => {
+    return initialData.reviews.map((review) => ({
+      review,
+      formattedDate: formatDistanceToNow(new Date(review.created_at), {
+        addSuffix: true,
+        locale: ja,
+      }),
+    }));
+  }, [initialData.reviews]);
 
   const handleEdit = (reviewId: string) => {
     const review = initialData.reviews.find((r) => r.id === reviewId);
@@ -92,11 +105,12 @@ export default function ReviewList({
     <>
       <div>
         <div className="space-y-4">
-          {initialData.reviews.map((review) => (
+          {reviewsWithFormattedDates.map(({ review, formattedDate }) => (
             <ReviewCard
               key={review.id}
               review={review}
               currentUserId={currentUserId}
+              formattedDate={formattedDate}
               onEdit={() => handleEdit(review.id)}
               onDelete={() => handleDelete(review.id)}
             />

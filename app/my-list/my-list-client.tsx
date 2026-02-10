@@ -1,11 +1,14 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MyListCard from '@/app/_components/my-list-card';
 import type { UserChannelWithChannel } from '@/lib/types/user-channel';
 import type { ChannelStatus } from '@/lib/validations/user-channel';
 import { STATUS_LABELS } from '@/lib/types/user-channel';
+import { formatDistanceToNow } from 'date-fns';
+import { ja } from 'date-fns/locale';
 
 /**
  * 空の状態を表示するコンポーネント
@@ -20,14 +23,25 @@ const EmptyState = ({ message }: { message: string }) => (
  * チャンネルグリッド表示コンポーネント
  */
 const ChannelGrid = ({ channels }: { channels: UserChannelWithChannel[] }) => {
+  // 日付を事前フォーマット
+  const channelsWithFormattedDates = useMemo(() => {
+    return channels.map((item) => ({
+      item,
+      formattedDate: formatDistanceToNow(new Date(item.created_at), {
+        addSuffix: true,
+        locale: ja,
+      }),
+    }));
+  }, [channels]);
+
   if (channels.length === 0) {
     return <EmptyState message="まだチャンネルを追加していません" />;
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {channels.map((item) => (
-        <MyListCard key={item.id} item={item} />
+      {channelsWithFormattedDates.map(({ item, formattedDate }) => (
+        <MyListCard key={item.id} item={item} formattedDate={formattedDate} />
       ))}
     </div>
   );

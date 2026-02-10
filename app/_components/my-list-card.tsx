@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   updateMyListStatusAction,
   removeFromMyListAction,
@@ -26,20 +26,16 @@ import { STATUS_LABELS } from '@/lib/types/user-channel';
 
 interface MyListCardProps {
   item: UserChannelWithChannel;
+  formattedDate?: string;
 }
 
 /**
  * マイリストチャンネルカード
  */
-export default function MyListCard({ item }: MyListCardProps) {
+export default function MyListCard({ item, formattedDate }: MyListCardProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const handleStatusChange = async (newStatus: ChannelStatus) => {
     if (newStatus === item.status) return;
@@ -117,12 +113,12 @@ export default function MyListCard({ item }: MyListCardProps) {
   };
 
   const currentLabel = STATUS_LABELS[item.status];
-  const addedDate = isClient
-    ? formatDistanceToNow(new Date(item.created_at), {
-        addSuffix: true,
-        locale: ja,
-      })
-    : new Date(item.created_at).toLocaleDateString('ja-JP');
+
+  // 日付フォーマット（propsで渡されていない場合はクライアント側でフォーマット）
+  const addedDate = formattedDate || formatDistanceToNow(new Date(item.created_at), {
+    addSuffix: true,
+    locale: ja,
+  });
 
   return (
     <Card className="hover:shadow-lg transition-shadow">

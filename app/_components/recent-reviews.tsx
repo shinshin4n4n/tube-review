@@ -3,13 +3,15 @@ import Image from 'next/image';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Star } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { ja } from 'date-fns/locale';
 import type { RecentReviewWithChannel } from '@/lib/types/ranking';
 import Pagination from '@/components/common/pagination';
 
+type ReviewWithFormattedDate = RecentReviewWithChannel & {
+  formattedDate?: string;
+};
+
 interface RecentReviewsProps {
-  reviews: RecentReviewWithChannel[];
+  reviews: ReviewWithFormattedDate[];
   pagination?: {
     page: number;
     limit: number;
@@ -85,12 +87,7 @@ export function RecentReviews({ reviews, pagination }: RecentReviewsProps) {
                     <div className="flex items-center gap-2 text-xs text-content-secondary">
                       <span>{review.user.display_name || review.user.username}</span>
                       <span>•</span>
-                      <span suppressHydrationWarning>
-                        {formatDistanceToNow(new Date(review.created_at), {
-                          addSuffix: true,
-                          locale: ja,
-                        })}
-                      </span>
+                      <span>{review.formattedDate}</span>
                     </div>
                   </div>
 

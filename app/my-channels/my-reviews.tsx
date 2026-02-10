@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,11 +25,17 @@ export default function MyReviews() {
   const [error, setError] = useState<string | null>(null);
   const [deletingReviewId, setDeletingReviewId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  // レビューの日付を事前フォーマット
+  const reviewsWithFormattedDates = useMemo(() => {
+    return reviews.map((review) => ({
+      review,
+      formattedDate: formatDistanceToNow(new Date(review.created_at), {
+        addSuffix: true,
+        locale: ja,
+      }),
+    }));
+  }, [reviews]);
 
   // データ取得
   useEffect(() => {
@@ -123,7 +129,7 @@ export default function MyReviews() {
       </div>
 
       <div className="space-y-4">
-        {reviews.map((review) => (
+        {reviewsWithFormattedDates.map(({ review, formattedDate }) => (
           <Card key={review.id} className="hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               {/* チャンネル情報 */}
@@ -151,12 +157,7 @@ export default function MyReviews() {
                 <div className="flex items-center justify-between">
                   <StarRating rating={review.rating} size={20} />
                   <p className="text-sm text-gray-500">
-                    {isClient
-                      ? formatDistanceToNow(new Date(review.created_at), {
-                          addSuffix: true,
-                          locale: ja,
-                        })
-                      : new Date(review.created_at).toLocaleDateString('ja-JP')}
+                    {formattedDate}
                   </p>
                 </div>
 

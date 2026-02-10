@@ -2,6 +2,8 @@ import { Layout } from '@/components/layout';
 import { RecentReviews } from '@/app/_components/recent-reviews';
 import { getRecentReviews } from '@/app/_actions/ranking';
 import { MessageSquare } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { ja } from 'date-fns/locale';
 
 export const metadata = {
   title: 'すべてのレビュー | TubeReview',
@@ -23,6 +25,15 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
   // レビューを取得（20件/ページ）
   const data = await getRecentReviews(page, 20);
 
+  // 日付を事前フォーマット
+  const reviewsWithFormattedDates = data.reviews.map((review) => ({
+    ...review,
+    formattedDate: formatDistanceToNow(new Date(review.created_at), {
+      addSuffix: true,
+      locale: ja,
+    }),
+  }));
+
   return (
     <Layout>
       <div className="max-w-6xl mx-auto">
@@ -40,7 +51,7 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
         </div>
 
         {/* レビュー一覧 */}
-        <RecentReviews reviews={data.reviews} pagination={data.pagination} />
+        <RecentReviews reviews={reviewsWithFormattedDates} pagination={data.pagination} />
       </div>
     </Layout>
   );
