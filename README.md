@@ -118,6 +118,7 @@
 | [Supabase](https://supabase.com/) | 2.93.3 | 認証・データベース・ストレージ |
 | [PostgreSQL](https://www.postgresql.org/) | - | データベース (Supabase経由) |
 | [YouTube Data API v3](https://developers.google.com/youtube/v3) | - | チャンネル情報取得 |
+| [Upstash Redis](https://upstash.com/) | - | 高速キャッシュ（2層キャッシュ戦略） |
 
 ### バリデーション・ユーティリティ
 
