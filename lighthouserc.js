@@ -7,7 +7,8 @@ module.exports = {
   ci: {
     collect: {
       // Next.jsのプロダクションサーバーを起動
-      startServerCommand: 'npm run build && npm start',
+      // Note: GitHub Actions workflow内で既にビルド済みのため、npm startのみ実行
+      startServerCommand: 'npm start',
       startServerReadyPattern: 'Ready',
       startServerReadyTimeout: 60000, // 60秒
 
