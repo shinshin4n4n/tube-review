@@ -152,16 +152,21 @@ test.describe('カテゴリーページ', () => {
     test('ヘッダーからカテゴリーページにアクセスできる', async ({
       page,
     }) => {
-      // トップページにアクセス
-      await page.goto('/');
+      // トップページにアクセス（ネットワークがアイドル状態になるまで待つ）
+      await page.goto('/', { waitUntil: 'networkidle' });
 
       // ヘッダーのカテゴリーリンクをクリック（デスクトップ表示）
+      // デスクトップナビゲーションメニューから「カテゴリー」リンクを取得
       const categoryLink = page.getByRole('link', { name: 'カテゴリー' }).first();
       await categoryLink.waitFor({ state: 'visible', timeout: 5000 });
-      await categoryLink.click();
 
-      // カテゴリー一覧ページに遷移
-      await expect(page).toHaveURL('/categories');
+      // ナビゲーション完了を待ってからクリック
+      await Promise.all([
+        page.waitForURL('/categories', { timeout: 10000 }),
+        categoryLink.click(),
+      ]);
+
+      // カテゴリー一覧ページの要素が表示されることを確認
       await expect(
         page.getByRole('heading', { name: 'カテゴリー一覧', level: 1 })
       ).toBeVisible();

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('トップページ（ランキング）', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'networkidle' });
   });
 
   test('ヒーローセクションが表示される', async ({ page }) => {

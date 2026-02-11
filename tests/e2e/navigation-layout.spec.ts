@@ -110,16 +110,20 @@ test.describe('Navigation - Header Links', () => {
     await expect(page).toHaveURL('/');
   });
 
-  test('ヘッダーからマイリストページに遷移できる', async ({ page }) => {
-    await page.goto('/');
+  test('ヘッダーからマイチャンネルページに遷移できる', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    await page.click('header a:has-text("マイリスト")');
+    const myChannelsLink = page.getByRole('link', { name: 'マイチャンネル' });
+    await Promise.all([
+      page.waitForNavigation({ timeout: 10000 }),
+      myChannelsLink.click(),
+    ]);
 
     // 未認証の場合はログインページにリダイレクト
     if (page.url().includes('/login')) {
-      await expect(page).toHaveURL('/login');
+      await expect(page).toHaveURL(/\/login/);
     } else {
-      await expect(page).toHaveURL('/my-list');
+      await expect(page).toHaveURL('/my-channels');
     }
   });
 

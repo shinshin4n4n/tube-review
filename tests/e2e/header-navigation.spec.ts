@@ -11,47 +11,47 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Header Navigation - Desktop', () => {
   test('デスクトップでトップページへのリンクが表示される', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const topLink = page.locator('header nav.hidden.md\\:flex a:has-text("トップ")');
+    const topLink = page.getByRole('link', { name: 'トップ' });
     await expect(topLink).toBeVisible();
     await expect(topLink).toHaveAttribute('href', '/');
   });
 
-  test('デスクトップで検索ページへのリンクが表示される', async ({ page }) => {
-    await page.goto('/');
+  test('デスクトップでランキングページへのリンクが表示される', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const searchLink = page.locator('header nav.hidden.md\\:flex a:has-text("検索")');
-    await expect(searchLink).toBeVisible();
-    await expect(searchLink).toHaveAttribute('href', '/search');
+    const rankingLink = page.getByRole('link', { name: 'ランキング' });
+    await expect(rankingLink).toBeVisible();
+    await expect(rankingLink).toHaveAttribute('href', '/ranking');
   });
 
-  test('デスクトップでマイリストページへのリンクが表示される', async ({ page }) => {
-    await page.goto('/');
+  test('デスクトップでマイチャンネルページへのリンクが表示される', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    const myListLink = page.locator('header nav.hidden.md\\:flex a:has-text("マイリスト")');
-    await expect(myListLink).toBeVisible();
-    await expect(myListLink).toHaveAttribute('href', '/my-list');
+    const myChannelsLink = page.getByRole('link', { name: 'マイチャンネル' });
+    await expect(myChannelsLink).toBeVisible();
+    await expect(myChannelsLink).toHaveAttribute('href', '/my-channels');
   });
 
-  test('存在しないページへのリンク（/ranking, /new）が削除されている', async ({ page }) => {
-    await page.goto('/');
+  test('デスクトップでカテゴリーページへのリンクが表示される', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    // ランキングリンクが存在しない
-    const rankingLink = page.locator('header a:has-text("ランキング")');
-    await expect(rankingLink).not.toBeVisible();
-
-    // 新着リンクが存在しない
-    const newLink = page.locator('header a:has-text("新着")');
-    await expect(newLink).not.toBeVisible();
+    const categoriesLink = page.getByRole('link', { name: 'カテゴリー' });
+    await expect(categoriesLink).toBeVisible();
+    await expect(categoriesLink).toHaveAttribute('href', '/categories');
   });
 
-  test('検索ページへのリンクが機能する', async ({ page }) => {
-    await page.goto('/');
+  test('ランキングページへのリンクが機能する', async ({ page }) => {
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    await page.click('header nav.hidden.md\\:flex a:has-text("検索")');
+    const rankingLink = page.getByRole('link', { name: 'ランキング' });
+    await Promise.all([
+      page.waitForURL('/ranking', { timeout: 10000 }),
+      rankingLink.click(),
+    ]);
 
-    await expect(page).toHaveURL('/search');
+    await expect(page).toHaveURL('/ranking');
   });
 });
 
@@ -97,7 +97,7 @@ test.describe('Header Navigation - Mobile Menu', () => {
   });
 
   test('モバイルメニューにナビゲーションリンクが表示される', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'networkidle' });
 
     // メニューを開く
     await page.click('header button[aria-label="メニュー"]');
@@ -106,8 +106,10 @@ test.describe('Header Navigation - Mobile Menu', () => {
     // Sheetの中のナビゲーションボタンを確認
     const nav = page.locator('[role="dialog"]');
     await expect(nav.locator('button:has-text("トップ")')).toBeVisible();
-    await expect(nav.locator('button:has-text("検索")')).toBeVisible();
+    await expect(nav.locator('button:has-text("ランキング")')).toBeVisible();
+    await expect(nav.locator('button:has-text("カテゴリー")')).toBeVisible();
     await expect(nav.locator('button:has-text("マイリスト")')).toBeVisible();
+    await expect(nav.locator('button:has-text("ちゅぶれびゅ！とは")')).toBeVisible();
   });
 
   test('モバイルメニューの未認証時にログインリンクが表示される', async ({ page }) => {
@@ -138,11 +140,11 @@ test.describe('Header Navigation - Mobile Menu', () => {
 test.describe('Responsive Layout', () => {
   test('デスクトップ（768px以上）でデスクトップナビゲーションが表示される', async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 768 });
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'networkidle' });
 
-    // デスクトップナビゲーションが表示される
-    const desktopNav = page.locator('header nav.hidden.md\\:flex');
-    await expect(desktopNav).toBeVisible();
+    // デスクトップナビゲーションが表示される（NavMenuのリンクを確認）
+    const topLink = page.getByRole('link', { name: 'トップ' });
+    await expect(topLink).toBeVisible();
 
     // モバイルメニューボタンが非表示
     const mobileButton = page.locator('header button[aria-label="メニュー"]');

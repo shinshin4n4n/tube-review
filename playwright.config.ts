@@ -10,6 +10,9 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
+    // デフォルトのナビゲーション待機戦略
+    navigationTimeout: 30000,
+    actionTimeout: 10000,
   },
   projects: [
     {
