@@ -18,7 +18,8 @@
     "generate-demo-data": "tsx scripts/generate-demo-data.ts",
     "generate-demo-data:prod": "cross-env NODE_ENV=production tsx scripts/generate-demo-data.ts",
     "update-thumbnails": "tsx scripts/update-channel-thumbnails.ts",
-    "update-thumbnails:prod": "cross-env NODE_ENV=production tsx scripts/update-channel-thumbnails.ts"
+    "update-thumbnails:prod": "cross-env NODE_ENV=production tsx scripts/update-channel-thumbnails.ts",
+    "fix-channel-ids": "tsx scripts/fix-channel-ids.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
