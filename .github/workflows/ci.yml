@@ -94,6 +94,8 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key
           YOUTUBE_API_KEY=dummy-youtube-api-key
           SUPABASE_SERVICE_ROLE_KEY=dummy-service-role-key
+          NEXTAUTH_SECRET=dummy-nextauth-secret-for-ci-build-only
+          NEXTAUTH_URL=http://localhost:3000
           EOF
 
       - name: Build Next.js application
