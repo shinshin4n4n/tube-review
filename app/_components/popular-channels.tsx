@@ -29,7 +29,7 @@ export function PopularChannels({ channels }: PopularChannelsProps) {
   }
 
   return (
-    <section className="space-y-6" id="ranking">
+    <section className="space-y-6" id="ranking" data-testid="ranking-list">
       {/* セクションタイトル */}
       <div className="flex items-center gap-2">
         <TrendingUp className="text-accent" size={28} />
@@ -46,6 +46,7 @@ export function PopularChannels({ channels }: PopularChannelsProps) {
             key={channel.id}
             href={`/channels/${channel.id}`}
             className="block group"
+            data-testid="ranking-item"
           >
             <Card className="h-full transition-all duration-300 hover:shadow-md hover:-translate-y-1 bg-surface border-stroke">
               <CardContent className="p-3 space-y-2">

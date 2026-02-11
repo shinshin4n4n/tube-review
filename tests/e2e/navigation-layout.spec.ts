@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Layout Component - Header & Footer Display', () => {
   test('トップページでヘッダー・フッターが表示される', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'networkidle' });
 
     // ヘッダーが表示されている
     await expect(page.locator('header')).toBeVisible();
@@ -19,7 +19,7 @@ test.describe('Layout Component - Header & Footer Display', () => {
   });
 
   test('検索ページでヘッダー・フッターが表示される', async ({ page }) => {
-    await page.goto('/search');
+    await page.goto('/search', { waitUntil: 'networkidle' });
 
     // ヘッダーが表示されている
     await expect(page.locator('header')).toBeVisible();
@@ -103,7 +103,7 @@ test.describe('Layout Component - Header & Footer Display', () => {
 
 test.describe('Navigation - Header Links', () => {
   test('ヘッダーからトップページに遷移できる', async ({ page }) => {
-    await page.goto('/search');
+    await page.goto('/search', { waitUntil: 'networkidle' });
 
     await page.click('header a:has-text("トップ")');
 
@@ -128,7 +128,7 @@ test.describe('Navigation - Header Links', () => {
   });
 
   test('ヘッダーのロゴからトップページに遷移できる', async ({ page }) => {
-    await page.goto('/search');
+    await page.goto('/search', { waitUntil: 'networkidle' });
 
     await page.click('header a:has-text("ちゅぶれびゅ！")');
 
@@ -141,7 +141,7 @@ test.describe('Responsive Layout', () => {
     // iPhone SE サイズ
     await page.setViewportSize({ width: 375, height: 667 });
 
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'networkidle' });
 
     // ヘッダーが表示されている
     await expect(page.locator('header')).toBeVisible();
@@ -154,7 +154,7 @@ test.describe('Responsive Layout', () => {
     // iPad サイズ
     await page.setViewportSize({ width: 768, height: 1024 });
 
-    await page.goto('/search');
+    await page.goto('/search', { waitUntil: 'networkidle' });
 
     // ヘッダーが表示されている
     await expect(page.locator('header')).toBeVisible();
