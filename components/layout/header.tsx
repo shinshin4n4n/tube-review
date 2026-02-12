@@ -46,6 +46,7 @@ export async function Header() {
             <Link
               href="/"
               className="text-xl font-bold hover:opacity-90 transition-opacity shrink-0"
+              data-testid="header-logo"
             >
               ちゅぶれびゅ！
             </Link>

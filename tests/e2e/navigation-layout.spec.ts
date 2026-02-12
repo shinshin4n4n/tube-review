@@ -11,7 +11,7 @@ test.describe('Layout Component - Header & Footer Display', () => {
 
     // ヘッダーが表示されている
     await expect(page.locator('header')).toBeVisible();
-    await expect(page.locator('header a:has-text("ちゅぶれびゅ！")')).toBeVisible();
+    await expect(page.locator('[data-testid="header-logo"]')).toBeVisible();
 
     // フッターが表示されている
     await expect(page.locator('footer')).toBeVisible();
@@ -23,7 +23,7 @@ test.describe('Layout Component - Header & Footer Display', () => {
 
     // ヘッダーが表示されている
     await expect(page.locator('header')).toBeVisible();
-    await expect(page.locator('header a:has-text("ちゅぶれびゅ！")')).toBeVisible();
+    await expect(page.locator('[data-testid="header-logo"]')).toBeVisible();
 
     // フッターが表示されている
     await expect(page.locator('footer')).toBeVisible();
@@ -38,7 +38,7 @@ test.describe('Layout Component - Header & Footer Display', () => {
 
     // ヘッダーが表示されている
     await expect(page.locator('header')).toBeVisible();
-    await expect(page.locator('header a:has-text("ちゅぶれびゅ！")')).toBeVisible();
+    await expect(page.locator('[data-testid="header-logo"]')).toBeVisible();
 
     // フッターが表示されている
     await expect(page.locator('footer')).toBeVisible();
@@ -59,7 +59,7 @@ test.describe('Layout Component - Header & Footer Display', () => {
 
     // ヘッダーが表示されている
     await expect(page.locator('header')).toBeVisible();
-    await expect(page.locator('header a:has-text("ちゅぶれびゅ！")')).toBeVisible();
+    await expect(page.locator('[data-testid="header-logo"]')).toBeVisible();
 
     // フッターが表示されている
     await expect(page.locator('footer')).toBeVisible();
@@ -76,7 +76,7 @@ test.describe('Layout Component - Header & Footer Display', () => {
 
     // ヘッダーが表示されている
     await expect(page.locator('header')).toBeVisible();
-    await expect(page.locator('header a:has-text("ちゅぶれびゅ！")')).toBeVisible();
+    await expect(page.locator('[data-testid="header-logo"]')).toBeVisible();
 
     // フッターが表示されている
     await expect(page.locator('footer')).toBeVisible();
@@ -93,7 +93,7 @@ test.describe('Layout Component - Header & Footer Display', () => {
 
     // ヘッダーが表示されている
     await expect(page.locator('header')).toBeVisible();
-    await expect(page.locator('header a:has-text("ちゅぶれびゅ！")')).toBeVisible();
+    await expect(page.locator('[data-testid="header-logo"]')).toBeVisible();
 
     // フッターが表示されている
     await expect(page.locator('footer')).toBeVisible();
@@ -105,7 +105,7 @@ test.describe('Navigation - Header Links', () => {
   test('ヘッダーからトップページに遷移できる', async ({ page }) => {
     await page.goto('/search', { waitUntil: 'networkidle' });
 
-    await page.click('header a:has-text("トップ")');
+    await page.click('[data-testid="nav-desktop-トップ"]');
 
     await expect(page).toHaveURL('/');
   });
@@ -113,7 +113,7 @@ test.describe('Navigation - Header Links', () => {
   test('ヘッダーからマイチャンネルページに遷移できる', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
 
-    const myChannelsLink = page.getByRole('link', { name: 'マイチャンネル' });
+    const myChannelsLink = page.locator('[data-testid="nav-desktop-マイチャンネル"]');
     await Promise.all([
       page.waitForNavigation({ timeout: 10000 }),
       myChannelsLink.click(),
@@ -130,7 +130,7 @@ test.describe('Navigation - Header Links', () => {
   test('ヘッダーのロゴからトップページに遷移できる', async ({ page }) => {
     await page.goto('/search', { waitUntil: 'networkidle' });
 
-    await page.click('header a:has-text("ちゅぶれびゅ！")');
+    await page.click('[data-testid="header-logo"]');
 
     await expect(page).toHaveURL('/');
   });
