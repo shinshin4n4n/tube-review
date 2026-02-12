@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Logout Flow', () => {
   test.beforeEach(async ({ page }) => {
+    // デスクトップサイズに設定（ログインボタンはデスクトップのみ表示）
+    await page.setViewportSize({ width: 1024, height: 768 });
     // ログインページに移動
     await page.goto('/login');
   });

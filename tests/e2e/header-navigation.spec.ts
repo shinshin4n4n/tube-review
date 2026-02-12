@@ -10,6 +10,11 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Header Navigation - Desktop', () => {
+  test.beforeEach(async ({ page }) => {
+    // デスクトップサイズに設定（768px以上でNavMenuが表示される）
+    await page.setViewportSize({ width: 1024, height: 768 });
+  });
+
   test('デスクトップでトップページへのリンクが表示される', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
 
@@ -56,6 +61,11 @@ test.describe('Header Navigation - Desktop', () => {
 });
 
 test.describe('Header Navigation - Unauthenticated User', () => {
+  test.beforeEach(async ({ page }) => {
+    // デスクトップサイズに設定（ログインボタンはデスクトップのみ表示）
+    await page.setViewportSize({ width: 1024, height: 768 });
+  });
+
   test('未認証時にログインボタンが表示される', async ({ page }) => {
     await page.goto('/');
 
@@ -74,9 +84,11 @@ test.describe('Header Navigation - Unauthenticated User', () => {
 });
 
 test.describe('Header Navigation - Mobile Menu', () => {
-  test.beforeEach(async ({ page }) => {
-    // モバイルサイズに設定
-    await page.setViewportSize({ width: 375, height: 667 });
+  test.beforeEach(async ({ page, isMobile }) => {
+    // mobile-chromeプロジェクトではデフォルトでモバイル、それ以外は明示的に設定
+    if (!isMobile) {
+      await page.setViewportSize({ width: 375, height: 667 });
+    }
   });
 
   test('モバイルでハンバーガーメニューボタンが表示される', async ({ page }) => {

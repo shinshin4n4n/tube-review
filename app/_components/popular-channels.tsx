@@ -16,7 +16,7 @@ interface PopularChannelsProps {
 export function PopularChannels({ channels }: PopularChannelsProps) {
   if (channels.length === 0) {
     return (
-      <section className="space-y-6">
+      <section className="space-y-6" data-testid="ranking-list">
         <div className="flex items-center gap-2">
           <TrendingUp className="text-accent" size={28} />
           <h2 className="text-2xl md:text-3xl font-bold text-content">今週の人気</h2>

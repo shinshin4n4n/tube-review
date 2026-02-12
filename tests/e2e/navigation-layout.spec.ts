@@ -105,6 +105,11 @@ test.describe('Layout Component - Header & Footer Display', () => {
 });
 
 test.describe('Navigation - Header Links', () => {
+  test.beforeEach(async ({ page }) => {
+    // デスクトップサイズに設定（768px以上でNavMenuが表示される）
+    await page.setViewportSize({ width: 1024, height: 768 });
+  });
+
   test('ヘッダーからトップページに遷移できる', async ({ page }) => {
     await page.goto('/search', { waitUntil: 'networkidle' });
 
