@@ -40,6 +40,7 @@ const supabase =
 
 /**
  * テスト用チャンネルデータ
+ * 既存のデータベースから取得したデータを使用
  */
 const testChannels = [
   {
@@ -51,6 +52,19 @@ const testChannels = [
     subscriber_count: 2500000,
     video_count: 5000,
     view_count: 500000000,
+    cache_updated_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    youtube_channel_id: 'UCZf__ehlCEBPop-_sldpBUQ',
+    title: 'HikakinTV',
+    description:
+      '登録ありがとうございます。\n◆プロフィール◆\nYouTubeにてHIKAKIN、HikakinTV、HikakinGames、HiakkinClipTV、HikakinBlogと\n5つのチャンネルを運営し、動画の総アクセス数は180億回を突破、\nチャンネル登録者数は計2000万人以上、YouTubeタレント事務所uuum株式会社ファウンダー兼最高顧問。',
+    thumbnail_url:
+      'https://yt3.ggpht.com/kTCjv_Oh6U18R1VgElKFG3xDOK9xM1m9FcNCQkQHEP3dFEDjDoBj7DIhL7r0wVl94L9G_onKIZ4=s800-c-k-c0x00ffffff-no-rj',
+    subscriber_count: 19600000,
+    video_count: 3676,
+    view_count: 15052480036,
     cache_updated_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
