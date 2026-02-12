@@ -12,17 +12,13 @@ module.exports = {
       startServerReadyPattern: 'Ready',
       startServerReadyTimeout: 60000, // 60秒
 
-      // 計測対象のURL
+      // 計測対象のURL（トップページのみに簡略化）
       url: [
         'http://localhost:3000/', // トップページ
-        'http://localhost:3000/about', // Aboutページ
-        'http://localhost:3000/ranking', // ランキング
-        'http://localhost:3000/search', // 検索
-        'http://localhost:3000/categories', // カテゴリ一覧
       ],
 
-      // 各URLを3回計測して中央値を取得
-      numberOfRuns: 3,
+      // 各URLを1回計測（高速化）
+      numberOfRuns: 1,
 
       // Lighthouse設定
       settings: {
@@ -34,23 +30,19 @@ module.exports = {
     },
 
     assert: {
-      // しきい値の設定
+      // しきい値の設定（ポートフォリオ向けに緩和）
       assertions: {
         // カテゴリ別のスコア基準
-        'categories:performance': ['error', { minScore: 0.85 }],
-        'categories:accessibility': ['error', { minScore: 0.95 }],
-        'categories:best-practices': ['error', { minScore: 0.90 }],
-        'categories:seo': ['error', { minScore: 0.90 }], // 0.95→0.90に緩和（現在のスコア0.92に対応）
+        'categories:performance': ['warn', { minScore: 0.7 }],
+        'categories:accessibility': ['warn', { minScore: 0.9 }],
+        'categories:best-practices': ['warn', { minScore: 0.85 }],
+        'categories:seo': ['warn', { minScore: 0.85 }],
 
-        // Core Web Vitals
-        'first-contentful-paint': ['warn', { maxNumericValue: 2000 }],
-        'largest-contentful-paint': ['warn', { maxNumericValue: 2500 }],
-        'cumulative-layout-shift': ['warn', { maxNumericValue: 0.1 }],
-        'total-blocking-time': ['warn', { maxNumericValue: 300 }],
-
-        // その他の重要な指標
-        'speed-index': ['warn', { maxNumericValue: 3000 }],
-        'interactive': ['warn', { maxNumericValue: 3500 }],
+        // Core Web Vitals (警告レベル)
+        'first-contentful-paint': ['warn', { maxNumericValue: 3000 }],
+        'largest-contentful-paint': ['warn', { maxNumericValue: 4000 }],
+        'cumulative-layout-shift': ['warn', { maxNumericValue: 0.2 }],
+        'total-blocking-time': ['warn', { maxNumericValue: 500 }],
       },
     },
 

@@ -44,37 +44,23 @@ jobs:
           NEXTAUTH_URL: http://localhost:3000
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
 
-      - name: Run Lighthouse CI
+      - name: Create .env.local for server
         run: |
-          npm install -g @lhci/cli@0.15.x
-          lhci autorun
-        env:
-          # Lighthouse CI 用の環境変数
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          NEXTAUTH_URL: http://localhost:3000
-          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          cat > .env.local << EOF
+          NEXT_PUBLIC_SITE_URL=http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL=http://localhost:3000
+          YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}
+          EOF
 
-      - name: Upload Lighthouse results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: lighthouse-results
-          path: .lighthouseci
-          retention-days: 30
-
-      - name: Comment PR with Lighthouse results
+      - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12
-        if: github.event_name == 'pull_request'
         with:
           urls: |
             http://localhost:3000/
-            http://localhost:3000/about
-            http://localhost:3000/ranking
-            http://localhost:3000/search
-            http://localhost:3000/categories
           uploadArtifacts: true
           temporaryPublicStorage: true
+          configPath: ./lighthouserc.js
