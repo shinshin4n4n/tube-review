@@ -8,9 +8,9 @@ test.describe('トップページ（ランキング）', () => {
   test('ヒーローセクションが表示される', async ({ page }) => {
     // キャッチコピーの確認
     await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'おすすめに頼らない'
+      '本音で見つける、次のチャンネル'
     );
-    await expect(page.getByText('本音のレビューから')).toBeVisible();
+    await expect(page.getByText('あなたのレビューが、誰かの発見になる')).toBeVisible();
 
     // CTAボタンの確認
     await expect(page.getByRole('link', { name: /チャンネルを探す/ })).toBeVisible();
