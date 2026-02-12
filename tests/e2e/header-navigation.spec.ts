@@ -84,9 +84,11 @@ test.describe('Header Navigation - Unauthenticated User', () => {
 });
 
 test.describe('Header Navigation - Mobile Menu', () => {
-  test.beforeEach(async ({ page }) => {
-    // モバイルサイズに設定
-    await page.setViewportSize({ width: 375, height: 667 });
+  test.beforeEach(async ({ page, isMobile }) => {
+    // mobile-chromeプロジェクトではデフォルトでモバイル、それ以外は明示的に設定
+    if (!isMobile) {
+      await page.setViewportSize({ width: 375, height: 667 });
+    }
   });
 
   test('モバイルでハンバーガーメニューボタンが表示される', async ({ page }) => {
