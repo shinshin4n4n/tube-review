@@ -31,8 +31,8 @@ test.describe('Layout Component - Header & Footer Display', () => {
   });
 
   test('チャンネル詳細ページでヘッダー・フッターが表示される', async ({ page }) => {
-    // テスト用のチャンネルIDを使用（実際のIDに置き換える必要がある）
-    const testChannelId = 'UC_test_channel_id';
+    // テスト用の既知のYouTubeチャンネルID
+    const testChannelId = 'UC_x5XG1OV2P6uZZ5FSM9Ttw'; // Google Developers
 
     await page.goto(`/channels/${testChannelId}`);
 

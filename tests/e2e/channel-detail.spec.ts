@@ -56,9 +56,10 @@ test.describe('チャンネル詳細ページ', () => {
     await expect(ogImage).toHaveAttribute('content', /https?:\/\/.+/);
   });
 
-  test('検索結果からチャンネル詳細ページに遷移できる', async ({
+  test.skip('検索結果からチャンネル詳細ページに遷移できる', async ({
     page,
   }) => {
+    // TODO: YouTube API依存のため、APIエラー時に不安定になる。モック実装後に有効化
     // 検索ページにアクセス
     await page.goto('/search?q=google', { waitUntil: 'networkidle' });
 
