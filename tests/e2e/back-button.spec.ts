@@ -4,55 +4,49 @@ test.describe('戻るボタン', () => {
   test('チャンネル詳細ページに戻るボタンが表示される', async ({
     page,
   }) => {
+    // テスト用のチャンネルIDを使用（test-data-setup.tsで投入されたデータ）
+    const testChannelId = 'UC_x5XG1OV2P6uZZ5FSM9Ttw';
+
     // トップページにアクセス
     await page.goto('/');
 
-    // チャンネルカードが存在する場合のみテスト
-    const firstChannelCard = page.locator('[data-testid="channel-card"]').first();
-    const hasChannelCards = await firstChannelCard.isVisible().catch(() => false);
+    // チャンネル詳細ページに直接遷移
+    await page.goto(`/channels/${testChannelId}`);
 
-    if (hasChannelCards) {
-      await firstChannelCard.click();
+    // チャンネル詳細ページに遷移したことを確認
+    await expect(page).toHaveURL(/\/channels\/.+/);
 
-      // チャンネル詳細ページに遷移したことを確認
-      await expect(page).toHaveURL(/\/channels\/.+/);
-
-      // 戻るボタンが表示されることを確認
-      const backButton = page.locator('[data-testid="back-button"]');
-      await expect(backButton).toBeVisible();
-      await expect(backButton).toHaveText(/戻る/);
-    } else {
-      // データがない場合はスキップ
-      test.skip();
-    }
+    // 戻るボタンが表示されることを確認
+    const backButton = page.locator('[data-testid="back-button"]');
+    await expect(backButton).toBeVisible();
+    await expect(backButton).toHaveText(/戻る/);
   });
 
   test('戻るボタンをクリックすると前のページに戻る', async ({ page }) => {
+    // テスト用のチャンネルIDを使用（test-data-setup.tsで投入されたデータ）
+    const testChannelId = 'UC_x5XG1OV2P6uZZ5FSM9Ttw';
+
     // トップページにアクセス
     await page.goto('/');
 
-    // チャンネルカードが存在する場合のみテスト
-    const firstChannelCard = page.locator('[data-testid="channel-card"]').first();
-    const hasChannelCards = await firstChannelCard.isVisible().catch(() => false);
+    // チャンネル詳細ページに遷移
+    await page.goto(`/channels/${testChannelId}`);
 
-    if (hasChannelCards) {
-      await firstChannelCard.click();
+    // チャンネル詳細ページに遷移したことを確認
+    await expect(page).toHaveURL(/\/channels\/.+/);
 
-      // チャンネル詳細ページに遷移したことを確認
-      await expect(page).toHaveURL(/\/channels\/.+/);
+    // 戻るボタンをクリック
+    const backButton = page.locator('[data-testid="back-button"]');
+    await backButton.click();
 
-      // 戻るボタンをクリック
-      const backButton = page.locator('[data-testid="back-button"]');
-      await backButton.click();
-
-      // トップページに戻ることを確認
-      await expect(page).toHaveURL('/');
-    } else {
-      // データがない場合はスキップ
-      test.skip();
-    }
+    // トップページに戻ることを確認
+    await expect(page).toHaveURL('/');
   });
 
+  test.skip(
+    !process.env.RUN_YOUTUBE_API_TESTS,
+    'YouTube API tests are disabled to avoid quota/rate limits'
+  );
   test('検索ページからチャンネル詳細ページに遷移し、戻るボタンで検索ページに戻る', async ({
     page,
   }) => {
