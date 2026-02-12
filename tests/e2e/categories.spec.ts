@@ -149,6 +149,11 @@ test.describe('カテゴリーページ', () => {
   });
 
   test.describe('ナビゲーション', () => {
+    test.beforeEach(async ({ page }) => {
+      // デスクトップサイズに設定（デスクトップナビゲーションメニューを表示）
+      await page.setViewportSize({ width: 1024, height: 768 });
+    });
+
     test('ヘッダーからカテゴリーページにアクセスできる', async ({
       page,
     }) => {

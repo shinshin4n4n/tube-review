@@ -61,6 +61,11 @@ test.describe('Header Navigation - Desktop', () => {
 });
 
 test.describe('Header Navigation - Unauthenticated User', () => {
+  test.beforeEach(async ({ page }) => {
+    // デスクトップサイズに設定（ログインボタンはデスクトップのみ表示）
+    await page.setViewportSize({ width: 1024, height: 768 });
+  });
+
   test('未認証時にログインボタンが表示される', async ({ page }) => {
     await page.goto('/');
 
