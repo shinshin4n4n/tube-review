@@ -129,6 +129,11 @@ export async function cleanupTestData() {
  */
 export default async function globalSetup() {
   console.log('🚀 Global setup started...');
+  console.log(`   CWD: ${process.cwd()}`);
+  console.log(`   __dirname: ${__dirname}`);
+  console.log(`   NEXT_PUBLIC_SUPABASE_URL exists: ${!!process.env.NEXT_PUBLIC_SUPABASE_URL}`);
+  console.log(`   SUPABASE_SERVICE_ROLE_KEY exists: ${!!process.env.SUPABASE_SERVICE_ROLE_KEY}`);
+
   await setupTestData();
   console.log('✅ Global setup completed!');
 }
