@@ -13,7 +13,7 @@ test.describe('Header Navigation - Desktop', () => {
   test('デスクトップでトップページへのリンクが表示される', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
 
-    const topLink = page.getByRole('link', { name: 'トップ' });
+    const topLink = page.locator('[data-testid="nav-desktop-トップ"]');
     await expect(topLink).toBeVisible();
     await expect(topLink).toHaveAttribute('href', '/');
   });
@@ -21,7 +21,7 @@ test.describe('Header Navigation - Desktop', () => {
   test('デスクトップでランキングページへのリンクが表示される', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
 
-    const rankingLink = page.getByRole('link', { name: 'ランキング' });
+    const rankingLink = page.locator('[data-testid="nav-desktop-ランキング"]');
     await expect(rankingLink).toBeVisible();
     await expect(rankingLink).toHaveAttribute('href', '/ranking');
   });
@@ -29,7 +29,7 @@ test.describe('Header Navigation - Desktop', () => {
   test('デスクトップでマイチャンネルページへのリンクが表示される', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
 
-    const myChannelsLink = page.getByRole('link', { name: 'マイチャンネル' });
+    const myChannelsLink = page.locator('[data-testid="nav-desktop-マイチャンネル"]');
     await expect(myChannelsLink).toBeVisible();
     await expect(myChannelsLink).toHaveAttribute('href', '/my-channels');
   });
@@ -37,7 +37,7 @@ test.describe('Header Navigation - Desktop', () => {
   test('デスクトップでカテゴリーページへのリンクが表示される', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
 
-    const categoriesLink = page.getByRole('link', { name: 'カテゴリー' });
+    const categoriesLink = page.locator('[data-testid="nav-desktop-カテゴリー"]');
     await expect(categoriesLink).toBeVisible();
     await expect(categoriesLink).toHaveAttribute('href', '/categories');
   });
@@ -45,7 +45,7 @@ test.describe('Header Navigation - Desktop', () => {
   test('ランキングページへのリンクが機能する', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
 
-    const rankingLink = page.getByRole('link', { name: 'ランキング' });
+    const rankingLink = page.locator('[data-testid="nav-desktop-ランキング"]');
     await Promise.all([
       page.waitForURL('/ranking', { timeout: 10000 }),
       rankingLink.click(),
@@ -143,7 +143,7 @@ test.describe('Responsive Layout', () => {
     await page.goto('/', { waitUntil: 'networkidle' });
 
     // デスクトップナビゲーションが表示される（NavMenuのリンクを確認）
-    const topLink = page.getByRole('link', { name: 'トップ' });
+    const topLink = page.locator('[data-testid="nav-desktop-トップ"]');
     await expect(topLink).toBeVisible();
 
     // モバイルメニューボタンが非表示

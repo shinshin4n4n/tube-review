@@ -92,30 +92,35 @@ export function MobileMenu({ user, profile }: MobileMenuProps) {
           <nav className="flex flex-col gap-2">
             <button
               onClick={() => handleNavigation('/')}
+              data-testid="nav-mobile-トップ"
               className="text-left px-4 py-3 rounded-md hover:bg-base transition-colors"
             >
               トップ
             </button>
             <button
               onClick={() => handleNavigation('/ranking')}
+              data-testid="nav-mobile-ランキング"
               className="text-left px-4 py-3 rounded-md hover:bg-base transition-colors"
             >
               ランキング
             </button>
             <button
               onClick={() => handleNavigation('/categories')}
+              data-testid="nav-mobile-カテゴリー"
               className="text-left px-4 py-3 rounded-md hover:bg-base transition-colors"
             >
               カテゴリー
             </button>
             <button
               onClick={() => handleNavigation('/my-list')}
+              data-testid="nav-mobile-マイリスト"
               className="text-left px-4 py-3 rounded-md hover:bg-base transition-colors"
             >
               マイリスト
             </button>
             <button
               onClick={() => handleNavigation('/about')}
+              data-testid="nav-mobile-ちゅぶれびゅ！とは"
               className="text-left px-4 py-3 rounded-md hover:bg-base transition-colors"
             >
               ちゅぶれびゅ！とは

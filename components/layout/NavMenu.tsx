@@ -41,6 +41,7 @@ export function NavMenu() {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  data-testid={`nav-desktop-${item.label.toLowerCase()}`}
                   className={cn(
                     'flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200 rounded-t-md',
                     isActive
