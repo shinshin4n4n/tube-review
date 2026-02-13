@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js';
  * 検索エンジンにサイト構造を伝えるためのsitemap.xmlを動的生成
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.vercel.app';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.com';
 
   // 静的ページ
   const staticPages: MetadataRoute.Sitemap = [

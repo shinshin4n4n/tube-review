@@ -23,7 +23,7 @@ export async function signUp(
       email: validated.email,
       password: validated.password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/auth/callback`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.com'}/auth/callback`,
       },
     });
 
