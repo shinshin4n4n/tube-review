@@ -16,9 +16,12 @@ export async function POST(request: NextRequest) {
     }
 
     const { email } = result.data;
+
+    console.log('Creating Supabase client for email:', email);
     const supabase = await createRouteHandlerClient();
 
     // Magic Link送信
+    console.log('Sending OTP to:', email);
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -27,12 +30,21 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      console.error('Magic Link送信エラー:', error);
+      console.error('Magic Link送信エラー:', {
+        message: error.message,
+        status: error.status,
+        code: (error as any).code,
+      });
       return NextResponse.json(
-        { error: 'ログインリンクの送信に失敗しました' },
+        {
+          error: 'ログインリンクの送信に失敗しました',
+          details: error.message // 開発用：本番では削除すべき
+        },
         { status: 500 }
       );
     }
+
+    console.log('OTP sent successfully to:', email);
 
     return NextResponse.json({ success: true });
   } catch (error) {

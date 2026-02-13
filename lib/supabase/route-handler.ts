@@ -19,12 +19,22 @@ export async function createRouteHandlerClient() {
           return cookieStore.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          // Route Handlerでは直接setできる
-          cookieStore.set({ name, value, ...options });
+          try {
+            // Route Handlerでは直接setできる
+            cookieStore.set({ name, value, ...options });
+          } catch (error) {
+            // Route Handler内でのCookie設定エラーをログ出力
+            console.error('Cookie set error in route handler:', error);
+          }
         },
         remove(name: string, options: CookieOptions) {
-          // Route Handlerでは直接deleteできる
-          cookieStore.delete(name);
+          try {
+            // Route Handlerでは直接deleteできる
+            cookieStore.delete(name);
+          } catch (error) {
+            // Route Handler内でのCookie削除エラーをログ出力
+            console.error('Cookie remove error in route handler:', error);
+          }
         },
       },
     }
