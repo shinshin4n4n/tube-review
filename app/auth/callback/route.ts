@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createRouteHandlerClient } from '@/lib/supabase/route-handler';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -31,8 +31,8 @@ export async function GET(request: NextRequest) {
   const safeRedirect = isValidRedirectUrl(redirect) ? redirect : '/';
 
   if (code) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const supabase = await createRouteHandlerClient();
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
       console.error('Auth callback error:', error);
@@ -40,8 +40,16 @@ export async function GET(request: NextRequest) {
         new URL('/login?error=auth_failed', request.url)
       );
     }
+
+    // セッション作成成功をログ出力（デバッグ用）
+    if (data.session) {
+      console.log('Session created successfully for user:', data.user?.email);
+    }
   }
 
   // 認証成功後のリダイレクト
-  return NextResponse.redirect(new URL(safeRedirect, request.url));
+  // NextResponseを使ってリダイレクトすることで、Cookieが正しく設定される
+  const response = NextResponse.redirect(new URL(safeRedirect, request.url));
+
+  return response;
 }
