@@ -40,6 +40,18 @@ export async function POST(request: NextRequest) {
         status: error.status,
         code: (error as any).code,
       });
+
+      // レート制限エラーの場合は専用メッセージ
+      if (error.message.includes('rate limit')) {
+        return NextResponse.json(
+          {
+            error: '送信制限に達しました。少し時間をおいてから再度お試しください。',
+            details: error.message
+          },
+          { status: 429 } // Too Many Requests
+        );
+      }
+
       return NextResponse.json(
         {
           error: 'ログインリンクの送信に失敗しました',
