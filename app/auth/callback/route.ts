@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
   const safeRedirect = isValidRedirectUrl(redirect) ? redirect : '/';
 
   // レスポンスオブジェクトを先に作成
-  let response = NextResponse.redirect(new URL(safeRedirect, request.url));
+  const response = NextResponse.redirect(new URL(safeRedirect, request.url));
 
   if (code) {
     const cookieStore = await cookies();
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
               ...options,
             });
             // レスポンスCookieを更新（重要！）
-            response = NextResponse.redirect(new URL(safeRedirect, request.url));
+            // 同じレスポンスオブジェクトに追加していく
             response.cookies.set({
               name,
               value,
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
               ...options,
             });
             // レスポンスCookieを削除
-            response = NextResponse.redirect(new URL(safeRedirect, request.url));
+            // 同じレスポンスオブジェクトから削除していく
             response.cookies.set({
               name,
               value: '',
