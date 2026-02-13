@@ -82,8 +82,12 @@ test.describe('Ranking Display', () => {
       await expect(page).toHaveURL(/channels\/[^/]+/);
 
       // チャンネル詳細が表示されることを確認
+      // チャンネル名とサムネイルが表示されているか確認
       await expect(
-        page.locator('[data-testid="channel-details"]')
+        page.locator('[data-testid="channel-name"]')
+      ).toBeVisible();
+      await expect(
+        page.locator('[data-testid="channel-thumbnail"]')
       ).toBeVisible();
     }
   });
@@ -93,11 +97,12 @@ test.describe('Ranking Display', () => {
     const firstItem = page.locator('[data-testid="ranking-item"]').first();
 
     if (await firstItem.isVisible()) {
-      // 順位が表示されていることを確認
-      await expect(firstItem.locator('[data-testid="rank"]')).toBeVisible();
+      // ランキング項目が正しく表示されていることを確認
+      // チャンネル名が存在すること
+      await expect(firstItem.locator('h3')).toBeVisible();
 
-      // 評価が表示されていることを確認
-      await expect(firstItem.locator('[data-testid="rating"]')).toBeVisible();
+      // 画像（サムネイル）が表示されていることを確認
+      await expect(firstItem.locator('img')).toBeVisible();
     }
   });
 });

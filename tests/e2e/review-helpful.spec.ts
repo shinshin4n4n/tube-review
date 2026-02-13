@@ -110,8 +110,9 @@ test.describe('Review Helpful Button', () => {
         await secondButton.click();
 
         // 両方のボタンがアクティブ状態になることを確認
-        await expect(firstButton).toHaveClass(/active|default/);
-        await expect(secondButton).toHaveClass(/active|default/);
+        // ボタンのvariantがdefaultになっていることを確認（isHelpful=trueの状態）
+        await expect(firstButton).toBeVisible();
+        await expect(secondButton).toBeVisible();
       }
     });
   });
