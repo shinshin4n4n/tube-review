@@ -4,11 +4,14 @@ import { magicLinkSchema } from '@/lib/validation/auth';
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('[Magic Link] Starting request');
     const body = await request.json();
+    console.log('[Magic Link] Body parsed');
 
     // バリデーション
     const result = magicLinkSchema.safeParse(body);
     if (!result.success) {
+      console.error('[Magic Link] Validation failed:', result.error);
       return NextResponse.json(
         { error: result.error.issues[0]?.message || '入力内容を確認してください' },
         { status: 400 }
@@ -16,9 +19,11 @@ export async function POST(request: NextRequest) {
     }
 
     const { email } = result.data;
+    console.log('[Magic Link] Email validated:', email);
 
-    console.log('Creating Supabase client for email:', email);
+    console.log('[Magic Link] Creating Supabase client...');
     const supabase = await createRouteHandlerClient();
+    console.log('[Magic Link] Supabase client created');
 
     // Magic Link送信
     console.log('Sending OTP to:', email);
@@ -48,9 +53,17 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Magic Link API エラー:', error);
+    console.error('[Magic Link] Unexpected error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+    console.error('[Magic Link] Error stack:', errorStack);
+
     return NextResponse.json(
-      { error: 'エラーが発生しました' },
+      {
+        error: 'エラーが発生しました',
+        details: errorMessage, // 開発用：本番では削除すべき
+        stack: errorStack // 開発用：本番では削除すべき
+      },
       { status: 500 }
     );
   }
