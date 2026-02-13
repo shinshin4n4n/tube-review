@@ -25,6 +25,9 @@ function isValidRedirectUrl(url: string): boolean {
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
+  const token_hash = requestUrl.searchParams.get('token_hash');
+  const type = requestUrl.searchParams.get('type');
+
   // 'redirect'パラメータと'next'パラメータの両方をサポート（後方互換性）
   const redirect =
     requestUrl.searchParams.get('redirect') ??
@@ -37,7 +40,8 @@ export async function GET(request: NextRequest) {
   // レスポンスオブジェクトを先に作成
   const response = NextResponse.redirect(new URL(safeRedirect, request.url));
 
-  if (code) {
+  // OAuth認証（code）またはMagic Link認証（token_hash）の処理
+  if (code || token_hash) {
     const cookieStore = await cookies();
 
     // Supabaseクライアントを作成（レスポンスにCookieを設定）
@@ -83,7 +87,25 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    let error = null;
+    let data = null;
+
+    if (code) {
+      // OAuth認証の場合
+      const result = await supabase.auth.exchangeCodeForSession(code);
+      error = result.error;
+      data = result.data;
+      console.log('[Auth Callback] OAuth code exchange');
+    } else if (token_hash && type) {
+      // Magic Link認証の場合
+      const result = await supabase.auth.verifyOtp({
+        token_hash,
+        type: type as any,
+      });
+      error = result.error;
+      data = result.data;
+      console.log('[Auth Callback] Magic Link OTP verification');
+    }
 
     if (error) {
       console.error('[Auth Callback] Error:', error);
@@ -93,7 +115,7 @@ export async function GET(request: NextRequest) {
     }
 
     // セッション作成成功をログ出力（デバッグ用）
-    if (data.session) {
+    if (data?.session) {
       console.log(
         '[Auth Callback] Session created successfully for user:',
         data.user?.email
