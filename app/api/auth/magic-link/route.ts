@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { magicLinkSchema } from '@/lib/validation/auth';
+import { handleApiError } from '@/lib/api/error';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('Magic Link送信エラー:', error);
       return NextResponse.json(
-        { error: 'ログインリンクの送信に失敗しました' },
+        handleApiError(error),
         { status: 500 }
       );
     }
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Magic Link API エラー:', error);
     return NextResponse.json(
-      { error: 'エラーが発生しました' },
+      handleApiError(error),
       { status: 500 }
     );
   }

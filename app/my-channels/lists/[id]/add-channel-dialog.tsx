@@ -57,25 +57,19 @@ export default function AddChannelDialog({
       return;
     }
 
-    console.log('[AddChannelDialog] Starting search with query:', query);
     setIsSearching(true);
 
     try {
       const result = await searchChannelsForListAction(query);
-      console.log('[AddChannelDialog] Search result:', result);
 
       if (result.success) {
-        console.log('[AddChannelDialog] Search successful, results count:', result.data.length);
         setSearchResults(result.data);
 
         if (result.data.length === 0) {
-          console.log('[AddChannelDialog] No results found, showing toast');
           toast({
             title: '検索結果なし',
             description: 'チャンネルが見つかりませんでした',
           });
-        } else {
-          console.log('[AddChannelDialog] Found results:', result.data);
         }
       } else {
         console.error('[AddChannelDialog] Search failed:', result.error);
@@ -94,7 +88,6 @@ export default function AddChannelDialog({
       });
     } finally {
       setIsSearching(false);
-      console.log('[AddChannelDialog] Search completed');
     }
   };
 
