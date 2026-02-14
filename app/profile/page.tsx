@@ -19,7 +19,7 @@ export default async function ProfilePage() {
   const supabase = await createClient();
 
   // RLSポリシーにより、自分のデータのみ取得可能
-  const { data: profile, error } = await supabase
+  const { data: initialProfile, error: profileError } = await supabase
     .from("users")
     .select(
       "id, email, username, display_name, avatar_url, bio, occupation, gender, birth_date, prefecture, website_url, created_at"
@@ -27,9 +27,14 @@ export default async function ProfilePage() {
     .eq("id", user.id)
     .single();
 
+  let profile = initialProfile;
+
   // プロフィールが存在しない場合は自動作成
-  if (error || !profile) {
-    console.error("Profile not found, creating...", { userId: user.id, error });
+  if (profileError || !profile) {
+    console.error("Profile not found, creating...", {
+      userId: user.id,
+      error: profileError,
+    });
 
     // メールアドレスからユーザー名を生成
     const baseUsername = user.email?.split("@")[0] || "user";
