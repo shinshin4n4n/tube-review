@@ -27,7 +27,7 @@ export default async function ProfilePage() {
 
   // プロフィールが存在しない場合は自動作成
   if (error || !profile) {
-    console.log('Profile not found, creating...', { userId: user.id, error });
+    console.error('Profile not found, creating...', { userId: user.id, error });
 
     // メールアドレスからユーザー名を生成
     const baseUsername = user.email?.split('@')[0] || 'user';

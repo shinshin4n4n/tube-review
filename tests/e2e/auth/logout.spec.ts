@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Logout Flow', () => {
+  // 認証テストは環境変数で制御（Magic Linkのレート制限を回避）
+  test.skip(
+    !process.env.RUN_AUTH_TESTS,
+    'Auth tests are disabled by default to avoid rate limits (set RUN_AUTH_TESTS=true to enable)'
+  );
   test.beforeEach(async ({ page }) => {
     // デスクトップサイズに設定（ログインボタンはデスクトップのみ表示）
     await page.setViewportSize({ width: 1024, height: 768 });

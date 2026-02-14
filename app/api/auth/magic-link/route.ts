@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@/lib/supabase/route-handler';
 import { magicLinkSchema } from '@/lib/validation/auth';
+import { handleApiError } from '@/lib/api/error';
 
 export async function POST(request: NextRequest) {
   try {
@@ -45,18 +46,14 @@ export async function POST(request: NextRequest) {
       if (error.message.includes('rate limit')) {
         return NextResponse.json(
           {
-            error: '送信制限に達しました。少し時間をおいてから再度お試しください。',
-            details: error.message
+            error: '送信制限に達しました。少し時間をおいてから再度お試しください。'
           },
           { status: 429 } // Too Many Requests
         );
       }
 
       return NextResponse.json(
-        {
-          error: 'ログインリンクの送信に失敗しました',
-          details: error.message // 開発用：本番では削除すべき
-        },
+        handleApiError(error),
         { status: 500 }
       );
     }
@@ -71,11 +68,7 @@ export async function POST(request: NextRequest) {
     console.error('[Magic Link] Error stack:', errorStack);
 
     return NextResponse.json(
-      {
-        error: 'エラーが発生しました',
-        details: errorMessage, // 開発用：本番では削除すべき
-        stack: errorStack // 開発用：本番では削除すべき
-      },
+      handleApiError(error),
       { status: 500 }
     );
   }

@@ -1,8 +1,14 @@
 import { test, expect } from '@playwright/test';
+import { mockYouTubeAPI } from '../fixtures/youtube-mock';
 
 test.describe('チャンネル詳細ページ', () => {
   // テスト用の既知のYouTubeチャンネルID
   const TEST_CHANNEL_ID = 'UC_x5XG1OV2P6uZZ5FSM9Ttw'; // Google Developers
+
+  // すべてのテストでYouTube APIをモック化
+  test.beforeEach(async ({ page }) => {
+    await mockYouTubeAPI(page);
+  });
 
   test('チャンネル詳細情報が表示される', async ({ page }) => {
     await page.goto(`/channels/${TEST_CHANNEL_ID}`);

@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('ログイン画面', () => {
+  // 認証テストは環境変数で制御（Magic Linkのレート制限を回避）
+  test.skip(
+    !process.env.RUN_AUTH_TESTS,
+    'Auth tests are disabled by default to avoid rate limits (set RUN_AUTH_TESTS=true to enable)'
+  );
   test('ログインページが表示される', async ({ page }) => {
     await page.goto('/login');
 

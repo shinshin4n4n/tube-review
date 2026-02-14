@@ -252,13 +252,11 @@ export async function searchChannelsForListAction(
   query: string
 ): Promise<ApiResponse<SearchChannelResult[]>> {
   try {
-    console.log('[searchChannelsForListAction] Start YouTube API search with query:', query);
 
     // YouTube APIから検索
     const { searchChannels, getChannelDetails } = await import('@/lib/youtube/api');
     const youtubeResults = await searchChannels(query, 10);
 
-    console.log('[searchChannelsForListAction] YouTube API results count:', youtubeResults.length);
 
     if (youtubeResults.length === 0) {
       return {
@@ -274,7 +272,6 @@ export async function searchChannelsForListAction(
     for (const ytChannel of youtubeResults) {
       try {
         // チャンネル詳細情報を取得（登録者数などを含む）
-        console.log('[searchChannelsForListAction] Fetching details for:', ytChannel.youtubeChannelId);
         const channelDetails = await getChannelDetails(ytChannel.youtubeChannelId);
 
         // データベースにチャンネルを保存
@@ -315,7 +312,6 @@ export async function searchChannelsForListAction(
       }
     }
 
-    console.log('[searchChannelsForListAction] Final search results count:', searchResults.length);
 
     return {
       success: true,

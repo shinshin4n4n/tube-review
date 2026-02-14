@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { mockYouTubeAPI } from '../fixtures/youtube-mock';
 
 test.describe('戻るボタン', () => {
+  // すべてのテストでYouTube APIをモック化
+  test.beforeEach(async ({ page }) => {
+    await mockYouTubeAPI(page);
+  });
   test('チャンネル詳細ページに戻るボタンが表示される', async ({
     page,
   }) => {
