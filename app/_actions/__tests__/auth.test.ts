@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { signUp, signIn, signOut } from '../auth';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { signUp, signIn, signOut } from "../auth";
 
 // Supabase client mock
 const mockSupabase = {
@@ -11,33 +11,33 @@ const mockSupabase = {
 };
 
 // Mock @/lib/supabase/server
-vi.mock('@/lib/supabase/server', () => ({
+vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(() => Promise.resolve(mockSupabase)),
 }));
 
 // Mock next/cache
-vi.mock('next/cache', () => ({
+vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
 // Mock next/navigation
-vi.mock('next/navigation', () => ({
+vi.mock("next/navigation", () => ({
   redirect: vi.fn(() => {
-    throw new Error('NEXT_REDIRECT');
+    throw new Error("NEXT_REDIRECT");
   }),
 }));
 
-describe('signUp', () => {
+describe("signUp", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should successfully sign up with valid email and password', async () => {
+  it("should successfully sign up with valid email and password", async () => {
     // Arrange
-    const email = 'test@example.com';
-    const password = 'password123';
+    const email = "test@example.com";
+    const password = "password123";
     mockSupabase.auth.signUp.mockResolvedValue({
-      data: { user: { id: '123', email } },
+      data: { user: { id: "123", email } },
       error: null,
     });
 
@@ -46,75 +46,85 @@ describe('signUp', () => {
 
     // Assert
     expect(result.success).toBe(true);
-    expect(result.data?.message).toContain('Check your email');
+    if (result.success) {
+      expect(result.data.message).toContain("Check your email");
+    }
     expect(mockSupabase.auth.signUp).toHaveBeenCalledWith({
       email,
       password,
       options: {
-        emailRedirectTo: expect.stringContaining('/auth/callback'),
+        emailRedirectTo: expect.stringContaining("/auth/callback"),
       },
     });
   });
 
-  it('should reject invalid email address', async () => {
+  it("should reject invalid email address", async () => {
     // Arrange
-    const email = 'invalid-email';
-    const password = 'password123';
+    const email = "invalid-email";
+    const password = "password123";
 
     // Act
     const result = await signUp(email, password);
 
     // Assert
     expect(result.success).toBe(false);
-    expect(result.error).toBeDefined();
+    if (!result.success) {
+      expect(result.error).toBeDefined();
+    }
   });
 
-  it('should reject password shorter than 8 characters', async () => {
+  it("should reject password shorter than 8 characters", async () => {
     // Arrange
-    const email = 'test@example.com';
-    const password = 'short';
+    const email = "test@example.com";
+    const password = "short";
 
     // Act
     const result = await signUp(email, password);
 
     // Assert
     expect(result.success).toBe(false);
-    expect(result.error).toContain('at least 8 characters');
+    if (!result.success) {
+      expect(result.error).toContain("at least 8 characters");
+    }
   });
 
-  it('should reject empty email field', async () => {
+  it("should reject empty email field", async () => {
     // Arrange
-    const email = '';
-    const password = 'password123';
+    const email = "";
+    const password = "password123";
 
     // Act
     const result = await signUp(email, password);
 
     // Assert
     expect(result.success).toBe(false);
-    expect(result.error).toBeDefined();
+    if (!result.success) {
+      expect(result.error).toBeDefined();
+    }
   });
 
-  it('should reject empty password field', async () => {
+  it("should reject empty password field", async () => {
     // Arrange
-    const email = 'test@example.com';
-    const password = '';
+    const email = "test@example.com";
+    const password = "";
 
     // Act
     const result = await signUp(email, password);
 
     // Assert
     expect(result.success).toBe(false);
-    expect(result.error).toBeDefined();
+    if (!result.success) {
+      expect(result.error).toBeDefined();
+    }
   });
 
-  it('should handle already registered email error', async () => {
+  it("should handle already registered email error", async () => {
     // Arrange
-    const email = 'existing@example.com';
-    const password = 'password123';
+    const email = "existing@example.com";
+    const password = "password123";
     mockSupabase.auth.signUp.mockResolvedValue({
       data: null,
-      error: { message: 'User already registered' },
+      error: { message: "User already registered" },
     });
 
     // Act
@@ -122,35 +132,39 @@ describe('signUp', () => {
 
     // Assert
     expect(result.success).toBe(false);
-    expect(result.error).toBe('User already registered');
+    if (!result.success) {
+      expect(result.error).toBe("User already registered");
+    }
   });
 
-  it('should handle unexpected errors', async () => {
+  it("should handle unexpected errors", async () => {
     // Arrange
-    const email = 'test@example.com';
-    const password = 'password123';
-    mockSupabase.auth.signUp.mockRejectedValue(new Error('Network error'));
+    const email = "test@example.com";
+    const password = "password123";
+    mockSupabase.auth.signUp.mockRejectedValue(new Error("Network error"));
 
     // Act
     const result = await signUp(email, password);
 
     // Assert
     expect(result.success).toBe(false);
-    expect(result.error).toBe('An unexpected error occurred');
+    if (!result.success) {
+      expect(result.error).toBe("An unexpected error occurred");
+    }
   });
 });
 
-describe('signIn', () => {
+describe("signIn", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should successfully sign in with valid credentials', async () => {
+  it("should successfully sign in with valid credentials", async () => {
     // Arrange
-    const email = 'test@example.com';
-    const password = 'password123';
+    const email = "test@example.com";
+    const password = "password123";
     mockSupabase.auth.signInWithPassword.mockResolvedValue({
-      data: { user: { id: '123', email }, session: {} },
+      data: { user: { id: "123", email }, session: {} },
       error: null,
     });
 
@@ -159,46 +173,52 @@ describe('signIn', () => {
 
     // Assert
     expect(result.success).toBe(true);
-    expect(result.data?.message).toContain('Signed in successfully');
+    if (result.success) {
+      expect(result.data.message).toContain("Signed in successfully");
+    }
     expect(mockSupabase.auth.signInWithPassword).toHaveBeenCalledWith({
       email,
       password,
     });
   });
 
-  it('should reject invalid email address', async () => {
+  it("should reject invalid email address", async () => {
     // Arrange
-    const email = 'invalid-email';
-    const password = 'password123';
+    const email = "invalid-email";
+    const password = "password123";
 
     // Act
     const result = await signIn(email, password);
 
     // Assert
     expect(result.success).toBe(false);
-    expect(result.error).toBeDefined();
+    if (!result.success) {
+      expect(result.error).toBeDefined();
+    }
   });
 
-  it('should reject empty password', async () => {
+  it("should reject empty password", async () => {
     // Arrange
-    const email = 'test@example.com';
-    const password = '';
+    const email = "test@example.com";
+    const password = "";
 
     // Act
     const result = await signIn(email, password);
 
     // Assert
     expect(result.success).toBe(false);
-    expect(result.error).toContain('Password is required');
+    if (!result.success) {
+      expect(result.error).toContain("Password is required");
+    }
   });
 
-  it('should handle incorrect credentials error', async () => {
+  it("should handle incorrect credentials error", async () => {
     // Arrange
-    const email = 'test@example.com';
-    const password = 'wrongpassword';
+    const email = "test@example.com";
+    const password = "wrongpassword";
     mockSupabase.auth.signInWithPassword.mockResolvedValue({
       data: null,
-      error: { message: 'Invalid login credentials' },
+      error: { message: "Invalid login credentials" },
     });
 
     // Act
@@ -206,15 +226,17 @@ describe('signIn', () => {
 
     // Assert
     expect(result.success).toBe(false);
-    expect(result.error).toBe('Invalid login credentials');
+    if (!result.success) {
+      expect(result.error).toBe("Invalid login credentials");
+    }
   });
 
-  it('should handle unexpected errors', async () => {
+  it("should handle unexpected errors", async () => {
     // Arrange
-    const email = 'test@example.com';
-    const password = 'password123';
+    const email = "test@example.com";
+    const password = "password123";
     mockSupabase.auth.signInWithPassword.mockRejectedValue(
-      new Error('Network error')
+      new Error("Network error")
     );
 
     // Act
@@ -222,16 +244,18 @@ describe('signIn', () => {
 
     // Assert
     expect(result.success).toBe(false);
-    expect(result.error).toBe('An unexpected error occurred');
+    if (!result.success) {
+      expect(result.error).toBe("An unexpected error occurred");
+    }
   });
 });
 
-describe('signOut', () => {
+describe("signOut", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should successfully sign out', async () => {
+  it("should successfully sign out", async () => {
     // Arrange
     mockSupabase.auth.signOut.mockResolvedValue({ error: null });
 
@@ -240,10 +264,10 @@ describe('signOut', () => {
     expect(mockSupabase.auth.signOut).toHaveBeenCalled();
   });
 
-  it('should handle sign out errors gracefully', async () => {
+  it("should handle sign out errors gracefully", async () => {
     // Arrange
     mockSupabase.auth.signOut.mockResolvedValue({
-      error: { message: 'Sign out failed' },
+      error: { message: "Sign out failed" },
     });
 
     // Act & Assert

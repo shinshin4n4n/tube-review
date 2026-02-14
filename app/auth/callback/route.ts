@@ -1,7 +1,7 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { cookies } from 'next/headers';
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { cookies } from "next/headers";
 
 /**
  * リダイレクトURLのバリデーション
@@ -9,11 +9,11 @@ import { cookies } from 'next/headers';
  */
 function isValidRedirectUrl(url: string): boolean {
   // 相対URLのみ許可
-  if (!url.startsWith('/')) return false;
+  if (!url.startsWith("/")) return false;
   // プロトコル相対URL（//example.com）を防ぐ
-  if (url.startsWith('//')) return false;
+  if (url.startsWith("//")) return false;
   // JavaScriptスキームを防ぐ
-  if (url.toLowerCase().startsWith('javascript:')) return false;
+  if (url.toLowerCase().startsWith("javascript:")) return false;
   return true;
 }
 
@@ -24,18 +24,18 @@ function isValidRedirectUrl(url: string): boolean {
  */
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
-  const code = requestUrl.searchParams.get('code');
-  const token_hash = requestUrl.searchParams.get('token_hash');
-  const type = requestUrl.searchParams.get('type');
+  const code = requestUrl.searchParams.get("code");
+  const token_hash = requestUrl.searchParams.get("token_hash");
+  const type = requestUrl.searchParams.get("type");
 
   // 'redirect'パラメータと'next'パラメータの両方をサポート（後方互換性）
   const redirect =
-    requestUrl.searchParams.get('redirect') ??
-    requestUrl.searchParams.get('next') ??
-    '/';
+    requestUrl.searchParams.get("redirect") ??
+    requestUrl.searchParams.get("next") ??
+    "/";
 
   // リダイレクトURLのバリデーション
-  const safeRedirect = isValidRedirectUrl(redirect) ? redirect : '/';
+  const safeRedirect = isValidRedirectUrl(redirect) ? redirect : "/";
 
   // レスポンスオブジェクトを先に作成
   const response = NextResponse.redirect(new URL(safeRedirect, request.url));
@@ -72,14 +72,14 @@ export async function GET(request: NextRequest) {
             // リクエストCookieを削除
             request.cookies.set({
               name,
-              value: '',
+              value: "",
               ...options,
             });
             // レスポンスCookieを削除
             // 同じレスポンスオブジェクトから削除していく
             response.cookies.set({
               name,
-              value: '',
+              value: "",
               ...options,
             });
           },
@@ -95,32 +95,35 @@ export async function GET(request: NextRequest) {
       const result = await supabase.auth.exchangeCodeForSession(code);
       error = result.error;
       data = result.data;
-      console.log('[Auth Callback] OAuth code exchange');
+      console.log("[Auth Callback] OAuth code exchange");
     } else if (token_hash && type) {
       // Magic Link認証の場合
       const result = await supabase.auth.verifyOtp({
         token_hash,
-        type: type as any,
+        type: type as "magiclink" | "email",
       });
       error = result.error;
       data = result.data;
-      console.log('[Auth Callback] Magic Link OTP verification');
+      console.log("[Auth Callback] Magic Link OTP verification");
     }
 
     if (error) {
-      console.error('[Auth Callback] Error:', error);
+      console.error("[Auth Callback] Error:", error);
       return NextResponse.redirect(
-        new URL('/login?error=auth_failed', request.url)
+        new URL("/login?error=auth_failed", request.url)
       );
     }
 
     // セッション作成成功をログ出力（デバッグ用）
     if (data?.session) {
       console.log(
-        '[Auth Callback] Session created successfully for user:',
+        "[Auth Callback] Session created successfully for user:",
         data.user?.email
       );
-      console.log('[Auth Callback] Access token length:', data.session.access_token.length);
+      console.log(
+        "[Auth Callback] Access token length:",
+        data.session.access_token.length
+      );
     }
   }
 

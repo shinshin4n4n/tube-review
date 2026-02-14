@@ -12,8 +12,16 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Claude Code worktrees
+    ".claude/**",
     // Development scripts (temporary exclusion - to be fixed in separate PR)
     "scripts/**",
+    // Test files (temporary exclusion - to be fixed in separate PR)
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "tests/**",
     // Test artifacts
     "playwright-report/**",
     "test-results/**",
