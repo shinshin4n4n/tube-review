@@ -62,6 +62,10 @@ test.describe('チャンネル詳細ページ', () => {
     await expect(ogImage).toHaveAttribute('content', /https?:\/\/.+/);
   });
 
+  test.skip(
+    !process.env.RUN_YOUTUBE_API_TESTS,
+    'YouTube API tests are disabled to avoid quota/rate limits'
+  );
   test('検索結果からチャンネル詳細ページに遷移できる', async ({
     page,
   }) => {

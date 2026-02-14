@@ -1,4 +1,4 @@
-# TubeReview アーキテクチャ & パフォーマンス設計
+# ちゅぶれびゅ！ アーキテクチャ & パフォーマンス設計
 
 ## アーキテクチャ原則
 
@@ -154,7 +154,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   const channel = await getChannelById(params.id);
   
   return {
-    title: `${channel.title} のレビュー | TubeReview`,
+    title: `${channel.title} のレビュー | ちゅぶれびゅ！`,
     description: channel.description,
     openGraph: {
       images: [channel.thumbnail],

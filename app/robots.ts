@@ -6,7 +6,7 @@ import { MetadataRoute } from 'next';
  * 検索エンジンクローラーの巡回ルールを定義
  */
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.vercel.app';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.com';
 
   return {
     rules: [

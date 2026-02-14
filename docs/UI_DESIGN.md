@@ -17,59 +17,60 @@ YouTubeチャンネル発見の楽しさと、ブクログ的な管理の心地�
 
 ## カラーパレット
 
-### Base Colors
+### Base Colors（実装版 - Option M グレイッシュブラウン）
 ```css
-/* Primary - 暗めの茶色（メインカラー） */
---color-primary: #6D4C41;
---color-primary-hover: #5D4037;
---color-primary-light: #8D6E63;
+/* Primary - グレイッシュブラウン #6B5B52 */
+--color-primary: oklch(0.42 0.025 40);           /* #6B5B52 相当 */
+--color-primary-hover: oklch(0.36 0.025 40);     /* Darker grey-brown */
+--color-primary-light: oklch(0.48 0.025 40);     /* Lighter grey-brown */
 
-/* Secondary - ライトブラウン（サブカラー） */
---color-secondary: #8D6E63;
---color-secondary-hover: #6D4C41;
---color-secondary-light: #A1887F;
+/* Secondary - ライトグレイブラウン #8C7B75 */
+--color-secondary: oklch(0.57 0.025 40);         /* #8C7B75 相当 */
+--color-secondary-hover: oklch(0.51 0.025 40);   /* Darker grey-brown */
+--color-secondary-light: oklch(0.63 0.02 40);    /* Lighter grey-brown */
 
-/* Accent - 赤（重要なアクション） */
---color-accent: #E53935;
---color-accent-hover: #C62828;
---color-accent-light: #EF5350;
+/* Accent - 赤 #E53935 */
+--color-accent: oklch(0.58 0.22 25);             /* #E53935 相当 */
+--color-accent-hover: oklch(0.48 0.22 25);       /* #C62828 */
+--color-accent-light: oklch(0.62 0.20 25);       /* #EF5350 */
 
-/* Background */
---color-base: #FFF8F5;         /* 温かみのあるベージュ（ページ背景） → bg-base */
---color-surface: #FFFFFF;      /* カード背景（白） → bg-surface */
---color-elevated: #FFF3ED;     /* ホバー/昇格時の背景 → bg-elevated */
+/* Background - ニュートラルグレー */
+--color-base: oklch(0.96 0 0);                   /* #F5F5F5 - Page background (bg-base) */
+--color-surface: oklch(1 0 0);                   /* #FFFFFF - Card background (bg-surface) */
+--color-elevated: oklch(0.98 0 0);               /* Hover/elevated background (bg-elevated) */
 
 /* Text */
---color-content: #333333;             /* メインテキスト → text-content */
---color-content-secondary: #6B7280;   /* セカンダリテキスト → text-content-secondary */
---color-content-disabled: #9CA3AF;    /* 無効状態 → text-content-disabled */
+--color-content: oklch(0.2 0 0);                 /* #333333 - Primary text (text-content) */
+--color-content-secondary: oklch(0.48 0 0);      /* #6B7280 - Secondary text (text-content-secondary) */
+--color-content-disabled: oklch(0.62 0 0);       /* #9CA3AF - Disabled text (text-content-disabled) */
 ```
 
-### Semantic Colors
+### Semantic Colors（実装版）
 ```css
-/* Status */
---color-success: #10B981;  /* Green */
---color-warning: #F59E0B;  /* Orange */
---color-error: #E53935;    /* Red（Accentと同じ） */
---color-info: #3B82F6;     /* Blue */
+/* Status (shadcn/ui互換) */
+--color-success: #10B981;                        /* Green */
+--color-warning: #F59E0B;                        /* Orange */
+--color-error: oklch(0.58 0.22 25);              /* Red（Accentと同じ） */
+--color-destructive: oklch(0.58 0.22 25);        /* Destructive (shadcn) */
+--color-info: #3B82F6;                           /* Blue */
 
 /* Star Rating */
---color-star-filled: #FBBF24;   /* Amber（塗りつぶし） */
---color-star-empty: #E5E7EB;    /* Light Gray（空） */
+--color-star-filled: oklch(0.82 0.14 75);        /* #FBBF24 Amber（塗りつぶし） */
+--color-star-empty: oklch(0.91 0 0);             /* #E5E7EB Light Gray（空） */
 ```
 
-### Border & Shadow
+### Border & Shadow（実装版）
 ```css
-/* Border */
---color-stroke-light: #F5E6DC;   /* 淡いベージュ → border-stroke-light */
---color-stroke: #E8E8E8;         /* グレー → border-stroke */
---color-stroke-heavy: #D1D5DB;   /* ダークグレー → border-stroke-heavy */
+/* Border - ニュートラルグレー */
+--color-stroke-light: oklch(0.94 0 0);   /* Light neutral border (border-stroke-light) */
+--color-stroke: oklch(0.92 0 0);         /* Base neutral border (border-stroke) */
+--color-stroke-heavy: oklch(0.84 0 0);   /* #D1D5DB - Heavy border (border-stroke-heavy) */
 
 /* Shadow */
---shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
---shadow-base: 0 2px 8px rgba(0, 0, 0, 0.08);
---shadow-default: 0 4px 12px rgba(0, 0, 0, 0.1);
---shadow-large: 0 6px 16px rgba(0, 0, 0, 0.12);
+--shadow-xs: 0 1px 2px rgb(0 0 0 / 0.05);
+--shadow-base: 0 2px 8px rgb(0 0 0 / 0.08);
+--shadow-default: 0 4px 12px rgb(0 0 0 / 0.1);
+--shadow-large: 0 6px 16px rgb(0 0 0 / 0.12);
 ```
 
 ---
@@ -428,58 +429,85 @@ import { Star, Heart, MessageSquare, TrendingUp } from 'lucide-react';
 
 ---
 
-## デザイントークン（Tailwind CSS）
+## デザイントークン（Tailwind CSS v4 実装版）
 
-```js
-// tailwind.config.ts
-module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          DEFAULT: '#6D4C41',
-          hover: '#5D4037',
-          light: '#8D6E63',
-        },
-        secondary: {
-          DEFAULT: '#8D6E63',
-          hover: '#6D4C41',
-          light: '#A1887F',
-        },
-        accent: {
-          DEFAULT: '#E53935',
-          hover: '#C62828',
-          light: '#EF5350',
-        },
-        // Background colors
-        base: '#FFF8F5',      // bg-base
-        surface: '#FFFFFF',   // bg-surface
-        elevated: '#FFF3ED',  // bg-elevated
-        // Text colors
-        content: {
-          DEFAULT: '#333333',    // text-content
-          secondary: '#6B7280',  // text-content-secondary
-          disabled: '#9CA3AF',   // text-content-disabled
-        },
-        // Border colors
-        stroke: {
-          DEFAULT: '#E8E8E8',    // border-stroke
-          light: '#F5E6DC',      // border-stroke-light
-          heavy: '#D1D5DB',      // border-stroke-heavy
-        },
-      },
-      fontFamily: {
-        sans: ['Noto Sans JP', 'system-ui', 'sans-serif'],
-      },
-      boxShadow: {
-        'sm': '0 1px 2px rgba(0, 0, 0, 0.05)',
-        'base': '0 2px 8px rgba(0, 0, 0, 0.08)',
-        'md': '0 4px 12px rgba(0, 0, 0, 0.1)',
-        'lg': '0 6px 16px rgba(0, 0, 0, 0.12)',
-      },
-    },
-  },
-};
+```css
+/* app/globals.css - @theme inline ブロック */
+@theme inline {
+  /* shadcn/ui 標準カラー */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+
+  /* カスタムカラー - Option M (グレイッシュブラウン) */
+  --color-primary-hover: oklch(0.36 0.025 40);
+  --color-primary-light: oklch(0.48 0.025 40);
+  --color-secondary-hover: oklch(0.51 0.025 40);
+  --color-secondary-light: oklch(0.63 0.02 40);
+  --color-accent-hover: oklch(0.48 0.22 25);
+  --color-accent-light: oklch(0.62 0.20 25);
+
+  /* Background Colors */
+  --color-base: oklch(0.96 0 0);      /* #F5F5F5 - bg-base */
+  --color-surface: oklch(1 0 0);      /* #FFFFFF - bg-surface */
+  --color-elevated: oklch(0.98 0 0);  /* bg-elevated */
+
+  /* Text Colors */
+  --color-content: oklch(0.2 0 0);             /* text-content */
+  --color-content-secondary: oklch(0.48 0 0);  /* text-content-secondary */
+  --color-content-disabled: oklch(0.62 0 0);   /* text-content-disabled */
+
+  /* Border Colors */
+  --color-stroke-light: oklch(0.94 0 0);   /* border-stroke-light */
+  --color-stroke: oklch(0.92 0 0);         /* border-stroke */
+  --color-stroke-heavy: oklch(0.84 0 0);   /* border-stroke-heavy */
+
+  /* Star Rating */
+  --color-star-filled: oklch(0.82 0.14 75);  /* #FBBF24 */
+  --color-star-empty: oklch(0.91 0 0);       /* #E5E7EB */
+
+  /* Fonts */
+  --font-sans: var(--font-noto-sans-jp), system-ui, sans-serif;
+
+  /* Custom Shadows */
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.05);
+  --shadow-base: 0 2px 8px rgb(0 0 0 / 0.08);
+  --shadow-default: 0 4px 12px rgb(0 0 0 / 0.1);
+  --shadow-large: 0 6px 16px rgb(0 0 0 / 0.12);
+}
+
+/* :root での色定義 */
+:root {
+  --radius: 0.75rem;
+
+  /* Primary - グレイッシュブラウン #6B5B52 */
+  --primary: oklch(0.42 0.025 40);
+  --primary-foreground: oklch(1 0 0);
+
+  /* Secondary - ライトグレイブラウン #8C7B75 */
+  --secondary: oklch(0.57 0.025 40);
+  --secondary-foreground: oklch(1 0 0);
+
+  /* Accent - 赤 #E53935 */
+  --accent: oklch(0.58 0.22 25);
+  --accent-foreground: oklch(1 0 0);
+
+  /* Background - ニュートラルグレー #F5F5F5 */
+  --background: oklch(0.96 0 0);
+  --foreground: oklch(0.2 0 0);
+
+  /* Card */
+  --card: oklch(1 0 0);  /* #FFFFFF */
+  --card-foreground: oklch(0.2 0 0);
+
+  /* Border */
+  --border: oklch(0.92 0 0);
+}
 ```
 
 ---

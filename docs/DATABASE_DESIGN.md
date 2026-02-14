@@ -1,4 +1,4 @@
-# TubeReview データベース設計
+# ちゅぶれびゅ！ データベース設計
 
 ## 設計方針
 
@@ -461,14 +461,16 @@ CREATE INDEX idx_list_likes_user ON list_likes(user_id);
 
 ---
 
-### 12. channel_stats（チャンネル統計）
+### 12. channel_stats（チャンネル統計 - Materialized View）
 
 ```sql
+-- マテリアライズドビュー: パフォーマンス最適化のため
 CREATE MATERIALIZED VIEW channel_stats AS
-SELECT 
+SELECT
   c.id AS channel_id,
   COUNT(DISTINCT r.id) AS review_count,
   COALESCE(AVG(r.rating), 0) AS average_rating,
+  COUNT(DISTINCT CASE WHEN r.created_at > NOW() - INTERVAL '7 days' THEN r.id END) AS recent_review_count,
   COUNT(DISTINCT CASE WHEN uc.status = 'want' THEN uc.user_id END) AS want_count,
   COUNT(DISTINCT CASE WHEN uc.status = 'watching' THEN uc.user_id END) AS watching_count,
   COUNT(DISTINCT CASE WHEN uc.status = 'watched' THEN uc.user_id END) AS watched_count,
@@ -478,21 +480,118 @@ LEFT JOIN reviews r ON c.id = r.channel_id AND r.deleted_at IS NULL
 LEFT JOIN user_channels uc ON c.id = uc.channel_id
 GROUP BY c.id;
 
-CREATE UNIQUE INDEX idx_channel_stats_channel ON channel_stats(channel_id);
+-- インデックス（CONCURRENTLYリフレッシュに必須）
+CREATE UNIQUE INDEX idx_channel_stats_channel_id ON channel_stats(channel_id);
+CREATE INDEX idx_channel_stats_review_count ON channel_stats(review_count DESC);
+CREATE INDEX idx_channel_stats_average_rating ON channel_stats(average_rating DESC);
 
--- 定期更新（1時間ごと）
+-- channels_with_stats ビュー: アプリケーション層で使用
+CREATE VIEW channels_with_stats AS
+SELECT
+  c.*,
+  COALESCE(cs.review_count, 0) AS review_count,
+  COALESCE(cs.average_rating, 0) AS average_rating,
+  COALESCE(cs.recent_review_count, 0) AS recent_review_count,
+  COALESCE(cs.want_count, 0) AS want_count,
+  COALESCE(cs.watching_count, 0) AS watching_count,
+  COALESCE(cs.watched_count, 0) AS watched_count
+FROM channels c
+LEFT JOIN channel_stats cs ON c.id = cs.channel_id;
+
+-- 定期更新関数（GitHub Actionsで実行）
 CREATE OR REPLACE FUNCTION refresh_channel_stats()
-RETURNS void AS $$
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 BEGIN
   REFRESH MATERIALIZED VIEW CONCURRENTLY channel_stats;
 END;
-$$ LANGUAGE plpgsql;
+$$;
+
+-- 権限設定
+GRANT SELECT ON channel_stats TO anon;
+GRANT SELECT ON channel_stats TO authenticated;
+GRANT SELECT ON channels_with_stats TO anon;
+GRANT SELECT ON channels_with_stats TO authenticated;
+GRANT EXECUTE ON FUNCTION refresh_channel_stats() TO service_role;
 ```
 
 **スケーラビリティ:**
 - Materialized View で集計クエリを高速化
 - CONCURRENTLY オプションでロックなし更新
 - 定期的なバッチ更新でリアルタイム性と性能を両立
+
+---
+
+### 13. quota_usage（YouTube API クォータ管理）
+
+```sql
+-- YouTube API Quota Usage テーブル
+CREATE TABLE quota_usage (
+  date TEXT PRIMARY KEY,
+  used INTEGER NOT NULL DEFAULT 0,
+  operations JSONB NOT NULL DEFAULT '{"search": 0, "details": 0}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- インデックス作成
+CREATE INDEX idx_quota_usage_date ON quota_usage(date DESC);
+
+-- RLS無効化（内部運用テーブルのため）
+ALTER TABLE quota_usage DISABLE ROW LEVEL SECURITY;
+COMMENT ON TABLE quota_usage IS 'Internal table for YouTube API quota tracking. RLS disabled for service operations.';
+
+-- updated_at自動更新トリガー
+CREATE TRIGGER update_quota_usage_updated_at
+BEFORE UPDATE ON quota_usage
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+```
+
+**用途:**
+- YouTube Data API v3 のクォータ使用量追跡
+- 1日10,000ユニットの制限管理
+- operations (JSONB) で操作種別ごとの使用量を記録
+
+---
+
+### 14. youtube_cache（YouTube API キャッシュ）
+
+```sql
+-- YouTube API レスポンスキャッシュ
+CREATE TABLE youtube_cache (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- インデックス
+CREATE INDEX idx_youtube_cache_expires ON youtube_cache(expires_at);
+
+-- RLS有効化（読み取りは全員許可）
+ALTER TABLE youtube_cache ENABLE ROW LEVEL SECURITY;
+CREATE POLICY youtube_cache_select_all ON youtube_cache FOR SELECT USING (true);
+CREATE POLICY youtube_cache_insert_service ON youtube_cache FOR INSERT WITH CHECK (false);
+CREATE POLICY youtube_cache_update_service ON youtube_cache FOR UPDATE USING (false);
+CREATE POLICY youtube_cache_delete_service ON youtube_cache FOR DELETE USING (false);
+
+-- 期限切れキャッシュ削除関数
+CREATE OR REPLACE FUNCTION delete_expired_cache()
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  DELETE FROM youtube_cache WHERE expires_at < NOW();
+END;
+$$;
+```
+
+**用途:**
+- YouTube Data API のレスポンスキャッシュ
+- API クォータ節約
+- Upstash Redis と併用した2層キャッシュ戦略
 
 ---
 

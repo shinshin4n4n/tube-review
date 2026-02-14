@@ -21,9 +21,12 @@
     "update-thumbnails:prod": "cross-env NODE_ENV=production tsx scripts/update-channel-thumbnails.ts",
     "fix-channel-ids": "tsx scripts/fix-channel-ids.ts",
     "refresh-stats": "tsx scripts/refresh-materialized-views.ts",
-    "refresh-stats:prod": "cross-env NODE_ENV=production tsx scripts/refresh-materialized-views.ts"
+    "refresh-stats:prod": "cross-env NODE_ENV=production tsx scripts/refresh-materialized-views.ts",
+    "classify-channels": "tsx scripts/classify-channels.ts",
+    "classify-channels:prod": "cross-env NODE_ENV=production tsx scripts/classify-channels.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.74.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.93.3",
     "@upstash/redis": "^1.36.2",

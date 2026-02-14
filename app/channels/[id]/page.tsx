@@ -136,13 +136,13 @@ export default async function ChannelDetailPage({
         '@type': 'ListItem',
         position: 1,
         name: 'トップ',
-        item: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tubereview.example.com'}/`,
+        item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.com'}/`,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: channel.title,
-        item: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tubereview.example.com'}/channels/${id}`,
+        item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.com'}/channels/${id}`,
       },
     ],
   };

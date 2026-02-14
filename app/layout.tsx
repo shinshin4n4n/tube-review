@@ -11,7 +11,7 @@ const notoSansJP = Noto_Sans_JP({
   display: "swap",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.vercel.app';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

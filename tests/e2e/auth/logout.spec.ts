@@ -7,6 +7,8 @@ test.describe('Logout Flow', () => {
     'Auth tests are disabled by default to avoid rate limits (set RUN_AUTH_TESTS=true to enable)'
   );
   test.beforeEach(async ({ page }) => {
+    // デスクトップサイズに設定（ログインボタンはデスクトップのみ表示）
+    await page.setViewportSize({ width: 1024, height: 768 });
     // ログインページに移動
     await page.goto('/login');
   });

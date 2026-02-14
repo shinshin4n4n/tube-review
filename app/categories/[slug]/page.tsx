@@ -95,19 +95,19 @@ export default async function CategoryPage({
         '@type': 'ListItem',
         position: 1,
         name: 'トップ',
-        item: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tubereview.example.com'}/`,
+        item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.com'}/`,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'カテゴリー一覧',
-        item: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tubereview.example.com'}/categories`,
+        item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.com'}/categories`,
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: category.name,
-        item: `${process.env.NEXT_PUBLIC_APP_URL || 'https://tubereview.example.com'}/categories/${slug}`,
+        item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.com'}/categories/${slug}`,
       },
     ],
   };

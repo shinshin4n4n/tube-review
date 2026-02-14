@@ -1,4 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// .env.localから環境変数を読み込む
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 export default defineConfig({
   testDir: './tests/e2e',
