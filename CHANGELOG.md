@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- カスタムドメイン `tube-review.com` のサポート (#64)
+- Resend SMTP によるメール送信機能（3,000通/月）
+- Vercel DNS によるドメイン管理
+- Magic Link 認証の完全サポート
+- マテリアライズドビュー `channel_stats` による高速ランキング (#65)
+- YouTube API レスポンスキャッシュ機能
+- API クォータ管理機能（`quota_usage` テーブル）
+- カスタムドメイン設定ガイド (`docs/domain-setup.md`)
+- メール設定ガイド (`docs/email-setup.md`)
+- 認証トラブルシューティングガイド (`docs/auth-troubleshooting.md`)
+
+### Changed
+- **アプリ名**: `TubeReview` → `ちゅぶれびゅ！` に統一 (#66)
+- **ドメイン**: `tube-review.vercel.app` → `tube-review.com` にメイン変更
+- **技術スタック更新**:
+  - Next.js: 16.1.6
+  - React: 19.2.3
+  - Tailwind CSS: 4
+  - Playwright: 1.58.1
+  - Vitest: 4.0.18
+
+### Fixed
+- 認証コールバックで Magic Link (`token_hash`) が動作しない問題を修正 (#67)
+- 認証後に複数の Cookie が正しく設定されない問題を修正
+- E2E テストで CSS クラスチェックが失敗する問題を修正（9件）
+- ランキングページの要素参照エラーを修正
+
+### Documentation
+- 全ドキュメントでアプリ名を「ちゅぶれびゅ！」に統一（17ファイル）
+- `UI_DESIGN.md` を実装（`app/globals.css`）と一致させる
+- `DATABASE_DESIGN.md` にマテリアライズドビューを追記
+- `README.md` の技術スタックを最新化
+- 古いドキュメントを `docs/archive/` に移動（22ファイル）
+
 ### Planned
 - ユーザーフォロー機能
 - リストへの「いいね」機能
