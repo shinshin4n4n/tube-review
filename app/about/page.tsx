@@ -1,4 +1,5 @@
-import { Layout } from '@/components/layout';
+import { Layout } from "@/components/layout";
+import Link from "next/link";
 
 /**
  * ちゅぶれびゅ！とは ページ
@@ -10,21 +11,21 @@ import { Layout } from '@/components/layout';
 export default function AboutPage() {
   return (
     <Layout>
-      <div className="container mx-auto px-6 py-12 max-w-4xl">
+      <div className="container mx-auto max-w-4xl px-6 py-12">
         {/* ヘッダー */}
-        <div className="text-center mb-16 space-y-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+        <div className="mb-16 space-y-8 text-center">
+          <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">
             ちゅぶれびゅ！とは
           </h1>
 
           <div className="space-y-4">
-            <p className="text-lg md:text-xl text-gray-600 font-medium">
+            <p className="text-lg font-medium text-gray-600 md:text-xl">
               あなたのレビューが、誰かの発見になる
             </p>
           </div>
 
-          <div className="max-w-2xl mx-auto">
-            <p className="text-base md:text-lg text-gray-700 leading-relaxed">
+          <div className="mx-auto max-w-2xl">
+            <p className="text-base leading-relaxed text-gray-700 md:text-lg">
               本音のレビューで、新しいチャンネルを発掘。
               <br />
               同じ興味を持つ人のリアルな声が、本当に面白いチャンネルを教えてくれます。
@@ -37,12 +38,13 @@ export default function AboutPage() {
         <div className="space-y-16">
           {/* サービス概要 */}
           <section>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            <h2 className="mb-6 text-3xl font-bold text-gray-900">
               サービス概要
             </h2>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-              <p className="text-lg text-gray-700 leading-relaxed">
-                <span className="font-bold text-primary">ちゅぶれびゅ！</span>は、YouTubeチャンネルのレビュー・発見プラットフォームです。
+            <div className="rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+              <p className="text-lg leading-relaxed text-gray-700">
+                <span className="text-primary font-bold">ちゅぶれびゅ！</span>
+                は、YouTubeチャンネルのレビュー・発見プラットフォームです。
                 <br />
                 チャンネル単位で「見たい」「見ている」「見た」を管理し、能動的にチャンネルを発見できます。
               </p>
@@ -51,13 +53,13 @@ export default function AboutPage() {
 
           {/* コアバリュー */}
           <section>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            <h2 className="mb-6 text-3xl font-bold text-gray-900">
               コアバリュー
             </h2>
             <div className="grid gap-6 md:grid-cols-3">
-              <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-6 border border-primary/20">
-                <div className="text-4xl mb-4">🎯</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
+              <div className="from-primary/10 to-primary/5 border-primary/20 rounded-lg border bg-gradient-to-br p-6">
+                <div className="mb-4 text-4xl">🎯</div>
+                <h3 className="mb-3 text-xl font-bold text-gray-900">
                   能動的な発見へ
                 </h3>
                 <p className="text-gray-700">
@@ -65,9 +67,9 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-lg p-6 border border-accent/20">
-                <div className="text-4xl mb-4">📚</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
+              <div className="from-accent/10 to-accent/5 border-accent/20 rounded-lg border bg-gradient-to-br p-6">
+                <div className="mb-4 text-4xl">📚</div>
+                <h3 className="mb-3 text-xl font-bold text-gray-900">
                   管理する楽しさ
                 </h3>
                 <p className="text-gray-700">
@@ -75,9 +77,9 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-lg p-6 border border-secondary/20">
-                <div className="text-4xl mb-4">⭐</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
+              <div className="from-secondary/10 to-secondary/5 border-secondary/20 rounded-lg border bg-gradient-to-br p-6">
+                <div className="mb-4 text-4xl">⭐</div>
+                <h3 className="mb-3 text-xl font-bold text-gray-900">
                   質の高い視聴体験
                 </h3>
                 <p className="text-gray-700">
@@ -89,15 +91,15 @@ export default function AboutPage() {
 
           {/* こんな人におすすめ */}
           <section>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">
+            <h2 className="mb-6 text-3xl font-bold text-gray-900">
               こんな人におすすめ
             </h2>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 divide-y divide-gray-200">
+            <div className="divide-y divide-gray-200 rounded-lg border border-gray-200 bg-white shadow-sm">
               <div className="p-6">
                 <div className="flex items-start gap-4">
                   <div className="text-2xl">✅</div>
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-2">
+                    <h3 className="mb-2 font-bold text-gray-900">
                       YouTubeを日常的に視聴する人
                     </h3>
                     <p className="text-gray-700">
@@ -111,7 +113,7 @@ export default function AboutPage() {
                 <div className="flex items-start gap-4">
                   <div className="text-2xl">✅</div>
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-2">
+                    <h3 className="mb-2 font-bold text-gray-900">
                       「また時間を無駄にした...」と後悔したことがある人
                     </h3>
                     <p className="text-gray-700">
@@ -125,7 +127,7 @@ export default function AboutPage() {
                 <div className="flex items-start gap-4">
                   <div className="text-2xl">✅</div>
                   <div>
-                    <h3 className="font-bold text-gray-900 mb-2">
+                    <h3 className="mb-2 font-bold text-gray-900">
                       良質なチャンネルを探しているが、おすすめに頼りたくない人
                     </h3>
                     <p className="text-gray-700">
@@ -139,16 +141,14 @@ export default function AboutPage() {
 
           {/* 使い方 */}
           <section>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">
-              使い方
-            </h2>
+            <h2 className="mb-6 text-3xl font-bold text-gray-900">使い方</h2>
             <div className="space-y-4">
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">
+                <div className="bg-primary flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full font-bold text-white">
                   1
                 </div>
-                <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="font-bold text-gray-900 mb-2">
+                <div className="flex-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                  <h3 className="mb-2 font-bold text-gray-900">
                     チャンネルを検索
                   </h3>
                   <p className="text-gray-700">
@@ -158,11 +158,11 @@ export default function AboutPage() {
               </div>
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">
+                <div className="bg-primary flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full font-bold text-white">
                   2
                 </div>
-                <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="font-bold text-gray-900 mb-2">
+                <div className="flex-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                  <h3 className="mb-2 font-bold text-gray-900">
                     ステータスを管理
                   </h3>
                   <p className="text-gray-700">
@@ -172,11 +172,11 @@ export default function AboutPage() {
               </div>
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">
+                <div className="bg-primary flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full font-bold text-white">
                   3
                 </div>
-                <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="font-bold text-gray-900 mb-2">
+                <div className="flex-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                  <h3 className="mb-2 font-bold text-gray-900">
                     レビューを書く
                   </h3>
                   <p className="text-gray-700">
@@ -186,11 +186,11 @@ export default function AboutPage() {
               </div>
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">
+                <div className="bg-primary flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full font-bold text-white">
                   4
                 </div>
-                <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="font-bold text-gray-900 mb-2">
+                <div className="flex-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+                  <h3 className="mb-2 font-bold text-gray-900">
                     新しいチャンネルを発見
                   </h3>
                   <p className="text-gray-700">
@@ -203,19 +203,19 @@ export default function AboutPage() {
 
           {/* CTA */}
           <section className="text-center">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+            <div className="rounded-lg border border-gray-200 bg-white p-12 shadow-sm">
+              <h2 className="mb-4 text-3xl font-bold text-gray-900">
                 チャンネルを探す
               </h2>
-              <p className="text-lg text-gray-600 mb-8">
+              <p className="mb-8 text-lg text-gray-600">
                 あなたの能動的なYouTube視聴体験をサポートします
               </p>
-              <a
+              <Link
                 href="/"
-                className="inline-block px-8 py-4 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition-colors duration-200 shadow-md"
+                className="bg-primary hover:bg-primary-dark inline-block rounded-lg px-8 py-4 font-bold text-white shadow-md transition-colors duration-200"
               >
                 トップページへ
-              </a>
+              </Link>
             </div>
           </section>
         </div>
@@ -225,7 +225,7 @@ export default function AboutPage() {
 }
 
 export const metadata = {
-  title: 'ちゅぶれびゅ！とは',
+  title: "ちゅぶれびゅ！とは",
   description:
-    'ちゅぶれびゅ！は、YouTubeチャンネルのレビュー・発見プラットフォームです。チャンネル単位で管理し、能動的にチャンネルを発見できます。',
+    "ちゅぶれびゅ！は、YouTubeチャンネルのレビュー・発見プラットフォームです。チャンネル単位で管理し、能動的にチャンネルを発見できます。",
 };

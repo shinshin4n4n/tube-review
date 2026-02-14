@@ -1,10 +1,10 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
-import { getUser } from '@/lib/auth';
-import { ApiError, handleApiError } from '@/lib/api/error';
-import { API_ERROR_CODES, type ApiResponse } from '@/lib/types/api';
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/auth";
+import { ApiError, handleApiError } from "@/lib/api/error";
+import { API_ERROR_CODES, type ApiResponse } from "@/lib/types/api";
 
 /**
  * リストにチャンネルを追加
@@ -19,7 +19,7 @@ export async function addChannelToListAction(
     if (!user) {
       throw new ApiError(
         API_ERROR_CODES.UNAUTHORIZED,
-        'ログインが必要です',
+        "ログインが必要です",
         401
       );
     }
@@ -28,61 +28,59 @@ export async function addChannelToListAction(
 
     // リストの所有者確認
     const { data: list, error: listError } = await supabase
-      .from('lists')
-      .select('id')
-      .eq('id', listId)
-      .eq('user_id', user.id)
+      .from("lists")
+      .select("id")
+      .eq("id", listId)
+      .eq("user_id", user.id)
       .single();
 
     if (listError || !list) {
       throw new ApiError(
         API_ERROR_CODES.FORBIDDEN,
-        'このリストを編集する権限がありません',
+        "このリストを編集する権限がありません",
         403
       );
     }
 
     // 既に追加されているか確認
     const { data: existing } = await supabase
-      .from('list_channels')
-      .select('id')
-      .eq('list_id', listId)
-      .eq('channel_id', channelId)
+      .from("list_channels")
+      .select("id")
+      .eq("list_id", listId)
+      .eq("channel_id", channelId)
       .single();
 
     if (existing) {
       throw new ApiError(
         API_ERROR_CODES.DUPLICATE,
-        'このチャンネルは既にリストに追加されています',
+        "このチャンネルは既にリストに追加されています",
         409
       );
     }
 
     // 現在の最大order_indexを取得
     const { data: maxOrder } = await supabase
-      .from('list_channels')
-      .select('order_index')
-      .eq('list_id', listId)
-      .order('order_index', { ascending: false })
+      .from("list_channels")
+      .select("order_index")
+      .eq("list_id", listId)
+      .order("order_index", { ascending: false })
       .limit(1)
       .single();
 
     const orderIndex = (maxOrder?.order_index || 0) + 1;
 
     // list_channelsに追加
-    const { error: insertError } = await supabase
-      .from('list_channels')
-      .insert({
-        list_id: listId,
-        channel_id: channelId,
-        order_index: orderIndex,
-      });
+    const { error: insertError } = await supabase.from("list_channels").insert({
+      list_id: listId,
+      channel_id: channelId,
+      order_index: orderIndex,
+    });
 
     if (insertError) {
-      console.error('Supabase error:', insertError);
+      console.error("Supabase error:", insertError);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'チャンネルの追加に失敗しました',
+        "チャンネルの追加に失敗しました",
         500
       );
     }
@@ -111,7 +109,7 @@ export async function removeChannelFromListAction(
     if (!user) {
       throw new ApiError(
         API_ERROR_CODES.UNAUTHORIZED,
-        'ログインが必要です',
+        "ログインが必要です",
         401
       );
     }
@@ -120,32 +118,32 @@ export async function removeChannelFromListAction(
 
     // リストの所有者確認
     const { data: list, error: listError } = await supabase
-      .from('lists')
-      .select('id')
-      .eq('id', listId)
-      .eq('user_id', user.id)
+      .from("lists")
+      .select("id")
+      .eq("id", listId)
+      .eq("user_id", user.id)
       .single();
 
     if (listError || !list) {
       throw new ApiError(
         API_ERROR_CODES.FORBIDDEN,
-        'このリストを編集する権限がありません',
+        "このリストを編集する権限がありません",
         403
       );
     }
 
     // list_channelsから削除
     const { error: deleteError } = await supabase
-      .from('list_channels')
+      .from("list_channels")
       .delete()
-      .eq('list_id', listId)
-      .eq('channel_id', channelId);
+      .eq("list_id", listId)
+      .eq("channel_id", channelId);
 
     if (deleteError) {
-      console.error('Supabase error:', deleteError);
+      console.error("Supabase error:", deleteError);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'チャンネルの削除に失敗しました',
+        "チャンネルの削除に失敗しました",
         500
       );
     }
@@ -189,7 +187,7 @@ export async function getListChannelsAction(
     const supabase = await createClient();
 
     const { data, error } = await supabase
-      .from('list_channels')
+      .from("list_channels")
       .select(
         `
         id,
@@ -206,14 +204,14 @@ export async function getListChannelsAction(
         )
       `
       )
-      .eq('list_id', listId)
-      .order('order_index', { ascending: true });
+      .eq("list_id", listId)
+      .order("order_index", { ascending: true });
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error("Supabase error:", error);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'チャンネル一覧の取得に失敗しました',
+        "チャンネル一覧の取得に失敗しました",
         500
       );
     }
@@ -252,11 +250,10 @@ export async function searchChannelsForListAction(
   query: string
 ): Promise<ApiResponse<SearchChannelResult[]>> {
   try {
-
     // YouTube APIから検索
-    const { searchChannels, getChannelDetails } = await import('@/lib/youtube/api');
+    const { searchChannels, getChannelDetails } =
+      await import("@/lib/youtube/api");
     const youtubeResults = await searchChannels(query, 10);
-
 
     if (youtubeResults.length === 0) {
       return {
@@ -272,11 +269,13 @@ export async function searchChannelsForListAction(
     for (const ytChannel of youtubeResults) {
       try {
         // チャンネル詳細情報を取得（登録者数などを含む）
-        const channelDetails = await getChannelDetails(ytChannel.youtubeChannelId);
+        const channelDetails = await getChannelDetails(
+          ytChannel.youtubeChannelId
+        );
 
         // データベースにチャンネルを保存
         const { data: upsertedChannel, error: upsertError } = await supabase
-          .from('channels')
+          .from("channels")
           .upsert(
             {
               youtube_channel_id: channelDetails.youtubeChannelId,
@@ -290,15 +289,21 @@ export async function searchChannelsForListAction(
               updated_at: new Date().toISOString(),
             },
             {
-              onConflict: 'youtube_channel_id',
+              onConflict: "youtube_channel_id",
               ignoreDuplicates: false,
             }
           )
-          .select('id, youtube_channel_id, title, thumbnail_url, subscriber_count')
+          .select(
+            "id, youtube_channel_id, title, thumbnail_url, subscriber_count"
+          )
           .single();
 
         if (upsertError) {
-          console.error('[searchChannelsForListAction] Upsert error for channel:', ytChannel.youtubeChannelId, upsertError);
+          console.error(
+            "[searchChannelsForListAction] Upsert error for channel:",
+            ytChannel.youtubeChannelId,
+            upsertError
+          );
           continue;
         }
 
@@ -306,33 +311,38 @@ export async function searchChannelsForListAction(
           searchResults.push(upsertedChannel);
         }
       } catch (channelError) {
-        console.error('[searchChannelsForListAction] Error processing channel:', ytChannel.youtubeChannelId, channelError);
+        console.error(
+          "[searchChannelsForListAction] Error processing channel:",
+          ytChannel.youtubeChannelId,
+          channelError
+        );
         // 個別のチャンネルでエラーが発生しても、他のチャンネルの処理を続行
         continue;
       }
     }
-
 
     return {
       success: true,
       data: searchResults,
     };
   } catch (err) {
-    console.error('[searchChannelsForListAction] Caught error:', err);
+    console.error("[searchChannelsForListAction] Caught error:", err);
 
     // YouTube APIエラーの場合
-    if (err && typeof err === 'object' && 'code' in err) {
-      const ytError = err as any;
-      if (ytError.code === 'QUOTA_EXCEEDED') {
+    if (err && typeof err === "object" && "code" in err) {
+      const ytError = err as { code: string };
+      if (ytError.code === "QUOTA_EXCEEDED") {
         return {
           success: false,
-          error: 'YouTube APIのクォータを超過しました。しばらくしてから再度お試しください。',
+          error:
+            "YouTube APIのクォータを超過しました。しばらくしてから再度お試しください。",
         };
       }
-      if (ytError.code === 'RATE_LIMIT') {
+      if (ytError.code === "RATE_LIMIT") {
         return {
           success: false,
-          error: 'リクエスト制限に達しました。しばらくしてから再度お試しください。',
+          error:
+            "リクエスト制限に達しました。しばらくしてから再度お試しください。",
         };
       }
     }

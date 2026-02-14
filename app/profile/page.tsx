@@ -1,14 +1,14 @@
-import { requireAuth } from '@/lib/auth';
-import { createClient } from '@/lib/supabase/server';
-import { Layout } from '@/components/layout';
-import { ProfileView } from '@/app/_components/profile-view';
-import { redirect } from 'next/navigation';
-import type { Metadata } from 'next';
-import { ProfileBreadcrumb } from '@/app/_components/profile-breadcrumb';
+import { requireAuth } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
+import { Layout } from "@/components/layout";
+import { ProfileView } from "@/app/_components/profile-view";
+import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+import { ProfileBreadcrumb } from "@/app/_components/profile-breadcrumb";
 
 export const metadata: Metadata = {
-  title: 'プロフィール | TubeReview',
-  description: 'ユーザープロフィール',
+  title: "プロフィール | TubeReview",
+  description: "ユーザープロフィール",
 };
 
 export default async function ProfilePage() {
@@ -19,18 +19,25 @@ export default async function ProfilePage() {
   const supabase = await createClient();
 
   // RLSポリシーにより、自分のデータのみ取得可能
-  let { data: profile, error } = await supabase
-    .from('users')
-    .select('id, email, username, display_name, avatar_url, bio, occupation, gender, birth_date, prefecture, website_url, created_at')
-    .eq('id', user.id)
+  const { data: initialProfile, error: profileError } = await supabase
+    .from("users")
+    .select(
+      "id, email, username, display_name, avatar_url, bio, occupation, gender, birth_date, prefecture, website_url, created_at"
+    )
+    .eq("id", user.id)
     .single();
 
+  let profile = initialProfile;
+
   // プロフィールが存在しない場合は自動作成
-  if (error || !profile) {
-    console.error('Profile not found, creating...', { userId: user.id, error });
+  if (profileError || !profile) {
+    console.error("Profile not found, creating...", {
+      userId: user.id,
+      error: profileError,
+    });
 
     // メールアドレスからユーザー名を生成
-    const baseUsername = user.email?.split('@')[0] || 'user';
+    const baseUsername = user.email?.split("@")[0] || "user";
     let username = baseUsername;
     let counter = 0;
 
@@ -38,9 +45,9 @@ export default async function ProfilePage() {
     let usernameExists = true;
     while (usernameExists) {
       const { data } = await supabase
-        .from('users')
-        .select('username')
-        .eq('username', username)
+        .from("users")
+        .select("username")
+        .eq("username", username)
         .single();
 
       if (!data) {
@@ -53,26 +60,29 @@ export default async function ProfilePage() {
 
     // プロフィールを作成
     const { data: newProfile, error: createError } = await supabase
-      .from('users')
+      .from("users")
       .insert({
         id: user.id,
         email: user.email!,
         username,
-        display_name: user.user_metadata?.name || user.user_metadata?.full_name || username,
+        display_name:
+          user.user_metadata?.name || user.user_metadata?.full_name || username,
         avatar_url: user.user_metadata?.avatar_url,
       })
-      .select('id, email, username, display_name, avatar_url, bio, occupation, gender, birth_date, prefecture, website_url, created_at')
+      .select(
+        "id, email, username, display_name, avatar_url, bio, occupation, gender, birth_date, prefecture, website_url, created_at"
+      )
       .single();
 
     if (createError) {
-      console.error('Failed to create profile:', createError);
-      redirect('/login');
+      console.error("Failed to create profile:", createError);
+      redirect("/login");
     }
 
     profile = newProfile;
 
     // デフォルトのユーザー設定も作成
-    await supabase.from('user_settings').insert({
+    await supabase.from("user_settings").insert({
       user_id: user.id,
       is_public: true,
       email_notifications: true,

@@ -73,6 +73,6 @@ jobs:
 
       - name: Comment PR with test results
         uses: daun/playwright-report-comment@v3
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && always()
         with:
-          report-url: ${{ steps.publish-report.outputs.report-url }}
+          report-file: playwright-report/results.json

@@ -18,15 +18,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run ESLint
         run: npm run lint
-        continue-on-error: true  # Allow existing lint errors (to be fixed in separate PR)
 
   typecheck:
     name: Type Check
@@ -39,15 +38,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run TypeScript type check
         run: npx tsc --noEmit
-        continue-on-error: true  # Allow existing type errors (to be fixed in separate PR)
+        continue-on-error: true # TODO: Fix type errors in separate PR
 
   test:
     name: Unit Tests
@@ -60,15 +59,25 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Create dummy .env.local for tests
+        run: |
+          cat > .env.local << EOF
+          NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key
+          YOUTUBE_API_KEY=dummy-youtube-api-key
+          SUPABASE_SERVICE_ROLE_KEY=dummy-service-role-key
+          NEXTAUTH_SECRET=dummy-nextauth-secret-for-ci-tests-only
+          NEXTAUTH_URL=http://localhost:3000
+          EOF
+
       - name: Run unit tests
         run: npm run test:unit
-        continue-on-error: true  # Allow existing test failures (to be fixed in separate PR)
 
   build:
     name: Build
@@ -81,8 +90,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
