@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { magicLinkSchema } from '@/lib/validation/auth';
+import { useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { magicLinkSchema } from "@/lib/validations/auth";
 
 /**
  * リダイレクトURLのバリデーション
@@ -15,54 +15,54 @@ import { magicLinkSchema } from '@/lib/validation/auth';
  */
 function isValidRedirectUrl(url: string): boolean {
   // 相対URLのみ許可
-  if (!url.startsWith('/')) return false;
+  if (!url.startsWith("/")) return false;
   // プロトコル相対URL（//example.com）を防ぐ
-  if (url.startsWith('//')) return false;
+  if (url.startsWith("//")) return false;
   // JavaScriptスキームを防ぐ
-  if (url.toLowerCase().startsWith('javascript:')) return false;
+  if (url.toLowerCase().startsWith("javascript:")) return false;
   return true;
 }
 
 function LoginPageContent() {
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
   const searchParams = useSearchParams();
 
   // リダイレクト先を取得（バリデーション付き）
-  const redirect = searchParams.get('redirect') || '/';
-  const safeRedirect = isValidRedirectUrl(redirect) ? redirect : '/';
+  const redirect = searchParams.get("redirect") || "/";
+  const safeRedirect = isValidRedirectUrl(redirect) ? redirect : "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setSuccess(false);
 
     // バリデーション
     const result = magicLinkSchema.safeParse({ email });
     if (!result.success) {
-      setError(result.error.issues[0]?.message || '入力内容を確認してください');
+      setError(result.error.issues[0]?.message || "入力内容を確認してください");
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/magic-link', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/magic-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
       if (!response.ok) {
-        throw new Error('ログインリンクの送信に失敗しました');
+        throw new Error("ログインリンクの送信に失敗しました");
       }
 
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'エラーが発生しました');
+      setError(err instanceof Error ? err.message : "エラーが発生しました");
     } finally {
       setLoading(false);
     }
@@ -70,31 +70,31 @@ function LoginPageContent() {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
-    setError('');
+    setError("");
 
     // OAuth認証後のコールバックURLにリダイレクト先を含める
-    const callbackUrl = new URL('/auth/callback', window.location.origin);
-    callbackUrl.searchParams.set('redirect', safeRedirect);
+    const callbackUrl = new URL("/auth/callback", window.location.origin);
+    callbackUrl.searchParams.set("redirect", safeRedirect);
 
     const { error: googleError } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider: "google",
       options: {
         redirectTo: callbackUrl.toString(),
       },
     });
 
     if (googleError) {
-      setError('Googleログインに失敗しました。もう一度お試しください。');
+      setError("Googleログインに失敗しました。もう一度お試しください。");
       setLoading(false);
     }
     // 成功時はGoogleの認証画面にリダイレクトされるのでローディング解除不要
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base px-4">
+    <div className="bg-base flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl text-center text-content">
+          <CardTitle className="text-content text-center text-2xl">
             ログイン
           </CardTitle>
         </CardHeader>
@@ -102,7 +102,7 @@ function LoginPageContent() {
           {/* エラー・成功メッセージ */}
           {error && (
             <p
-              className="text-sm text-red-500 mb-4"
+              className="mb-4 text-sm text-red-500"
               role="alert"
               data-testid="error-message"
             >
@@ -112,7 +112,7 @@ function LoginPageContent() {
 
           {success && (
             <p
-              className="text-sm text-green-600 mb-4"
+              className="mb-4 text-sm text-green-600"
               role="status"
               data-testid="success-message"
             >
@@ -137,20 +137,22 @@ function LoginPageContent() {
 
             <Button
               type="submit"
-              className="w-full bg-primary hover:bg-primary-hover"
+              className="bg-primary hover:bg-primary-hover w-full"
               disabled={loading}
             >
-              {loading ? '送信中...' : 'ログインリンクを送信'}
+              {loading ? "送信中..." : "ログインリンクを送信"}
             </Button>
           </form>
 
           {/* 区切り線 */}
           <div className="relative mt-6">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-stroke" />
+              <span className="border-stroke w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-surface px-2 text-content-secondary">または</span>
+              <span className="bg-surface text-content-secondary px-2">
+                または
+              </span>
             </div>
           </div>
 
@@ -158,7 +160,7 @@ function LoginPageContent() {
           <Button
             type="button"
             variant="outline"
-            className="w-full mt-6"
+            className="mt-6 w-full"
             onClick={handleGoogleLogin}
             disabled={loading}
           >
@@ -174,7 +176,7 @@ function LoginPageContent() {
                 d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"
               />
             </svg>
-            {loading ? 'ログイン中...' : 'Googleでログイン'}
+            {loading ? "ログイン中..." : "Googleでログイン"}
           </Button>
         </CardContent>
       </Card>
@@ -184,7 +186,13 @@ function LoginPageContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          Loading...
+        </div>
+      }
+    >
       <LoginPageContent />
     </Suspense>
   );

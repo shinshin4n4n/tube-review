@@ -1,19 +1,26 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
-import { getUser } from '@/lib/auth';
-import { ApiError, handleApiError } from '@/lib/api/error';
-import { API_ERROR_CODES, type ApiResponse } from '@/lib/types/api';
-import { DB_ERROR_CODES } from '@/lib/constants/database-errors';
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/auth";
+import { ApiError, handleApiError } from "@/lib/api/error";
+import { API_ERROR_CODES, type ApiResponse } from "@/lib/types/api";
+import { DB_ERROR_CODES } from "@/lib/constants/database-errors";
+import { extractYoutubeChannelId } from "@/lib/types/guards";
 import {
   createReviewSchema,
   updateReviewSchema,
   getChannelReviewsSchema,
   type CreateReviewInput,
   type UpdateReviewInput,
-} from '@/lib/validations/review';
-import type { Review, PaginatedReviews, ReviewWithUser, ReviewWithUserAndChannel, PaginatedMyReviews } from '@/lib/types/review';
+} from "@/lib/validations/review";
+import type {
+  Review,
+  PaginatedReviews,
+  ReviewWithUser,
+  ReviewWithUserAndChannel,
+  PaginatedMyReviews,
+} from "@/lib/types/review";
 
 /**
  * レビューを作成
@@ -30,7 +37,7 @@ export async function createReviewAction(
     if (!user) {
       throw new ApiError(
         API_ERROR_CODES.UNAUTHORIZED,
-        'ログインが必要です',
+        "ログインが必要です",
         401
       );
     }
@@ -39,7 +46,10 @@ export async function createReviewAction(
     const supabase = await createClient();
 
     // channelIdがUUID形式かどうかをチェック
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(validated.channelId);
+    const isUUID =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        validated.channelId
+      );
 
     let channelDbId: string;
 
@@ -49,30 +59,30 @@ export async function createReviewAction(
 
       // チャンネルの存在確認
       const { data: channel, error: channelError } = await supabase
-        .from('channels')
-        .select('id')
-        .eq('id', channelDbId)
+        .from("channels")
+        .select("id")
+        .eq("id", channelDbId)
         .single();
 
       if (channelError || !channel) {
         throw new ApiError(
           API_ERROR_CODES.NOT_FOUND,
-          'チャンネルが見つかりません',
+          "チャンネルが見つかりません",
           404
         );
       }
     } else {
       // YouTube IDの場合は検索
       const { data: channel, error: channelError } = await supabase
-        .from('channels')
-        .select('id')
-        .eq('youtube_channel_id', validated.channelId)
+        .from("channels")
+        .select("id")
+        .eq("youtube_channel_id", validated.channelId)
         .single();
 
       if (channelError || !channel) {
         throw new ApiError(
           API_ERROR_CODES.NOT_FOUND,
-          'チャンネルが見つかりません',
+          "チャンネルが見つかりません",
           404
         );
       }
@@ -82,7 +92,7 @@ export async function createReviewAction(
 
     // レビューを挿入
     const { data, error } = await supabase
-      .from('reviews')
+      .from("reviews")
       .insert({
         user_id: user.id,
         channel_id: channelDbId,
@@ -99,15 +109,15 @@ export async function createReviewAction(
       if (error.code === DB_ERROR_CODES.UNIQUE_VIOLATION) {
         throw new ApiError(
           API_ERROR_CODES.DUPLICATE,
-          'このチャンネルにはすでにレビューを投稿しています',
+          "このチャンネルにはすでにレビューを投稿しています",
           409
         );
       }
 
-      console.error('Supabase error:', error);
+      console.error("Supabase error:", error);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'レビューの投稿に失敗しました',
+        "レビューの投稿に失敗しました",
         500
       );
     }
@@ -135,7 +145,11 @@ export async function getChannelReviewsAction(
 ): Promise<ApiResponse<PaginatedReviews>> {
   try {
     // バリデーション
-    const validated = getChannelReviewsSchema.parse({ channelId: youtubeChannelId, page, limit });
+    const validated = getChannelReviewsSchema.parse({
+      channelId: youtubeChannelId,
+      page,
+      limit,
+    });
 
     // Supabaseクライアント作成
     const supabase = await createClient();
@@ -144,7 +158,10 @@ export async function getChannelReviewsAction(
     const user = await getUser();
 
     // channelIdがUUID形式かどうかをチェック
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(youtubeChannelId);
+    const isUUID =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        youtubeChannelId
+      );
 
     let channelDbId: string;
 
@@ -154,9 +171,9 @@ export async function getChannelReviewsAction(
 
       // チャンネルの存在確認
       const { data: channel, error: channelError } = await supabase
-        .from('channels')
-        .select('id')
-        .eq('id', channelDbId)
+        .from("channels")
+        .select("id")
+        .eq("id", channelDbId)
         .single();
 
       if (channelError || !channel) {
@@ -176,9 +193,9 @@ export async function getChannelReviewsAction(
     } else {
       // YouTube IDの場合は検索
       const { data: channel, error: channelError } = await supabase
-        .from('channels')
-        .select('id')
-        .eq('youtube_channel_id', youtubeChannelId)
+        .from("channels")
+        .select("id")
+        .eq("youtube_channel_id", youtubeChannelId)
         .single();
 
       if (channelError || !channel) {
@@ -203,7 +220,7 @@ export async function getChannelReviewsAction(
 
     // レビュー取得（ユーザー情報を JOIN）
     const { data: reviews, error } = await supabase
-      .from('reviews')
+      .from("reviews")
       .select(
         `
         id,
@@ -225,24 +242,24 @@ export async function getChannelReviewsAction(
         )
       `
       )
-      .eq('channel_id', channelDbId)
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false })
+      .eq("channel_id", channelDbId)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
       .range(offset, offset + validated.limit - 1);
 
     // 総件数取得
     const { count, error: countError } = await supabase
-      .from('reviews')
-      .select('*', { count: 'exact', head: true })
-      .eq('channel_id', channelDbId)
-      .is('deleted_at', null);
+      .from("reviews")
+      .select("*", { count: "exact", head: true })
+      .eq("channel_id", channelDbId)
+      .is("deleted_at", null);
 
     // エラーハンドリング
     if (error || countError) {
-      console.error('Supabase error:', error || countError);
+      console.error("Supabase error:", error || countError);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'レビューの取得に失敗しました',
+        "レビューの取得に失敗しました",
         500
       );
     }
@@ -252,10 +269,10 @@ export async function getChannelReviewsAction(
     if (user && reviews && reviews.length > 0) {
       const reviewIds = reviews.map((r) => r.id);
       const { data: helpfulData } = await supabase
-        .from('review_helpful')
-        .select('review_id')
-        .in('review_id', reviewIds)
-        .eq('user_id', user.id);
+        .from("review_helpful")
+        .select("review_id")
+        .in("review_id", reviewIds)
+        .eq("user_id", user.id);
 
       if (helpfulData) {
         userHelpfulVotes = new Set(helpfulData.map((h) => h.review_id));
@@ -265,7 +282,9 @@ export async function getChannelReviewsAction(
     // レビューデータを変換（user を配列から単一オブジェクトに、is_helpful を追加）
     const transformedReviews: ReviewWithUser[] = (reviews || []).map(
       (review) => {
-        const reviewUser = Array.isArray(review.user) ? review.user[0] : review.user;
+        const reviewUser = Array.isArray(review.user)
+          ? review.user[0]
+          : review.user;
         return {
           ...review,
           user: reviewUser,
@@ -310,7 +329,7 @@ export async function updateReviewAction(
     if (!user) {
       throw new ApiError(
         API_ERROR_CODES.UNAUTHORIZED,
-        'ログインが必要です',
+        "ログインが必要です",
         401
       );
     }
@@ -320,7 +339,7 @@ export async function updateReviewAction(
 
     // レビューを更新（RLSで自分のレビューのみ更新可能）
     const { data, error } = await supabase
-      .from('reviews')
+      .from("reviews")
       .update({
         rating: validated.rating,
         title: validated.title || null,
@@ -328,34 +347,31 @@ export async function updateReviewAction(
         is_spoiler: validated.isSpoiler || false,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', reviewId)
+      .eq("id", reviewId)
       // RLSポリシー 'reviews_update_own' で user_id チェック済み
-      .select('*, channel:channels!inner(youtube_channel_id)')
+      .select("*, channel:channels!inner(youtube_channel_id)")
       .single();
 
     if (error) {
       // レコードが見つからない、または権限がない
-      if (error.code === 'PGRST116') {
+      if (error.code === "PGRST116") {
         throw new ApiError(
           API_ERROR_CODES.FORBIDDEN,
-          'このレビューを編集する権限がありません',
+          "このレビューを編集する権限がありません",
           403
         );
       }
 
-      console.error('Supabase error:', error);
+      console.error("Supabase error:", error);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'レビューの更新に失敗しました',
+        "レビューの更新に失敗しました",
         500
       );
     }
 
     // YouTubeチャンネルIDを取得
-    const channel = data.channel as unknown as { youtube_channel_id?: string } | { youtube_channel_id?: string }[];
-    const youtubeChannelId = Array.isArray(channel)
-      ? channel[0]?.youtube_channel_id
-      : channel?.youtube_channel_id;
+    const youtubeChannelId = extractYoutubeChannelId(data.channel);
 
     // チャンネル詳細ページを再検証
     if (youtubeChannelId) {
@@ -383,7 +399,7 @@ export async function deleteReviewAction(
     if (!user) {
       throw new ApiError(
         API_ERROR_CODES.UNAUTHORIZED,
-        'ログインが必要です',
+        "ログインが必要です",
         401
       );
     }
@@ -393,38 +409,35 @@ export async function deleteReviewAction(
 
     // YouTubeチャンネルIDを取得（再検証用）
     const { data: review, error: fetchError } = await supabase
-      .from('reviews')
-      .select('channel:channels!inner(youtube_channel_id)')
-      .eq('id', reviewId)
-      .eq('user_id', user.id)
+      .from("reviews")
+      .select("channel:channels!inner(youtube_channel_id)")
+      .eq("id", reviewId)
+      .eq("user_id", user.id)
       .single();
 
     if (fetchError || !review) {
       throw new ApiError(
         API_ERROR_CODES.FORBIDDEN,
-        'このレビューを削除する権限がありません',
+        "このレビューを削除する権限がありません",
         403
       );
     }
 
     // YouTubeチャンネルIDを取得
-    const channel = review.channel as unknown as { youtube_channel_id?: string } | { youtube_channel_id?: string }[];
-    const youtubeChannelId = Array.isArray(channel)
-      ? channel[0]?.youtube_channel_id
-      : channel?.youtube_channel_id;
+    const youtubeChannelId = extractYoutubeChannelId(review.channel);
 
     // ソフトデリート（deleted_atを設定）
     // RLSポリシー 'reviews_update_own' で user_id チェック済み
     const { error } = await supabase
-      .from('reviews')
+      .from("reviews")
       .update({ deleted_at: new Date().toISOString() })
-      .eq('id', reviewId);
+      .eq("id", reviewId);
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error("Supabase error:", error);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'レビューの削除に失敗しました',
+        "レビューの削除に失敗しました",
         500
       );
     }
@@ -456,7 +469,7 @@ export async function toggleHelpfulAction(
     if (!user) {
       throw new ApiError(
         API_ERROR_CODES.UNAUTHORIZED,
-        'ログインが必要です',
+        "ログインが必要です",
         401
       );
     }
@@ -466,17 +479,17 @@ export async function toggleHelpfulAction(
 
     // 既存の投票を確認
     const { data: existingVote, error: checkError } = await supabase
-      .from('review_helpful')
-      .select('*')
-      .eq('review_id', reviewId)
-      .eq('user_id', user.id)
+      .from("review_helpful")
+      .select("*")
+      .eq("review_id", reviewId)
+      .eq("user_id", user.id)
       .maybeSingle();
 
     if (checkError) {
-      console.error('Supabase error:', checkError);
+      console.error("Supabase error:", checkError);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        '投票状態の確認に失敗しました',
+        "投票状態の確認に失敗しました",
         500
       );
     }
@@ -486,16 +499,16 @@ export async function toggleHelpfulAction(
     if (existingVote) {
       // 既に投票済み → 投票を削除
       const { error: deleteError } = await supabase
-        .from('review_helpful')
+        .from("review_helpful")
         .delete()
-        .eq('review_id', reviewId)
-        .eq('user_id', user.id);
+        .eq("review_id", reviewId)
+        .eq("user_id", user.id);
 
       if (deleteError) {
-        console.error('Supabase error:', deleteError);
+        console.error("Supabase error:", deleteError);
         throw new ApiError(
           API_ERROR_CODES.INTERNAL_ERROR,
-          '投票の取り消しに失敗しました',
+          "投票の取り消しに失敗しました",
           500
         );
       }
@@ -504,17 +517,17 @@ export async function toggleHelpfulAction(
     } else {
       // まだ投票していない → 投票を追加
       const { error: insertError } = await supabase
-        .from('review_helpful')
+        .from("review_helpful")
         .insert({
           review_id: reviewId,
           user_id: user.id,
         });
 
       if (insertError) {
-        console.error('Supabase error:', insertError);
+        console.error("Supabase error:", insertError);
         throw new ApiError(
           API_ERROR_CODES.INTERNAL_ERROR,
-          '投票の追加に失敗しました',
+          "投票の追加に失敗しました",
           500
         );
       }
@@ -524,35 +537,35 @@ export async function toggleHelpfulAction(
 
     // 最新の投票数を取得
     const { count, error: countError } = await supabase
-      .from('review_helpful')
-      .select('*', { count: 'exact', head: true })
-      .eq('review_id', reviewId);
+      .from("review_helpful")
+      .select("*", { count: "exact", head: true })
+      .eq("review_id", reviewId);
 
     if (countError) {
-      console.error('Supabase error:', countError);
+      console.error("Supabase error:", countError);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        '投票数の取得に失敗しました',
+        "投票数の取得に失敗しました",
         500
       );
     }
 
     // reviews テーブルの helpful_count を更新
     const { error: updateError } = await supabase
-      .from('reviews')
+      .from("reviews")
       .update({ helpful_count: count || 0 })
-      .eq('id', reviewId);
+      .eq("id", reviewId);
 
     if (updateError) {
-      console.error('Supabase error:', updateError);
+      console.error("Supabase error:", updateError);
       // helpful_count の更新失敗は致命的ではないので、警告のみ
     }
 
     // チャンネル詳細ページを再検証（YouTubeチャンネルIDを取得）
     const { data: review } = await supabase
-      .from('reviews')
-      .select('channel:channels!inner(youtube_channel_id)')
-      .eq('id', reviewId)
+      .from("reviews")
+      .select("channel:channels!inner(youtube_channel_id)")
+      .eq("id", reviewId)
       .single();
 
     if (review) {
@@ -593,7 +606,7 @@ export async function getMyReviewsAction(
     if (!user) {
       throw new ApiError(
         API_ERROR_CODES.UNAUTHORIZED,
-        'ログインが必要です',
+        "ログインが必要です",
         401
       );
     }
@@ -604,7 +617,7 @@ export async function getMyReviewsAction(
 
     // レビュー取得
     const { data: reviews, error } = await supabase
-      .from('reviews')
+      .from("reviews")
       .select(
         `
         *,
@@ -622,22 +635,22 @@ export async function getMyReviewsAction(
         )
       `
       )
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);
 
     // 総件数取得
     const { count, error: countError } = await supabase
-      .from('reviews')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id);
+      .from("reviews")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id);
 
     // エラーハンドリング
     if (error || countError) {
-      console.error('Supabase error:', error || countError);
+      console.error("Supabase error:", error || countError);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'レビューの取得に失敗しました',
+        "レビューの取得に失敗しました",
         500
       );
     }
@@ -646,7 +659,9 @@ export async function getMyReviewsAction(
     const transformed = (reviews || []).map((review) => ({
       ...review,
       user: Array.isArray(review.user) ? review.user[0] : review.user,
-      channel: Array.isArray(review.channel) ? review.channel[0] : review.channel,
+      channel: Array.isArray(review.channel)
+        ? review.channel[0]
+        : review.channel,
     })) as ReviewWithUserAndChannel[];
 
     // ページネーション情報を構築
