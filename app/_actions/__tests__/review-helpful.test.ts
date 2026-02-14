@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toggleHelpfulAction } from "../review";
+import type { User } from "@supabase/supabase-js";
 
 // Supabase と auth をモック
 vi.mock("@/lib/supabase/server", () => ({
@@ -22,14 +23,23 @@ describe("toggleHelpfulAction", () => {
     const result = await toggleHelpfulAction("test-review-id");
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("ログインが必要です");
+    if (!result.success) {
+      expect(result.error).toBe("ログインが必要です");
+    }
   });
 
   it.skip("should add vote when not voted yet", async () => {
     const { getUser } = await import("@/lib/auth");
     const { createClient } = await import("@/lib/supabase/server");
 
-    const mockUser = { id: "user-id", email: "test@example.com" };
+    const mockUser = {
+      id: "user-id",
+      email: "test@example.com",
+      app_metadata: {},
+      user_metadata: {},
+      aud: "authenticated",
+      created_at: new Date().toISOString(),
+    } as User;
     vi.mocked(getUser).mockResolvedValue(mockUser);
 
     const mockSupabase = {
@@ -53,14 +63,6 @@ describe("toggleHelpfulAction", () => {
                 error: null,
               })
             ),
-            select: vi.fn(() => ({
-              eq: vi.fn(() =>
-                Promise.resolve({
-                  count: 1,
-                  error: null,
-                })
-              ),
-            })),
           };
         } else if (table === "reviews") {
           return {
@@ -90,7 +92,7 @@ describe("toggleHelpfulAction", () => {
     };
 
     vi.mocked(createClient).mockResolvedValue(
-      mockSupabase as unknown as ReturnType<typeof createClient>
+      mockSupabase as unknown as Awaited<ReturnType<typeof createClient>>
     );
 
     const result = await toggleHelpfulAction("test-review-id");
@@ -105,7 +107,14 @@ describe("toggleHelpfulAction", () => {
     const { getUser } = await import("@/lib/auth");
     const { createClient } = await import("@/lib/supabase/server");
 
-    const mockUser = { id: "user-id", email: "test@example.com" };
+    const mockUser = {
+      id: "user-id",
+      email: "test@example.com",
+      app_metadata: {},
+      user_metadata: {},
+      aud: "authenticated",
+      created_at: new Date().toISOString(),
+    } as User;
     vi.mocked(getUser).mockResolvedValue(mockUser);
 
     const mockSupabase = {
@@ -168,7 +177,7 @@ describe("toggleHelpfulAction", () => {
     };
 
     vi.mocked(createClient).mockResolvedValue(
-      mockSupabase as unknown as ReturnType<typeof createClient>
+      mockSupabase as unknown as Awaited<ReturnType<typeof createClient>>
     );
 
     const result = await toggleHelpfulAction("test-review-id");
@@ -183,7 +192,14 @@ describe("toggleHelpfulAction", () => {
     const { getUser } = await import("@/lib/auth");
     const { createClient } = await import("@/lib/supabase/server");
 
-    const mockUser = { id: "user-id", email: "test@example.com" };
+    const mockUser = {
+      id: "user-id",
+      email: "test@example.com",
+      app_metadata: {},
+      user_metadata: {},
+      aud: "authenticated",
+      created_at: new Date().toISOString(),
+    } as User;
     vi.mocked(getUser).mockResolvedValue(mockUser);
 
     const mockSupabase = {
@@ -202,12 +218,14 @@ describe("toggleHelpfulAction", () => {
     };
 
     vi.mocked(createClient).mockResolvedValue(
-      mockSupabase as unknown as ReturnType<typeof createClient>
+      mockSupabase as unknown as Awaited<ReturnType<typeof createClient>>
     );
 
     const result = await toggleHelpfulAction("test-review-id");
 
     expect(result.success).toBe(false);
-    expect(result.error).toBe("投票状態の確認に失敗しました");
+    if (!result.success) {
+      expect(result.error).toBe("投票状態の確認に失敗しました");
+    }
   });
 });
