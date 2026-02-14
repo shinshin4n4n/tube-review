@@ -1,11 +1,11 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { z } from 'zod';
-import { createClient } from '@/lib/supabase/server';
-import type { ApiResponse } from '@/lib/types/api';
-import { signUpSchema, signInSchema } from '@/lib/validation/auth';
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { z } from "zod";
+import { createClient } from "@/lib/supabase/server";
+import type { ApiResponse } from "@/lib/types/api";
+import { signUpSchema, signInSchema } from "@/lib/validations/auth";
 
 /**
  * メールアドレスとパスワードでサインアップ
@@ -23,7 +23,7 @@ export async function signUp(
       email: validated.email,
       password: validated.password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tube-review.com'}/auth/callback`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://tube-review.com"}/auth/callback`,
       },
     });
 
@@ -37,21 +37,21 @@ export async function signUp(
     return {
       success: true,
       data: {
-        message: 'Check your email to confirm your account',
+        message: "Check your email to confirm your account",
       },
     };
   } catch (err) {
     if (err instanceof z.ZodError) {
       return {
         success: false,
-        error: err.issues[0]?.message || 'Validation error',
+        error: err.issues[0]?.message || "Validation error",
       };
     }
 
-    console.error('Sign up error:', err);
+    console.error("Sign up error:", err);
     return {
       success: false,
-      error: 'An unexpected error occurred',
+      error: "An unexpected error occurred",
     };
   }
 }
@@ -80,26 +80,26 @@ export async function signIn(
       };
     }
 
-    revalidatePath('/', 'layout');
+    revalidatePath("/", "layout");
 
     return {
       success: true,
       data: {
-        message: 'Signed in successfully',
+        message: "Signed in successfully",
       },
     };
   } catch (err) {
     if (err instanceof z.ZodError) {
       return {
         success: false,
-        error: err.issues[0]?.message || 'Validation error',
+        error: err.issues[0]?.message || "Validation error",
       };
     }
 
-    console.error('Sign in error:', err);
+    console.error("Sign in error:", err);
     return {
       success: false,
-      error: 'An unexpected error occurred',
+      error: "An unexpected error occurred",
     };
   }
 }
@@ -110,8 +110,8 @@ export async function signIn(
 export async function signOut(): Promise<void> {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  revalidatePath('/', 'layout');
-  redirect('/');
+  revalidatePath("/", "layout");
+  redirect("/");
 }
 
 /**

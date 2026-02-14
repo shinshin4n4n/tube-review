@@ -1,22 +1,23 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
-import { getUser } from '@/lib/auth';
-import { ApiError, handleApiError } from '@/lib/api/error';
-import { API_ERROR_CODES, type ApiResponse } from '@/lib/types/api';
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { getUser } from "@/lib/auth";
+import { ApiError, handleApiError } from "@/lib/api/error";
+import { API_ERROR_CODES, type ApiResponse } from "@/lib/types/api";
+import { extractYoutubeChannelId } from "@/lib/types/guards";
 import {
   addToMyListSchema,
   updateMyListStatusSchema,
   type AddToMyListInput,
   type UpdateMyListStatusInput,
   type ChannelStatus,
-} from '@/lib/validations/user-channel';
+} from "@/lib/validations/user-channel";
 import type {
   UserChannel,
   UserChannelWithChannel,
-} from '@/lib/types/user-channel';
-import { DB_ERROR_CODES } from '@/lib/constants/database-errors';
+} from "@/lib/types/user-channel";
+import { DB_ERROR_CODES } from "@/lib/constants/database-errors";
 
 /**
  * チャンネルをマイリストに追加
@@ -33,7 +34,7 @@ export async function addToMyListAction(
     if (!user) {
       throw new ApiError(
         API_ERROR_CODES.UNAUTHORIZED,
-        'ログインが必要です',
+        "ログインが必要です",
         401
       );
     }
@@ -42,7 +43,10 @@ export async function addToMyListAction(
     const supabase = await createClient();
 
     // channelIdがUUID形式かどうかをチェック
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(validated.channelId);
+    const isUUID =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        validated.channelId
+      );
 
     let channelDbId: string;
 
@@ -52,30 +56,30 @@ export async function addToMyListAction(
 
       // チャンネルの存在確認
       const { data: channel, error: channelError } = await supabase
-        .from('channels')
-        .select('id')
-        .eq('id', channelDbId)
+        .from("channels")
+        .select("id")
+        .eq("id", channelDbId)
         .single();
 
       if (channelError || !channel) {
         throw new ApiError(
           API_ERROR_CODES.NOT_FOUND,
-          'チャンネルが見つかりません',
+          "チャンネルが見つかりません",
           404
         );
       }
     } else {
       // YouTube IDの場合は検索
       const { data: channel, error: channelError } = await supabase
-        .from('channels')
-        .select('id')
-        .eq('youtube_channel_id', validated.channelId)
+        .from("channels")
+        .select("id")
+        .eq("youtube_channel_id", validated.channelId)
         .single();
 
       if (channelError || !channel) {
         throw new ApiError(
           API_ERROR_CODES.NOT_FOUND,
-          'チャンネルが見つかりません',
+          "チャンネルが見つかりません",
           404
         );
       }
@@ -85,24 +89,24 @@ export async function addToMyListAction(
 
     // 既存のエントリを確認
     const { data: existing } = await supabase
-      .from('user_channels')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('channel_id', channelDbId)
+      .from("user_channels")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("channel_id", channelDbId)
       .single();
 
     // 既に追加済みの場合はエラー
     if (existing) {
       throw new ApiError(
         API_ERROR_CODES.DUPLICATE,
-        'このチャンネルは既にマイリストに追加されています',
+        "このチャンネルは既にマイリストに追加されています",
         409
       );
     }
 
     // user_channelsに挿入
     const { data, error } = await supabase
-      .from('user_channels')
+      .from("user_channels")
       .insert({
         user_id: user.id,
         channel_id: channelDbId,
@@ -116,15 +120,15 @@ export async function addToMyListAction(
       if (error.code === DB_ERROR_CODES.UNIQUE_VIOLATION) {
         throw new ApiError(
           API_ERROR_CODES.DUPLICATE,
-          'このチャンネルは既にマイリストに追加されています',
+          "このチャンネルは既にマイリストに追加されています",
           409
         );
       }
 
-      console.error('Supabase error:', error);
+      console.error("Supabase error:", error);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'マイリストへの追加に失敗しました',
+        "マイリストへの追加に失敗しました",
         500
       );
     }
@@ -157,7 +161,7 @@ export async function updateMyListStatusAction(
     if (!user) {
       throw new ApiError(
         API_ERROR_CODES.UNAUTHORIZED,
-        'ログインが必要です',
+        "ログインが必要です",
         401
       );
     }
@@ -167,38 +171,35 @@ export async function updateMyListStatusAction(
 
     // ステータスを更新（RLSで自分のデータのみ更新可能）
     const { data, error } = await supabase
-      .from('user_channels')
+      .from("user_channels")
       .update({
         status: validated.status,
       })
-      .eq('id', userChannelId)
+      .eq("id", userChannelId)
       // RLSポリシー 'user_channels_update_own' で user_id チェック済み
-      .select('*, channel:channels!inner(youtube_channel_id)')
+      .select("*, channel:channels!inner(youtube_channel_id)")
       .single();
 
     if (error) {
       // レコードが見つからない、または権限がない
-      if (error.code === 'PGRST116') {
+      if (error.code === "PGRST116") {
         throw new ApiError(
           API_ERROR_CODES.FORBIDDEN,
-          'このデータを編集する権限がありません',
+          "このデータを編集する権限がありません",
           403
         );
       }
 
-      console.error('Supabase error:', error);
+      console.error("Supabase error:", error);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'ステータスの更新に失敗しました',
+        "ステータスの更新に失敗しました",
         500
       );
     }
 
     // YouTubeチャンネルIDを取得
-    const channel = data.channel as unknown as { youtube_channel_id?: string } | { youtube_channel_id?: string }[];
-    const youtubeChannelId = Array.isArray(channel)
-      ? channel[0]?.youtube_channel_id
-      : channel?.youtube_channel_id;
+    const youtubeChannelId = extractYoutubeChannelId(data.channel);
 
     // チャンネル詳細ページを再検証
     if (youtubeChannelId) {
@@ -226,7 +227,7 @@ export async function removeFromMyListAction(
     if (!user) {
       throw new ApiError(
         API_ERROR_CODES.UNAUTHORIZED,
-        'ログインが必要です',
+        "ログインが必要です",
         401
       );
     }
@@ -236,38 +237,35 @@ export async function removeFromMyListAction(
 
     // YouTubeチャンネルIDを取得（再検証用）
     const { data: userChannel, error: fetchError } = await supabase
-      .from('user_channels')
-      .select('channel:channels!inner(youtube_channel_id)')
-      .eq('id', userChannelId)
-      .eq('user_id', user.id)
+      .from("user_channels")
+      .select("channel:channels!inner(youtube_channel_id)")
+      .eq("id", userChannelId)
+      .eq("user_id", user.id)
       .single();
 
     if (fetchError || !userChannel) {
       throw new ApiError(
         API_ERROR_CODES.FORBIDDEN,
-        'このデータを削除する権限がありません',
+        "このデータを削除する権限がありません",
         403
       );
     }
 
     // YouTubeチャンネルIDを取得
-    const channel = userChannel.channel as unknown as { youtube_channel_id?: string } | { youtube_channel_id?: string }[];
-    const youtubeChannelId = Array.isArray(channel)
-      ? channel[0]?.youtube_channel_id
-      : channel?.youtube_channel_id;
+    const youtubeChannelId = extractYoutubeChannelId(userChannel.channel);
 
     // user_channelsから削除
     // RLSポリシー 'user_channels_delete_own' で user_id チェック済み
     const { error } = await supabase
-      .from('user_channels')
+      .from("user_channels")
       .delete()
-      .eq('id', userChannelId);
+      .eq("id", userChannelId);
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error("Supabase error:", error);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'マイリストからの削除に失敗しました',
+        "マイリストからの削除に失敗しました",
         500
       );
     }
@@ -307,7 +305,10 @@ export async function getMyChannelStatusAction(
     const supabase = await createClient();
 
     // channelIdがUUID形式かどうかをチェック
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(channelId);
+    const isUUID =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        channelId
+      );
 
     let channelDbId: string;
 
@@ -317,9 +318,9 @@ export async function getMyChannelStatusAction(
 
       // チャンネルの存在確認
       const { data: channel, error: channelError } = await supabase
-        .from('channels')
-        .select('id')
-        .eq('id', channelDbId)
+        .from("channels")
+        .select("id")
+        .eq("id", channelDbId)
         .single();
 
       if (channelError || !channel) {
@@ -331,9 +332,9 @@ export async function getMyChannelStatusAction(
     } else {
       // YouTube IDの場合は検索
       const { data: channel, error: channelError } = await supabase
-        .from('channels')
-        .select('id')
-        .eq('youtube_channel_id', channelId)
+        .from("channels")
+        .select("id")
+        .eq("youtube_channel_id", channelId)
         .single();
 
       if (channelError || !channel) {
@@ -348,14 +349,14 @@ export async function getMyChannelStatusAction(
 
     // ユーザーのステータスを取得
     const { data, error } = await supabase
-      .from('user_channels')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('channel_id', channelDbId)
+      .from("user_channels")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("channel_id", channelDbId)
       .single();
 
     // データが見つからない場合はnullを返す（エラーではない）
-    if (error && error.code === 'PGRST116') {
+    if (error && error.code === "PGRST116") {
       return {
         success: true,
         data: null,
@@ -363,10 +364,10 @@ export async function getMyChannelStatusAction(
     }
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error("Supabase error:", error);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'ステータスの取得に失敗しました',
+        "ステータスの取得に失敗しました",
         500
       );
     }
@@ -392,7 +393,7 @@ export async function getMyListAction(
     if (!user) {
       throw new ApiError(
         API_ERROR_CODES.UNAUTHORIZED,
-        'ログインが必要です',
+        "ログインが必要です",
         401
       );
     }
@@ -402,7 +403,7 @@ export async function getMyListAction(
 
     // クエリビルダー
     let query = supabase
-      .from('user_channels')
+      .from("user_channels")
       .select(
         `
         id,
@@ -424,21 +425,21 @@ export async function getMyListAction(
         )
       `
       )
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
     // ステータスフィルタ
     if (status) {
-      query = query.eq('status', status);
+      query = query.eq("status", status);
     }
 
     const { data, error } = await query;
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error("Supabase error:", error);
       throw new ApiError(
         API_ERROR_CODES.INTERNAL_ERROR,
-        'マイリストの取得に失敗しました',
+        "マイリストの取得に失敗しました",
         500
       );
     }

@@ -14,7 +14,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Claude Code worktrees
     ".claude/**",
-    // Development scripts (temporary exclusion - to be fixed in separate PR)
+    // Scripts (CommonJS files - to be migrated to ESM in separate PR)
     "scripts/**",
     // Test files (temporary exclusion - to be fixed in separate PR)
     "**/__tests__/**",

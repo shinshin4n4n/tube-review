@@ -1,26 +1,26 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * サインアップバリデーションスキーマ
  */
 export const signUpSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 /**
  * サインインバリデーションスキーマ
  */
 export const signInSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 
 /**
  * Magic Linkバリデーションスキーマ
  */
 export const magicLinkSchema = z.object({
-  email: z.string().email('有効なメールアドレスを入力してください'),
+  email: z.string().email("有効なメールアドレスを入力してください"),
 });
 
 export type SignUpInput = z.infer<typeof signUpSchema>;

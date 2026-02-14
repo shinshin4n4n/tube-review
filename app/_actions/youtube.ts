@@ -1,15 +1,15 @@
-'use server';
+"use server";
 
-import { z } from 'zod';
-import type { ApiResponse } from '@/lib/types/api';
+import { z } from "zod";
+import type { ApiResponse } from "@/lib/types/api";
 import {
   searchChannelsSchema,
   getChannelDetailsSchema,
-} from '@/lib/validation/youtube';
-import { searchChannels, getChannelDetails } from '@/lib/youtube/api';
-import type { ChannelSearchResult, ChannelDetails } from '@/lib/youtube/types';
-import { YouTubeApiError, YouTubeErrorCode } from '@/lib/youtube/types';
-import { createClient } from '@/lib/supabase/server';
+} from "@/lib/validations/youtube";
+import { searchChannels, getChannelDetails } from "@/lib/youtube/api";
+import type { ChannelSearchResult, ChannelDetails } from "@/lib/youtube/types";
+import { YouTubeApiError, YouTubeErrorCode } from "@/lib/youtube/types";
+import { createClient } from "@/lib/supabase/server";
 
 /**
  * YouTubeチャンネルを検索
@@ -25,10 +25,7 @@ export async function searchChannelsAction(
     const validated = searchChannelsSchema.parse({ query, maxResults });
 
     // チャンネル検索
-    const results = await searchChannels(
-      validated.query,
-      validated.maxResults
-    );
+    const results = await searchChannels(validated.query, validated.maxResults);
 
     return {
       success: true,
@@ -39,7 +36,7 @@ export async function searchChannelsAction(
     if (err instanceof z.ZodError) {
       return {
         success: false,
-        error: err.issues[0]?.message || 'Validation error',
+        error: err.issues[0]?.message || "Validation error",
         details: err.issues,
       };
     }
@@ -54,10 +51,10 @@ export async function searchChannelsAction(
     }
 
     // 予期しないエラー
-    console.error('Search channels error:', err);
+    console.error("Search channels error:", err);
     return {
       success: false,
-      error: 'An unexpected error occurred while searching channels',
+      error: "An unexpected error occurred while searching channels",
     };
   }
 }
@@ -79,32 +76,30 @@ export async function getChannelDetailsAction(
     // チャンネルデータをDBに保存（upsert）
     try {
       const supabase = await createClient();
-      const { error: upsertError } = await supabase
-        .from('channels')
-        .upsert(
-          {
-            youtube_channel_id: details.youtubeChannelId,
-            title: details.title,
-            description: details.description || null,
-            thumbnail_url: details.thumbnailUrl,
-            subscriber_count: details.subscriberCount,
-            video_count: details.videoCount,
-            view_count: details.viewCount,
-            cache_updated_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          {
-            onConflict: 'youtube_channel_id',
-            ignoreDuplicates: false,
-          }
-        );
+      const { error: upsertError } = await supabase.from("channels").upsert(
+        {
+          youtube_channel_id: details.youtubeChannelId,
+          title: details.title,
+          description: details.description || null,
+          thumbnail_url: details.thumbnailUrl,
+          subscriber_count: details.subscriberCount,
+          video_count: details.videoCount,
+          view_count: details.viewCount,
+          cache_updated_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "youtube_channel_id",
+          ignoreDuplicates: false,
+        }
+      );
 
       if (upsertError) {
-        console.error('Failed to upsert channel to DB:', upsertError);
+        console.error("Failed to upsert channel to DB:", upsertError);
         // DBへの保存に失敗してもYouTubeデータは返す
       }
     } catch (dbError) {
-      console.error('Database error while saving channel:', dbError);
+      console.error("Database error while saving channel:", dbError);
       // DBエラーでもYouTubeデータは返す
     }
 
@@ -117,7 +112,7 @@ export async function getChannelDetailsAction(
     if (err instanceof z.ZodError) {
       return {
         success: false,
-        error: err.issues[0]?.message || 'Validation error',
+        error: err.issues[0]?.message || "Validation error",
         details: err.issues,
       };
     }
@@ -132,10 +127,10 @@ export async function getChannelDetailsAction(
     }
 
     // 予期しないエラー
-    console.error('Get channel details error:', err);
+    console.error("Get channel details error:", err);
     return {
       success: false,
-      error: 'An unexpected error occurred while fetching channel details',
+      error: "An unexpected error occurred while fetching channel details",
     };
   }
 }
@@ -151,31 +146,36 @@ export async function getChannelDetailsByDbIdAction(
     const supabase = await createClient();
 
     // UUIDかYouTube IDかを判定
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(channelId);
+    const isUUID =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        channelId
+      );
 
     // データベースからチャンネル情報を取得
     let query = supabase
-      .from('channels')
-      .select('youtube_channel_id, title, description, thumbnail_url, subscriber_count, video_count, view_count, published_at');
+      .from("channels")
+      .select(
+        "youtube_channel_id, title, description, thumbnail_url, subscriber_count, video_count, view_count, published_at"
+      );
 
     // UUIDの場合はIDで検索、そうでない場合はYouTube IDで検索
     if (isUUID) {
-      query = query.eq('id', channelId);
+      query = query.eq("id", channelId);
     } else {
-      query = query.eq('youtube_channel_id', channelId);
+      query = query.eq("youtube_channel_id", channelId);
     }
 
     const { data: channel, error: dbError } = await query.single();
 
     if (dbError || !channel) {
-      console.error('Channel not found in database:', dbError);
+      console.error("Channel not found in database:", dbError);
       // データベースにない場合は、YouTube APIから取得
       if (!isUUID) {
         return await getChannelDetailsAction(channelId);
       }
       return {
         success: false,
-        error: 'チャンネルが見つかりませんでした',
+        error: "チャンネルが見つかりませんでした",
       };
     }
 
@@ -184,11 +184,11 @@ export async function getChannelDetailsByDbIdAction(
       youtubeChannelId: channel.youtube_channel_id,
       title: channel.title,
       description: channel.description || undefined,
-      thumbnailUrl: channel.thumbnail_url || '',
+      thumbnailUrl: channel.thumbnail_url || "",
       subscriberCount: channel.subscriber_count || 0,
       videoCount: channel.video_count || 0,
       viewCount: channel.view_count || 0,
-      publishedAt: channel.published_at || '',
+      publishedAt: channel.published_at || "",
       customUrl: undefined, // データベースには保存していない
     };
 
@@ -197,10 +197,10 @@ export async function getChannelDetailsByDbIdAction(
       data: channelDetails,
     };
   } catch (err) {
-    console.error('Get channel details by DB ID error:', err);
+    console.error("Get channel details by DB ID error:", err);
     return {
       success: false,
-      error: 'チャンネル詳細の取得に失敗しました',
+      error: "チャンネル詳細の取得に失敗しました",
     };
   }
 }
@@ -211,16 +211,16 @@ export async function getChannelDetailsByDbIdAction(
 function getErrorMessage(code: YouTubeErrorCode): string {
   switch (code) {
     case YouTubeErrorCode.QUOTA_EXCEEDED:
-      return 'YouTube API quota exceeded. Please try again later.';
+      return "YouTube API quota exceeded. Please try again later.";
     case YouTubeErrorCode.RATE_LIMIT:
-      return 'Rate limit exceeded. Please try again later.';
+      return "Rate limit exceeded. Please try again later.";
     case YouTubeErrorCode.INVALID_API_KEY:
-      return 'Invalid API configuration. Please contact support.';
+      return "Invalid API configuration. Please contact support.";
     case YouTubeErrorCode.NOT_FOUND:
-      return 'Channel not found.';
+      return "Channel not found.";
     case YouTubeErrorCode.NETWORK_ERROR:
-      return 'Network error occurred. Please check your connection and try again.';
+      return "Network error occurred. Please check your connection and try again.";
     default:
-      return 'An error occurred while communicating with YouTube API.';
+      return "An error occurred while communicating with YouTube API.";
   }
 }

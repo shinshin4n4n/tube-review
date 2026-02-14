@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@/lib/supabase/route-handler";
-import { magicLinkSchema } from "@/lib/validation/auth";
+import { magicLinkSchema } from "@/lib/validations/auth";
 import { handleApiError } from "@/lib/api/error";
 
 export async function POST(request: NextRequest) {
