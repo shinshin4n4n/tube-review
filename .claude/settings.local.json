@@ -52,7 +52,10 @@
       "Bash(gh pr checks:*)",
       "Bash(gh secret:*)",
       "Bash(npm run refresh-stats:*)",
-      "Bash(gh run list:*)"
+      "Bash(gh run list:*)",
+      "Bash(git fetch:*)",
+      "Bash(npx husky init:*)",
+      "Bash(chmod:*)"
     ]
   }
 }

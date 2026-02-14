@@ -65,6 +65,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create dummy .env.local for tests
+        run: |
+          cat > .env.local << EOF
+          NEXT_PUBLIC_SUPABASE_URL=https://dummy.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key
+          YOUTUBE_API_KEY=dummy-youtube-api-key
+          SUPABASE_SERVICE_ROLE_KEY=dummy-service-role-key
+          NEXTAUTH_SECRET=dummy-nextauth-secret-for-ci-tests-only
+          NEXTAUTH_URL=http://localhost:3000
+          EOF
+
       - name: Run unit tests
         run: npm run test:unit
 
