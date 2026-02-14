@@ -6,7 +6,7 @@
 
 ### アーキテクチャ選択
 
-TubeReviewは**Next.js App Router**を採用するため、従来のREST API Routesではなく**Server Actions**を主軸とします。
+ちゅぶれびゅ！は**Next.js App Router**を採用するため、従来のREST API Routesではなく**Server Actions**を主軸とします。
 
 | アプローチ | 用途 | 採用 |
 |-----------|------|------|

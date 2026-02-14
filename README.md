@@ -1,4 +1,4 @@
-# TubeReview 🎬
+# ちゅぶれびゅ！ 🎬
 
 <div align="center">
 
@@ -34,9 +34,9 @@
 
 ## 🎯 概要
 
-**TubeReview**は、YouTubeチャンネルの発見・レビュー・管理を支援するWebアプリケーションです。
+**ちゅぶれびゅ！**は、YouTubeチャンネルの発見・レビュー・管理を支援するWebアプリケーションです。
 
-### なぜTubeReviewなのか？
+### なぜちゅぶれびゅ！なのか？
 
 - 🔍 **発見**: 高品質なYouTubeチャンネルを見つける
 - ⭐ **レビュー**: 他のユーザーと意見を共有
@@ -181,11 +181,13 @@ YOUTUBE_API_KEY=your_youtube_api_key
 
 # Next.js
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-NEXT_PUBLIC_APP_URL=http://localhost:3000
 
-# NextAuth (Optional)
-NEXTAUTH_SECRET=your_nextauth_secret
-NEXTAUTH_URL=http://localhost:3000
+# Upstash Redis (Optional - for caching)
+UPSTASH_REDIS_REST_URL=your_upstash_redis_url
+UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_token
+
+# Resend (for email authentication)
+RESEND_API_KEY=your_resend_api_key
 ```
 
 詳細な環境変数の説明は [DEPLOYMENT.md](./docs/DEPLOYMENT.md) を参照してください。

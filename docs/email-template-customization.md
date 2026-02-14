@@ -17,11 +17,11 @@ https://supabase.com/dashboard/project/YOUR_PROJECT_ID
 3. 以下のようなカスタムテンプレートに変更：
 
 ```html
-<h2>TubeReviewへようこそ</h2>
+<h2>ちゅぶれびゅ！へようこそ</h2>
 
 <p>こんにちは、</p>
 
-<p>TubeReviewへのログインリンクをお送りします。以下のボタンをクリックしてログインしてください。</p>
+<p>ちゅぶれびゅ！へのログインリンクをお送りします。以下のボタンをクリックしてログインしてください。</p>
 
 <p><a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 12px 24px; background-color: #3B82F6; color: white; text-decoration: none; border-radius: 6px;">ログインする</a></p>
 
@@ -33,7 +33,7 @@ https://supabase.com/dashboard/project/YOUR_PROJECT_ID
 <p>もしこのメールに心当たりがない場合は、無視してください。</p>
 
 <p>よろしくお願いいたします。<br>
-TubeReviewチーム</p>
+ちゅぶれびゅ！チーム</p>
 ```
 
 ### 3. 件名のカスタマイズ
@@ -41,7 +41,7 @@ TubeReviewチーム</p>
 **Subject** フィールドも変更：
 
 ```
-TubeReview - ログインリンクのご案内
+ちゅぶれびゅ！ - ログインリンクのご案内
 ```
 
 ### 4. その他のテンプレート

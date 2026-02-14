@@ -6,7 +6,7 @@
 
 ### 採用技術: Supabase Auth
 
-TubeReviewは**Supabase Auth**を採用します。
+ちゅぶれびゅ！は**Supabase Auth**を採用します。
 
 **理由**:
 - Next.js App Routerとの統合が容易
@@ -332,7 +332,7 @@ export default function LoginPage() {
 
   return (
     <div className="max-w-md mx-auto mt-8 p-6">
-      <h1 className="text-2xl font-bold mb-6">Login to TubeReview</h1>
+      <h1 className="text-2xl font-bold mb-6">ちゅぶれびゅ！にログイン</h1>
 
       {/* Magic Link */}
       <form onSubmit={handleMagicLink} className="space-y-4">
