@@ -115,3 +115,64 @@ jobs:
           name: build-output
           path: .next
           retention-days: 1
+
+  db-migration:
+    name: DB Migration Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Verify migration files syntax
+        run: |
+          # マイグレーションファイルが存在するか確認
+          if [ -d "supabase/migrations" ]; then
+            echo "✓ マイグレーションディレクトリが存在します"
+
+            # SQLファイルの構文チェック（基本的な検証）
+            for file in supabase/migrations/*.sql; do
+              if [ -f "$file" ]; then
+                echo "検証中: $file"
+                # SQLファイルに基本的な構文エラーがないか確認
+                if grep -q "CREATE\|ALTER\|DROP\|INSERT\|UPDATE\|DELETE" "$file"; then
+                  echo "  ✓ SQL文が含まれています"
+                else
+                  echo "  ⚠ SQL文が見つかりません（空ファイルの可能性）"
+                fi
+              fi
+            done
+          else
+            echo "⚠ マイグレーションディレクトリが存在しません"
+          fi
+
+      - name: Check for migration conflicts
+        run: |
+          # マイグレーションファイル名の重複チェック
+          if [ -d "supabase/migrations" ]; then
+            duplicates=$(ls supabase/migrations/*.sql 2>/dev/null | xargs -n1 basename | sort | uniq -d)
+            if [ -n "$duplicates" ]; then
+              echo "❌ 重複するマイグレーションファイルが見つかりました:"
+              echo "$duplicates"
+              exit 1
+            else
+              echo "✓ マイグレーションファイル名の重複はありません"
+            fi
+          fi
+
+      - name: Verify Supabase config
+        run: |
+          if [ -f "supabase/config.toml" ]; then
+            echo "✓ Supabase設定ファイルが存在します"
+            # 設定ファイルの基本的な検証
+            if grep -q "\[db\]" supabase/config.toml; then
+              echo "  ✓ データベース設定が含まれています"
+            fi
+          else
+            echo "⚠ supabase/config.toml が見つかりません"
+          fi

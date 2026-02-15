@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  # 開発環境用 Next.js アプリケーション（ホットリロード有効）
+  app-dev:
+    image: node:20-alpine
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      # ソースコードをマウント（ホットリロード用）
+      - .:/app
+      # node_modulesはボリュームで高速化
+      - node_modules:/app/node_modules
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+      - UPSTASH_REDIS_REST_URL=${UPSTASH_REDIS_REST_URL}
+      - UPSTASH_REDIS_REST_TOKEN=${UPSTASH_REDIS_REST_TOKEN}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - tube-review-network
+    stdin_open: true
+    tty: true
+
+volumes:
+  node_modules:
+
+networks:
+  tube-review-network:
+    driver: bridge
+
+# 開発環境用の使い方:
+# 1. docker-compose -f docker-compose.dev.yml up
+# 2. ファイル変更時に自動的にホットリロード
+# 3. node_modulesはボリュームで管理されるため高速
