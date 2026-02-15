@@ -23,14 +23,10 @@ export async function POST(request: NextRequest) {
     }
 
     const { email } = result.data;
-    console.log("[Magic Link] Email validated:", email);
 
-    console.log("[Magic Link] Creating Supabase client...");
     const supabase = await createRouteHandlerClient();
-    console.log("[Magic Link] Supabase client created");
 
     // Magic Link送信
-    console.log("Sending OTP to:", email);
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -45,21 +41,11 @@ export async function POST(request: NextRequest) {
         code: "code" in error ? error.code : undefined,
       });
 
-      // レート制限エラーの場合は専用メッセージ
-      if (error.message.includes("rate limit")) {
-        return NextResponse.json(
-          {
-            error:
-              "送信制限に達しました。少し時間をおいてから再度お試しください。",
-          },
-          { status: 429 } // Too Many Requests
-        );
-      }
-
-      return NextResponse.json(handleApiError(error), { status: 500 });
+      // レート制限エラーは429、その他は500を返す
+      return NextResponse.json(handleApiError(error), {
+        status: error.message.includes("rate limit") ? 429 : 500,
+      });
     }
-
-    console.log("OTP sent successfully to:", email);
 
     return NextResponse.json({ success: true });
   } catch (error) {
