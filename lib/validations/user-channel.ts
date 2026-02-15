@@ -1,13 +1,9 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * チャンネルステータス型
  */
-export const channelStatusEnum = z.enum([
-  'want',
-  'watching',
-  'watched',
-]);
+export const channelStatusEnum = z.enum(["want", "watching", "watched"]);
 
 export type ChannelStatus = z.infer<typeof channelStatusEnum>;
 
@@ -16,8 +12,8 @@ export type ChannelStatus = z.infer<typeof channelStatusEnum>;
  */
 export const addToMyListSchema = z.object({
   channelId: z
-    .string({ message: 'チャンネルIDは必須です' })
-    .uuid('有効なチャンネルIDを指定してください'),
+    .string({ message: "チャンネルIDは必須です" })
+    .min(1, "チャンネルIDを指定してください"),
   status: channelStatusEnum,
 });
 
@@ -36,6 +32,4 @@ export const updateMyListStatusSchema = z.object({
 /**
  * ステータス更新入力型
  */
-export type UpdateMyListStatusInput = z.infer<
-  typeof updateMyListStatusSchema
->;
+export type UpdateMyListStatusInput = z.infer<typeof updateMyListStatusSchema>;
