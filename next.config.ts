@@ -67,9 +67,8 @@ const nextConfig: NextConfig = {
   // 注: npm run analyze を実行する際は --webpack フラグが必要
   webpack: (config, { isServer }) => {
     if (process.env.ANALYZE === "true" && !isServer) {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic require for optional dependency
       const BundleAnalyzerPlugin =
-        require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+        require("webpack-bundle-analyzer").BundleAnalyzerPlugin; // eslint-disable-line @typescript-eslint/no-require-imports
       config.plugins.push(
         new BundleAnalyzerPlugin({
           analyzerMode: "static",
