@@ -102,46 +102,46 @@
 
 ### フロントエンド
 
-| 技術 | バージョン | 用途 |
-|------|-----------|------|
-| [Next.js](https://nextjs.org/) | 16.1.6 | Reactフレームワーク (App Router + Turbopack) |
-| [React](https://react.dev/) | 19.2.3 | UIライブラリ |
-| [TypeScript](https://www.typescriptlang.org/) | 5 | 型安全性 |
-| [Tailwind CSS](https://tailwindcss.com/) | 4 | スタイリング |
-| [Radix UI](https://www.radix-ui.com/) | - | アクセシブルなUIコンポーネント |
-| [Lucide React](https://lucide.dev/) | - | アイコン |
+| 技術                                          | バージョン | 用途                                         |
+| --------------------------------------------- | ---------- | -------------------------------------------- |
+| [Next.js](https://nextjs.org/)                | 16.1.6     | Reactフレームワーク (App Router + Turbopack) |
+| [React](https://react.dev/)                   | 19.2.3     | UIライブラリ                                 |
+| [TypeScript](https://www.typescriptlang.org/) | 5          | 型安全性                                     |
+| [Tailwind CSS](https://tailwindcss.com/)      | 4          | スタイリング                                 |
+| [Radix UI](https://www.radix-ui.com/)         | -          | アクセシブルなUIコンポーネント               |
+| [Lucide React](https://lucide.dev/)           | -          | アイコン                                     |
 
 ### バックエンド
 
-| 技術 | バージョン | 用途 |
-|------|-----------|------|
-| [Supabase](https://supabase.com/) | 2.93.3 | 認証・データベース・ストレージ |
-| [PostgreSQL](https://www.postgresql.org/) | - | データベース (Supabase経由) |
-| [YouTube Data API v3](https://developers.google.com/youtube/v3) | - | チャンネル情報取得 |
-| [Upstash Redis](https://upstash.com/) | - | 高速キャッシュ（2層キャッシュ戦略） |
+| 技術                                                            | バージョン | 用途                                |
+| --------------------------------------------------------------- | ---------- | ----------------------------------- |
+| [Supabase](https://supabase.com/)                               | 2.93.3     | 認証・データベース・ストレージ      |
+| [PostgreSQL](https://www.postgresql.org/)                       | -          | データベース (Supabase経由)         |
+| [YouTube Data API v3](https://developers.google.com/youtube/v3) | -          | チャンネル情報取得                  |
+| [Upstash Redis](https://upstash.com/)                           | -          | 高速キャッシュ（2層キャッシュ戦略） |
 
 ### バリデーション・ユーティリティ
 
-| 技術 | バージョン | 用途 |
-|------|-----------|------|
-| [Zod](https://zod.dev/) | 4.3.6 | スキーマバリデーション |
-| [date-fns](https://date-fns.org/) | 4.1.0 | 日付処理 |
+| 技術                              | バージョン | 用途                   |
+| --------------------------------- | ---------- | ---------------------- |
+| [Zod](https://zod.dev/)           | 4.3.6      | スキーマバリデーション |
+| [date-fns](https://date-fns.org/) | 4.1.0      | 日付処理               |
 
 ### 開発ツール
 
-| 技術 | バージョン | 用途 |
-|------|-----------|------|
-| [ESLint](https://eslint.org/) | 9 | 静的解析 |
-| [Prettier](https://prettier.io/) | 3.8.1 | コードフォーマット |
-| [Vitest](https://vitest.dev/) | 4.0.18 | ユニットテスト |
-| [Playwright](https://playwright.dev/) | 1.58.1 | E2Eテスト |
+| 技術                                  | バージョン | 用途               |
+| ------------------------------------- | ---------- | ------------------ |
+| [ESLint](https://eslint.org/)         | 9          | 静的解析           |
+| [Prettier](https://prettier.io/)      | 3.8.1      | コードフォーマット |
+| [Vitest](https://vitest.dev/)         | 4.0.18     | ユニットテスト     |
+| [Playwright](https://playwright.dev/) | 1.58.1     | E2Eテスト          |
 
 ### インフラ・CI/CD
 
-| 技術 | 用途 |
-|------|------|
-| [Vercel](https://vercel.com/) | ホスティング・デプロイ |
-| [GitHub Actions](https://github.com/features/actions) | CI/CD |
+| 技術                                                  | 用途                   |
+| ----------------------------------------------------- | ---------------------- |
+| [Vercel](https://vercel.com/)                         | ホスティング・デプロイ |
+| [GitHub Actions](https://github.com/features/actions) | CI/CD                  |
 
 ---
 
@@ -209,11 +209,64 @@ supabase db reset
 
 ### 5. 開発サーバーの起動
 
+#### 通常の起動方法
+
 ```bash
 npm run dev
 ```
 
 ブラウザで http://localhost:3000 を開いてください。
+
+#### Docker を使用した起動方法
+
+Dockerを使用すると、環境構築が簡単で再現性が高まります。
+
+**必要要件:**
+
+- Docker Desktop（または Docker Engine + Docker Compose）
+- `.env.local` ファイル
+
+**本番環境と同じ構成で起動:**
+
+```bash
+# イメージのビルドと起動
+docker-compose up --build
+
+# バックグラウンドで起動
+docker-compose up -d
+
+# ログ確認
+docker-compose logs -f app
+
+# 停止
+docker-compose down
+```
+
+**開発環境（ホットリロード有効）で起動:**
+
+```bash
+# 開発用設定で起動
+docker-compose -f docker-compose.dev.yml up
+
+# バックグラウンドで起動
+docker-compose -f docker-compose.dev.yml up -d
+
+# 停止
+docker-compose -f docker-compose.dev.yml down
+```
+
+**トラブルシューティング:**
+
+```bash
+# キャッシュをクリアして再ビルド
+docker-compose build --no-cache
+
+# コンテナに入ってデバッグ
+docker-compose exec app sh
+
+# ボリュームも含めて完全削除
+docker-compose down -v
+```
 
 ---
 
