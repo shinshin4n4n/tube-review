@@ -42,3 +42,6 @@ all_migrations.sql
 # playwright/vitest
 /test-results/
 /playwright-report/
+
+# Development-only endpoints (create manually if needed)
+app/api/auth/dev-login/
