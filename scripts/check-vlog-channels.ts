@@ -1,14 +1,17 @@
-require('dotenv').config({ path: '.env.local' });
-const { createClient } = require('@supabase/supabase-js');
+import "dotenv/config";
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
+const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY!;
 
-async function checkChannel(youtubeChannelId, title) {
+async function checkChannel(
+  youtubeChannelId: string,
+  title: string
+): Promise<boolean> {
   try {
     const response = await fetch(
       `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${youtubeChannelId}&key=${YOUTUBE_API_KEY}`
@@ -36,21 +39,21 @@ async function checkChannel(youtubeChannelId, title) {
   } catch (error) {
     console.log(`❌ ${title}:`);
     console.log(`   Channel ID: ${youtubeChannelId}`);
-    console.log(`   エラー: ${error.message}`);
+    console.log(`   エラー: ${(error as Error).message}`);
     return false;
   }
 }
 
-(async () => {
-  console.log('VLOG系チャンネルのYouTubeチャンネルIDを確認します...\n');
+async function main() {
+  console.log("VLOG系チャンネルのYouTubeチャンネルIDを確認します...\n");
 
   const { data: vlogChannels, error } = await supabase
-    .from('channels')
-    .select('title, youtube_channel_id')
-    .eq('category', 'vlog');
+    .from("channels")
+    .select("title, youtube_channel_id")
+    .eq("category", "vlog");
 
   if (error) {
-    console.error('エラー:', error);
+    console.error("エラー:", error);
     process.exit(1);
   }
 
@@ -58,7 +61,12 @@ async function checkChannel(youtubeChannelId, title) {
 
   for (const channel of vlogChannels) {
     await checkChannel(channel.youtube_channel_id, channel.title);
-    console.log('');
-    await new Promise(resolve => setTimeout(resolve, 200));
+    console.log("");
+    await new Promise((resolve) => setTimeout(resolve, 200));
   }
-})();
+}
+
+main().catch((error) => {
+  console.error("❌ Script failed:", error);
+  process.exit(1);
+});

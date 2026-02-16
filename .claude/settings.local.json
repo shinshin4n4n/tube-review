@@ -55,7 +55,15 @@
       "Bash(gh run list:*)",
       "Bash(git fetch:*)",
       "Bash(npx husky init:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(gh issue edit:*)",
+      "Bash(npm ls:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(docker --version:*)",
+      "Bash(docker-compose --version:*)",
+      "Bash(wc:*)",
+      "Bash(git rm:*)"
     ]
   }
 }
