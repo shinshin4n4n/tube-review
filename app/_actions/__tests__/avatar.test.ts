@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { uploadAvatarAction, deleteAvatarAction } from "../avatar";
+import { createMockUser } from "./helpers/mock-user";
 
 // Supabase client mock
 const mockSupabase = {
@@ -25,7 +26,7 @@ describe("uploadAvatarAction", () => {
   it("should upload avatar successfully", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const mockFile = new File(["test"], "avatar.jpg", { type: "image/jpeg" });
     const formData = new FormData();
@@ -98,7 +99,7 @@ describe("uploadAvatarAction", () => {
   it("should return error when no file is provided", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const formData = new FormData();
 
@@ -115,7 +116,7 @@ describe("uploadAvatarAction", () => {
   it("should return error when file size exceeds 5MB", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     // Create a file larger than 5MB
     const largeFile = new File(
@@ -141,7 +142,7 @@ describe("uploadAvatarAction", () => {
   it("should return error when file type is not allowed", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const invalidFile = new File(["test"], "document.pdf", {
       type: "application/pdf",
@@ -164,7 +165,7 @@ describe("uploadAvatarAction", () => {
   it("should allow all valid image types (jpeg, jpg, png, gif, webp)", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const validTypes = [
       "image/jpeg",
@@ -216,7 +217,7 @@ describe("uploadAvatarAction", () => {
   it("should delete existing avatar before uploading new one", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const mockFile = new File(["test"], "avatar.jpg", { type: "image/jpeg" });
     const formData = new FormData();
@@ -273,7 +274,7 @@ describe("uploadAvatarAction", () => {
   it("should return error when storage upload fails", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const mockFile = new File(["test"], "avatar.jpg", { type: "image/jpeg" });
     const formData = new FormData();
@@ -316,7 +317,7 @@ describe("uploadAvatarAction", () => {
   it("should return error when getPublicUrl fails", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const mockFile = new File(["test"], "avatar.jpg", { type: "image/jpeg" });
     const formData = new FormData();
@@ -368,7 +369,7 @@ describe("deleteAvatarAction", () => {
   it("should delete avatar successfully", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const existingAvatarUrl =
       "https://example.com/storage/v1/object/public/avatars/user-123/old.jpg";
@@ -437,7 +438,7 @@ describe("deleteAvatarAction", () => {
   it("should succeed when no avatar exists", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     // Mock user with no avatar
     mockSupabase.from = vi.fn(() => ({
@@ -463,7 +464,7 @@ describe("deleteAvatarAction", () => {
   it("should return error when storage deletion fails", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const existingAvatarUrl =
       "https://example.com/storage/v1/object/public/avatars/user-123/old.jpg";
@@ -504,7 +505,7 @@ describe("deleteAvatarAction", () => {
   it("should return error when database update fails", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const existingAvatarUrl =
       "https://example.com/storage/v1/object/public/avatars/user-123/old.jpg";
