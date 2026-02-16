@@ -569,12 +569,7 @@ export async function toggleHelpfulAction(
       .single();
 
     if (review) {
-      const channel = review.channel as
-        | { youtube_channel_id: string }[]
-        | { youtube_channel_id: string };
-      const youtubeChannelId = Array.isArray(channel)
-        ? channel[0]?.youtube_channel_id
-        : channel?.youtube_channel_id;
+      const youtubeChannelId = extractYoutubeChannelId(review.channel);
 
       if (youtubeChannelId) {
         revalidatePath(`/channels/${youtubeChannelId}`);

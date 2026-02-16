@@ -2,6 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { cookies } from "next/headers";
+import { logger } from "@/lib/logger";
 
 /**
  * リダイレクトURLのバリデーション
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
 
   // OAuth認証（code）またはMagic Link認証（token_hash）の処理
   if (code || token_hash) {
-    const cookieStore = await cookies();
+    await cookies();
 
     // Supabaseクライアントを作成（レスポンスにCookieを設定）
     const supabase = createServerClient(
@@ -95,7 +96,9 @@ export async function GET(request: NextRequest) {
       const result = await supabase.auth.exchangeCodeForSession(code);
       error = result.error;
       data = result.data;
-      console.log("[Auth Callback] OAuth code exchange");
+      logger.info("OAuth code exchange completed", {
+        hasSession: !!data?.session,
+      });
     } else if (token_hash && type) {
       // Magic Link認証の場合
       const result = await supabase.auth.verifyOtp({
@@ -104,26 +107,24 @@ export async function GET(request: NextRequest) {
       });
       error = result.error;
       data = result.data;
-      console.log("[Auth Callback] Magic Link OTP verification");
+      logger.info("Magic Link OTP verification completed", {
+        hasSession: !!data?.session,
+      });
     }
 
     if (error) {
-      console.error("[Auth Callback] Error:", error);
+      logger.error("Authentication callback failed", error);
       return NextResponse.redirect(
         new URL("/login?error=auth_failed", request.url)
       );
     }
 
-    // セッション作成成功をログ出力（デバッグ用）
+    // セッション作成成功をログ出力
     if (data?.session) {
-      console.log(
-        "[Auth Callback] Session created successfully for user:",
-        data.user?.email
-      );
-      console.log(
-        "[Auth Callback] Access token length:",
-        data.session.access_token.length
-      );
+      logger.info("Session created successfully", {
+        hasUser: !!data.user,
+        tokenLength: data.session.access_token.length,
+      });
     }
   }
 
