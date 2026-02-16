@@ -153,9 +153,3 @@ port = 54327
 vector_port = 54328
 # Configure one of the supported backends: `postgres`, `bigquery`.
 backend = "postgres"
-
-# Experimental features may be removed any time and their usage is not considered a breaking change.
-[experimental]
-# Configures Postgres installation type. Local is installed separately, whereas remote is provided by Docker.
-# If your host machine has postgres installed, local is the preferred option.
-postgres_install = "docker"
