@@ -18,6 +18,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Dependabot PRではスキップ（環境変数が渡されないため）
+    if: github.actor != 'dependabot[bot]'
     permissions:
       contents: read # コードの読み取り
       pull-requests: write # PRコメント投稿に必須
