@@ -2,17 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { createRouteHandlerClient } from "@/lib/supabase/route-handler";
 import { magicLinkSchema } from "@/lib/validations/auth";
 import { handleApiError } from "@/lib/api/error";
+import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("[Magic Link] Starting request");
+    logger.debug("Magic Link request started");
     const body = await request.json();
-    console.log("[Magic Link] Body parsed");
+    logger.debug("Request body parsed");
 
     // バリデーション
     const result = magicLinkSchema.safeParse(body);
     if (!result.success) {
-      console.error("[Magic Link] Validation failed:", result.error);
+      logger.warn("Magic Link validation failed", {
+        issues: result.error.issues,
+      });
       return NextResponse.json(
         {
           error:
@@ -35,8 +38,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      console.error("Magic Link送信エラー:", {
-        message: error.message,
+      logger.error("Magic Link送信エラー", error, {
         status: error.status,
         code: "code" in error ? error.code : undefined,
       });
@@ -47,13 +49,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    logger.info("Magic Link sent successfully");
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("[Magic Link] Unexpected error:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-    const errorStack = error instanceof Error ? error.stack : "";
-    console.error("[Magic Link] Error stack:", errorStack);
+    logger.error(
+      "Magic Link unexpected error",
+      error instanceof Error ? error : new Error(String(error))
+    );
 
     return NextResponse.json(handleApiError(error), { status: 500 });
   }
