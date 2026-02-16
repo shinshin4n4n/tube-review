@@ -55,8 +55,9 @@ graph LR
 
 以下のワークフローが自動実行されます：
 
-- `.github/workflows/ci.yml`: Lint, Type Check, Unit Tests, Build
-- `.github/workflows/e2e.yml`: E2E Tests
+- `.github/workflows/ci.yml`: Lint, Type Check, Unit Tests, Build, DB Migration Syntax Check
+- `.github/workflows/e2e-tests.yml`: E2E Tests
+- `.github/workflows/db-migration-test.yml`: DB Migration Test (Local Supabase)
 
 ### 2. GitHub Secrets設定（E2Eテスト用）
 
@@ -69,14 +70,15 @@ GitHubリポジトリの設定でSecretsを追加します：
 3. **New repository secret** をクリック
 4. 以下のSecretsを追加：
 
-| Secret名 | 説明 | 取得方法 |
-|---------|------|----------|
-| `NEXT_PUBLIC_SUPABASE_URL` | SupabaseプロジェクトURL | Supabase Dashboard > Settings > API |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase匿名キー | Supabase Dashboard > Settings > API |
-| `YOUTUBE_API_KEY` | YouTube Data API v3キー | Google Cloud Console > API & Services > Credentials |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabaseサービスロールキー | Supabase Dashboard > Settings > API（⚠️注意深く扱う） |
+| Secret名                        | 説明                       | 取得方法                                              |
+| ------------------------------- | -------------------------- | ----------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | SupabaseプロジェクトURL    | Supabase Dashboard > Settings > API                   |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase匿名キー           | Supabase Dashboard > Settings > API                   |
+| `YOUTUBE_API_KEY`               | YouTube Data API v3キー    | Google Cloud Console > API & Services > Credentials   |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Supabaseサービスロールキー | Supabase Dashboard > Settings > API（⚠️注意深く扱う） |
 
 > **⚠️ セキュリティ注意**:
+>
 > - Secretsは絶対にコードにコミットしない
 > - `SUPABASE_SERVICE_ROLE_KEY`は特に機密性が高い
 > - ローカルでは`.env.local`を使用（gitignore済み）
@@ -104,12 +106,12 @@ Vercelが自動検出しますが、念のため確認：
 1. Vercel Dashboard > プロジェクト > **Settings** > **Environment Variables**
 2. 以下の環境変数を追加（**Preview**と**Production**両方にチェック）：
 
-| 変数名 | 値 | 環境 |
-|--------|-----|------|
-| `NEXT_PUBLIC_SUPABASE_URL` | `https://xxx.supabase.co` | Preview, Production |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJhbGc...` | Preview, Production |
-| `YOUTUBE_API_KEY` | `AIzaSy...` | Preview, Production |
-| `SUPABASE_SERVICE_ROLE_KEY` | `eyJhbGc...` | Preview, Production |
+| 変数名                          | 値                        | 環境                |
+| ------------------------------- | ------------------------- | ------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | `https://xxx.supabase.co` | Preview, Production |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJhbGc...`              | Preview, Production |
+| `YOUTUBE_API_KEY`               | `AIzaSy...`               | Preview, Production |
+| `SUPABASE_SERVICE_ROLE_KEY`     | `eyJhbGc...`              | Preview, Production |
 
 #### デプロイ設定
 
@@ -246,6 +248,7 @@ npm run test:e2e -- --headed
 3. エラーメッセージに従って修正
 
 よくある原因：
+
 - 環境変数不足 → Vercel Settings > Environment Variables
 - メモリ不足 → Pro以上のプランが必要な場合あり
 - ビルドタイムアウト → 最適化が必要
@@ -257,6 +260,7 @@ npm run test:e2e -- --headed
 3. エラーメッセージに従って修正
 
 よくある原因：
+
 - Supabase接続エラー → 環境変数確認
 - YouTube API制限 → クォータ確認
 - RLSポリシーエラー → データベース設定確認
@@ -266,11 +270,13 @@ npm run test:e2e -- --headed
 ### 環境変数管理
 
 ✅ **DO**:
+
 - GitHub SecretsとVercel Environment Variablesで管理
 - `.env.local`は必ずgitignore
 - `.env.example`でテンプレート提供
 
 ❌ **DON'T**:
+
 - APIキーをコードに直書き
 - Secretsをコミット
 - 本番環境の変数をPRコメントに貼り付け
@@ -288,6 +294,7 @@ npm run test:e2e -- --headed
 現在の目標: **5分以内**
 
 最適化手法：
+
 - ✅ npm ciでキャッシュ活用（setup-node@v4）
 - ✅ ジョブの並列実行（Lint, Type Check, Test, Build）
 - ✅ E2Eテストは別ワークフローで実行

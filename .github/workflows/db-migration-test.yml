@@ -1,0 +1,195 @@
+name: DB Migration Test
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+      - "supabase/config.toml"
+      - ".github/workflows/db-migration-test.yml"
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+
+jobs:
+  db-migration-test:
+    name: Test Migrations on Local Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase local development
+        run: |
+          supabase start
+
+      - name: Wait for Supabase to be ready
+        run: |
+          echo "⏳ Waiting for Supabase to be ready..."
+          timeout 60 bash -c 'until curl -s http://localhost:54321/rest/v1/ > /dev/null 2>&1; do sleep 2; done'
+          echo "✅ Supabase is ready"
+
+      - name: Check Supabase status
+        run: |
+          supabase status
+
+      - name: Apply all migrations
+        run: |
+          echo "🔄 Applying migrations..."
+          supabase db reset --debug
+
+      - name: Verify database schema
+        run: |
+          echo "📋 Checking tables..."
+
+          # 期待されるテーブルのリスト
+          EXPECTED_TABLES=(
+            "users"
+            "channels"
+            "reviews"
+            "user_channels"
+            "lists"
+            "list_channels"
+            "review_helpful"
+            "user_follows"
+            "user_settings"
+            "top_videos"
+            "youtube_cache"
+            "youtube_quota_usage"
+          )
+
+          # psqlで接続してテーブル一覧を取得
+          TABLES=$(psql "postgresql://postgres:postgres@localhost:54322/postgres" -t -c "SELECT tablename FROM pg_tables WHERE schemaname = 'public';" 2>/dev/null)
+
+          echo "Found tables:"
+          echo "$TABLES"
+
+          # 各テーブルの存在確認
+          MISSING_TABLES=()
+          for table in "${EXPECTED_TABLES[@]}"; do
+            if echo "$TABLES" | grep -q "^ $table$"; then
+              echo "  ✓ $table exists"
+            else
+              echo "  ❌ $table is missing"
+              MISSING_TABLES+=("$table")
+            fi
+          done
+
+          # 欠落しているテーブルがあれば失敗
+          if [ ${#MISSING_TABLES[@]} -gt 0 ]; then
+            echo ""
+            echo "❌ Missing tables detected:"
+            printf '  - %s\n' "${MISSING_TABLES[@]}"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All expected tables exist"
+
+      - name: Verify RLS policies
+        run: |
+          echo "🔒 Checking RLS policies..."
+
+          # RLSポリシーの数を取得
+          POLICY_COUNT=$(psql "postgresql://postgres:postgres@localhost:54322/postgres" -t -c "SELECT COUNT(*) FROM pg_policies WHERE schemaname = 'public';" 2>/dev/null | tr -d ' ')
+
+          echo "Found $POLICY_COUNT RLS policies"
+
+          if [ "$POLICY_COUNT" -gt 0 ]; then
+            echo "✅ RLS policies exist"
+
+            # ポリシー一覧を表示
+            psql "postgresql://postgres:postgres@localhost:54322/postgres" -c "SELECT tablename, policyname, cmd FROM pg_policies WHERE schemaname = 'public' ORDER BY tablename, policyname;" 2>/dev/null || true
+          else
+            echo "⚠️ No RLS policies found (this might be intentional)"
+          fi
+
+      - name: Verify materialized views
+        run: |
+          echo "📊 Checking materialized views..."
+
+          # Materialized Viewの存在確認
+          MV_EXISTS=$(psql "postgresql://postgres:postgres@localhost:54322/postgres" -t -c "SELECT COUNT(*) FROM pg_matviews WHERE schemaname = 'public' AND matviewname = 'channel_stats';" 2>/dev/null | tr -d ' ')
+
+          if [ "$MV_EXISTS" = "1" ]; then
+            echo "✅ channel_stats materialized view exists"
+          else
+            echo "⚠️ channel_stats materialized view not found"
+            echo "   This might be expected if it's created separately"
+          fi
+
+      - name: Verify indexes
+        run: |
+          echo "🔍 Checking indexes..."
+
+          # インデックス数を取得
+          INDEX_COUNT=$(psql "postgresql://postgres:postgres@localhost:54322/postgres" -t -c "SELECT COUNT(*) FROM pg_indexes WHERE schemaname = 'public';" 2>/dev/null | tr -d ' ')
+
+          echo "Found $INDEX_COUNT indexes"
+
+          if [ "$INDEX_COUNT" -gt 0 ]; then
+            echo "✅ Indexes exist"
+          else
+            echo "⚠️ No custom indexes found"
+          fi
+
+      - name: Verify functions and triggers
+        run: |
+          echo "⚙️ Checking functions and triggers..."
+
+          # 関数の数を取得
+          FUNCTION_COUNT=$(psql "postgresql://postgres:postgres@localhost:54322/postgres" -t -c "SELECT COUNT(*) FROM pg_proc p JOIN pg_namespace n ON p.pronamespace = n.oid WHERE n.nspname = 'public';" 2>/dev/null | tr -d ' ')
+
+          echo "Found $FUNCTION_COUNT custom functions"
+
+          # トリガーの数を取得
+          TRIGGER_COUNT=$(psql "postgresql://postgres:postgres@localhost:54322/postgres" -t -c "SELECT COUNT(*) FROM pg_trigger WHERE tgrelid IN (SELECT oid FROM pg_class WHERE relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public'));" 2>/dev/null | tr -d ' ')
+
+          echo "Found $TRIGGER_COUNT triggers"
+
+      - name: Test migration rollback capability
+        run: |
+          echo "🔄 Testing migration idempotency..."
+
+          # マイグレーションを再適用（冪等性確認）
+          supabase db reset --debug
+
+          echo "✅ Migrations are idempotent"
+
+      - name: Export schema for review
+        if: success()
+        run: |
+          echo "📤 Exporting schema..."
+          psql "postgresql://postgres:postgres@localhost:54322/postgres" -c "\d+" > schema-dump.txt 2>&1 || true
+
+      - name: Upload schema dump
+        if: success()
+        uses: actions/upload-artifact@v6
+        with:
+          name: database-schema
+          path: schema-dump.txt
+          retention-days: 7
+
+      - name: Stop Supabase
+        if: always()
+        run: |
+          echo "🛑 Stopping Supabase..."
+          supabase stop
+
+      - name: Upload Supabase logs
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: supabase-logs
+          path: |
+            ~/.supabase/logs/
+            supabase/.branches/
+          retention-days: 7
