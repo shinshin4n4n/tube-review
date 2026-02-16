@@ -63,7 +63,7 @@ jobs:
             "user_settings"
             "top_videos"
             "youtube_cache"
-            "youtube_quota_usage"
+            "quota_usage"
           )
 
           # psqlで接続してテーブル一覧を取得
