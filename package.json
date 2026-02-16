@@ -24,6 +24,11 @@
     "refresh-stats:prod": "cross-env NODE_ENV=production tsx scripts/refresh-materialized-views.ts",
     "classify-channels": "tsx scripts/classify-channels.ts",
     "classify-channels:prod": "cross-env NODE_ENV=production tsx scripts/classify-channels.ts",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:status": "supabase status",
+    "db:diff": "supabase db diff",
     "prepare": "husky"
   },
   "dependencies": {

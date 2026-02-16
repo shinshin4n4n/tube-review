@@ -1,6 +1,7 @@
 # Supabase セットアップ手順
 
 ## 前提条件
+
 - Supabaseアカウント作成済み
 - `.env.local` に環境変数が設定済み
 
@@ -24,6 +25,7 @@
    - **service_role**: `SUPABASE_SERVICE_ROLE_KEY` ⚠️ 秘密鍵
 
 3. `.env.local` に設定：
+
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -69,6 +71,7 @@ supabase db push
 ## 5. 動作確認
 
 ### テーブル作成確認
+
 ```sql
 -- Supabase SQL Editorで実行
 SELECT table_name
@@ -78,6 +81,7 @@ ORDER BY table_name;
 ```
 
 期待される結果：
+
 - channels
 - channel_stats (Materialized View)
 - list_channels
@@ -92,6 +96,7 @@ ORDER BY table_name;
 - users
 
 ### インデックス確認
+
 ```sql
 SELECT
   tablename,
@@ -103,6 +108,7 @@ ORDER BY tablename, indexname;
 ```
 
 ### RLS確認
+
 ```sql
 SELECT
   schemaname,
@@ -119,6 +125,7 @@ ORDER BY tablename, policyname;
 ## 6. OAuth設定（オプション）
 
 ### Google OAuth
+
 1. [Google Cloud Console](https://console.cloud.google.com/) でプロジェクト作成
 2. APIs & Services > Credentials > Create Credentials > OAuth 2.0 Client ID
 3. Authorized redirect URIs に追加：
@@ -131,6 +138,7 @@ ORDER BY tablename, policyname;
 7. Client ID と Client Secret を入力
 
 ### GitHub OAuth
+
 1. GitHub > Settings > Developer settings > OAuth Apps > New OAuth App
 2. Authorization callback URL:
    ```
@@ -141,7 +149,90 @@ ORDER BY tablename, policyname;
 5. 「Enable GitHub Provider」を有効化
 6. Client ID と Client Secret を入力
 
-## 7. ローカル開発で接続確認
+## 7. ローカルSupabase環境（Docker）
+
+### セットアップ
+
+ローカルでSupabase環境を起動することで、本番環境に影響を与えずにマイグレーションをテストできます。
+
+#### 必要要件
+
+- Docker Desktop インストール済み
+- Supabase CLI インストール済み
+
+```bash
+# Supabase CLI インストール（未インストールの場合）
+npm install -g supabase
+```
+
+#### ローカルSupabase起動
+
+```bash
+# Supabaseローカル環境起動（初回は時間がかかります）
+npm run db:start
+# または
+supabase start
+
+# ステータス確認
+npm run db:status
+# または
+supabase status
+```
+
+**出力例:**
+
+```
+Started supabase local development setup.
+
+         API URL: http://localhost:54321
+     GraphQL URL: http://localhost:54321/graphql/v1
+          DB URL: postgresql://postgres:postgres@localhost:54322/postgres
+      Studio URL: http://localhost:54323
+    Inbucket URL: http://localhost:54324
+      JWT secret: super-secret-jwt-token-with-at-least-32-characters-long
+```
+
+#### マイグレーション適用
+
+```bash
+# 全マイグレーションを適用
+npm run db:reset
+# または
+supabase db reset
+```
+
+#### Supabase Studio でデータ確認
+
+ブラウザで http://localhost:54323 を開くと、Supabase Studio（管理画面）にアクセスできます。
+
+#### ローカルSupabase停止
+
+```bash
+# Supabase停止
+npm run db:stop
+# または
+supabase stop
+```
+
+### トラブルシューティング（ローカル環境）
+
+#### エラー: "Docker is not running"
+
+- Docker Desktop を起動してください
+
+#### エラー: "Port already in use"
+
+- 既にSupabaseが起動している可能性があります
+- `supabase stop` で停止してから再起動
+
+#### マイグレーションをやり直したい
+
+```bash
+# データベースをリセットして全マイグレーションを再適用
+supabase db reset
+```
+
+## 8. ローカル開発で接続確認
 
 ```bash
 # 開発サーバー起動
@@ -154,20 +245,24 @@ npm run dev
 ## トラブルシューティング
 
 ### エラー: "relation does not exist"
+
 - マイグレーションが正しく実行されていない
 - SQL Editorでマイグレーションを再実行
 
 ### エラー: "Invalid API key"
+
 - `.env.local` の環境変数が正しく設定されているか確認
 - 開発サーバーを再起動
 
 ### エラー: "Row level security is enabled"
+
 - RLSポリシーが正しく設定されているか確認
 - 未認証の状態で保護されたテーブルにアクセスしていないか確認
 
 ## 定期メンテナンス
 
 ### Materialized View更新
+
 ```sql
 -- 手動更新
 SELECT refresh_channel_stats();
@@ -177,11 +272,13 @@ REFRESH MATERIALIZED VIEW CONCURRENTLY channel_stats;
 ```
 
 ### 統計情報更新
+
 ```sql
 ANALYZE;
 ```
 
 ## 参考資料
+
 - [Supabase Documentation](https://supabase.com/docs)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [Row Level Security Guide](https://supabase.com/docs/guides/auth/row-level-security)

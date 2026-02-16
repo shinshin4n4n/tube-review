@@ -45,3 +45,9 @@ all_migrations.sql
 
 # Development-only endpoints (create manually if needed)
 app/api/auth/dev-login/
+
+# Supabase
+.branches
+.temp
+supabase/.branches/
+supabase/.temp/

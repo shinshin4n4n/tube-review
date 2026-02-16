@@ -338,6 +338,8 @@ NEXTAUTH_URL=http://localhost:3000
 
 ## Scripts
 
+### npm scripts
+
 - `npm run dev` - 開発サーバー起動
 - `npm run build` - 本番ビルド
 - `npm run test:unit` - ユニットテスト実行
@@ -346,6 +348,45 @@ NEXTAUTH_URL=http://localhost:3000
 - `npm run generate-demo-data` - デモデータ生成
 - `npm run classify-channels` - AI によるチャンネル分類
 - `npm run refresh-stats` - Materialized Views 更新
+
+### Maintenance Scripts (`scripts/`)
+
+**配置ルール:**
+
+- **Location**: `scripts/*.{ts,mjs}` (CommonJS `.js` は非推奨)
+- **Naming**: kebab-case (`generate-demo-data.ts`)
+- **Module**: ESM形式（`import`/`export`）を使用
+
+**品質基準:**
+
+- ESLintチェック必須（scripts/.eslintrc.json で独自ルール）
+- TypeScript推奨（`.ts` > `.mjs` > `.js`）
+- `console.log` 使用可（デバッグ用途）
+- 重要なスクリプトには動作確認テスト
+
+**例:**
+
+```typescript
+// scripts/example-script.ts
+import { createClient } from "@supabase/supabase-js";
+import "dotenv/config";
+
+async function main() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  // ... script logic ...
+
+  console.log("✅ Script completed successfully");
+}
+
+main().catch((error) => {
+  console.error("❌ Script failed:", error);
+  process.exit(1);
+});
+```
 
 ## Dependency Management
 
