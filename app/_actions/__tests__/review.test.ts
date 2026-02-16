@@ -6,6 +6,7 @@ import {
   deleteReviewAction,
   getMyReviewsAction,
 } from "../review";
+import { createMockUser } from "./helpers/mock-user";
 
 // Supabase client mock
 const mockSupabase = {
@@ -32,7 +33,7 @@ describe("createReviewAction", () => {
   it("should create review successfully with UUID channel ID", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const input = {
       channelId: "550e8400-e29b-41d4-a716-446655440000",
@@ -104,7 +105,7 @@ describe("createReviewAction", () => {
   it("should create review successfully with YouTube channel ID", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const input = {
       channelId: "UC123456789",
@@ -196,7 +197,7 @@ describe("createReviewAction", () => {
   it("should return error when channel not found", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const input = {
       channelId: "UC_NONEXISTENT",
@@ -231,7 +232,7 @@ describe("createReviewAction", () => {
   it("should return error when duplicate review (UNIQUE violation)", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const input = {
       channelId: "550e8400-e29b-41d4-a716-446655440000",
@@ -288,7 +289,7 @@ describe("createReviewAction", () => {
   it("should validate input with Zod schema", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const invalidInput = {
       channelId: "UC123",
@@ -312,7 +313,7 @@ describe("getChannelReviewsAction", () => {
   it("should get channel reviews with pagination", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const channelId = "550e8400-e29b-41d4-a716-446655440000";
     const mockReviews = [
@@ -515,7 +516,7 @@ describe("getChannelReviewsAction", () => {
   it("should include user helpful votes when authenticated", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const channelId = "550e8400-e29b-41d4-a716-446655440000";
     const mockReviews = [
@@ -627,7 +628,7 @@ describe("updateReviewAction", () => {
   it("should update review successfully", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const reviewId = "review-123";
     const input = {
@@ -702,7 +703,7 @@ describe("updateReviewAction", () => {
   it("should return error when user lacks permission (RLS)", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const input = {
       rating: 4,
@@ -744,7 +745,7 @@ describe("deleteReviewAction", () => {
   it("should delete review successfully (soft delete)", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const reviewId = "review-123";
 
@@ -821,7 +822,7 @@ describe("deleteReviewAction", () => {
   it("should return error when user lacks permission", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     mockSupabase.from = vi.fn(() => ({
       select: vi.fn(() => ({
@@ -857,7 +858,7 @@ describe("getMyReviewsAction", () => {
   it("should get user's reviews with pagination", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const mockReviews = [
       {
@@ -948,7 +949,7 @@ describe("getMyReviewsAction", () => {
   it("should handle array user and channel in JOIN results", async () => {
     // Arrange
     const { getUser } = await import("@/lib/auth");
-    vi.mocked(getUser).mockResolvedValue({ id: "user-123" });
+    vi.mocked(getUser).mockResolvedValue(createMockUser({ id: "user-123" }));
 
     const mockReviewsWithArrays = [
       {

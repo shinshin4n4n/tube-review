@@ -7,7 +7,11 @@ TubeReviewの開発環境構築手順と開発用ツールの使用方法を説�
 ### 1. 依存関係のインストール
 
 ```bash
+# 開発環境（初回セットアップ）
 npm install
+
+# CI/本番環境（厳密な再現性が必要）
+npm ci  # package-lock.json を厳密に適用
 ```
 
 ### 2. 環境変数の設定
@@ -222,6 +226,27 @@ npx tsc --noEmit
 rm -rf node_modules package-lock.json
 npm install
 ```
+
+## 依存パッケージ管理
+
+### インストール方法
+
+```bash
+# 開発環境（初回セットアップ）
+npm install
+
+# CI/本番環境（厳密な再現性が必要）
+npm ci  # package-lock.json を厳密に適用
+```
+
+### 本番依存パッケージの更新
+
+本番依存パッケージは固定バージョンで管理しています。
+
+- **自動更新**: Dependabot が週次で PR を作成
+- **手動更新**: `npm install <package>@<version> --save-exact`
+
+詳細は [CLAUDE.md](../CLAUDE.md#dependency-management) を参照してください。
 
 ## 参考ドキュメント
 

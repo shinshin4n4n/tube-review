@@ -14,6 +14,7 @@ updates:
     labels:
       - "dependencies"
       - "npm"
+      - "production"
     commit-message:
       prefix: "chore"
       prefix-development: "chore"
@@ -34,6 +35,18 @@ updates:
       supabase:
         patterns:
           - "@supabase/*"
+      # Anthropic関連
+      anthropic:
+        patterns:
+          - "@anthropic-ai/*"
+      # Upstash関連
+      upstash:
+        patterns:
+          - "@upstash/*"
+      # Vercel関連
+      vercel:
+        patterns:
+          - "@vercel/*"
       # Testing関連
       testing:
         patterns:

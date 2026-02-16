@@ -347,6 +347,76 @@ NEXTAUTH_URL=http://localhost:3000
 - `npm run classify-channels` - AI によるチャンネル分類
 - `npm run refresh-stats` - Materialized Views 更新
 
+## Dependency Management
+
+### 本番依存パッケージの更新方針
+
+- **production dependencies** (`dependencies` セクション): **固定バージョン**
+  - キャレット(^) やチルダ(~) は使用しない
+  - 更新は Dependabot PR を手動レビュー後にマージ
+  - 理由: 本番環境の再現性を保証するため
+
+- **開発依存パッケージ** (`devDependencies` セクション): **範囲指定可**
+  - キャレット(^) 使用可（マイナー/パッチ自動更新）
+  - Dependabot で週次自動更新
+  - 理由: 開発効率とセキュリティパッチの迅速適用
+
+### 依存パッケージの更新手順
+
+1. **Dependabot PR の確認**:
+   - Breaking changes の有無をチェック
+   - CHANGELOG を確認
+   - ローカルで `npm install` → テスト実行
+
+2. **手動更新が必要な場合**:
+
+   ```bash
+   # 特定パッケージの最新版を確認
+   npm outdated @anthropic-ai/sdk
+
+   # 更新（固定バージョンでインストール）
+   npm install @anthropic-ai/sdk@0.75.0 --save-exact
+
+   # テスト実行
+   npm run test:unit
+   npm run test:e2e
+
+   # コミット
+   git add package.json package-lock.json
+   git commit -m "chore: Update @anthropic-ai/sdk to 0.75.0"
+   ```
+
+3. **CI/CD での確認**:
+   - `npm ci` で package-lock.json を厳密に適用
+   - バージョン不整合があればエラーで検出
+
+### package-lock.json の扱い
+
+- **必須**: Git にコミットする（既に設定済み）
+- **更新**: `npm install` 実行時に自動更新
+- **検証**: `npm ci` で整合性確認（CI で実行）
+- **競合**: マージ時に競合した場合は `npm install` で再生成
+
+### トラブルシューティング
+
+**Q. package.json と package-lock.json のバージョンが不一致**
+
+```bash
+rm -rf node_modules package-lock.json
+npm install
+npm ci  # 整合性確認
+```
+
+**Q. Dependabot PR でテストが失敗**
+
+- Breaking changes の可能性 → CHANGELOG 確認
+- ローカルで再現 → 必要に応じてコード修正
+
+**Q. 本番環境で異なるバージョンがインストールされる**
+
+- Vercel 設定で `npm ci` を使用していることを確認
+- package-lock.json が最新であることを確認
+
 ## Best Practices
 
 1. **Server Components First**: デフォルトは Server Component、必要な場合のみ Client Component
