@@ -56,7 +56,6 @@ describe("searchChannelsAction", () => {
         title: "Test Channel",
         description: "Test Description",
         thumbnailUrl: "https://example.com/thumb.jpg",
-        subscriberCount: 1000,
       },
     ];
     mockSearchChannels.mockResolvedValue(mockResults);
@@ -99,8 +98,8 @@ describe("searchChannelsAction", () => {
   it("should handle YouTube API quota exceeded error", async () => {
     // Arrange
     const error = new YouTubeApiError(
-      "Quota exceeded",
       YouTubeErrorCode.QUOTA_EXCEEDED,
+      "Quota exceeded",
       {}
     );
     mockSearchChannels.mockRejectedValue(error);
@@ -119,8 +118,8 @@ describe("searchChannelsAction", () => {
   it("should handle YouTube API rate limit error", async () => {
     // Arrange
     const error = new YouTubeApiError(
-      "Rate limit",
       YouTubeErrorCode.RATE_LIMIT,
+      "Rate limit",
       {}
     );
     mockSearchChannels.mockRejectedValue(error);
@@ -229,7 +228,7 @@ describe("getChannelDetailsAction", () => {
     mockGetChannelDetails.mockResolvedValue(mockDetails);
     mockUpsert.mockResolvedValueOnce({
       data: null,
-      error: { message: "DB error", code: "500" },
+      error: { message: "DB error", code: "500" } as any,
     });
 
     // Act
@@ -257,8 +256,8 @@ describe("getChannelDetailsAction", () => {
   it("should handle YouTube API not found error", async () => {
     // Arrange
     const error = new YouTubeApiError(
-      "Not found",
       YouTubeErrorCode.NOT_FOUND,
+      "Not found",
       {}
     );
     mockGetChannelDetails.mockRejectedValue(error);
@@ -276,8 +275,8 @@ describe("getChannelDetailsAction", () => {
   it("should handle YouTube API invalid key error", async () => {
     // Arrange
     const error = new YouTubeApiError(
-      "Invalid key",
       YouTubeErrorCode.INVALID_API_KEY,
+      "Invalid key",
       {}
     );
     mockGetChannelDetails.mockRejectedValue(error);
@@ -295,7 +294,7 @@ describe("getChannelDetailsAction", () => {
   it("should handle network errors", async () => {
     // Arrange
     mockGetChannelDetails.mockRejectedValue(
-      new YouTubeApiError("Network error", YouTubeErrorCode.NETWORK_ERROR, {})
+      new YouTubeApiError(YouTubeErrorCode.NETWORK_ERROR, "Network error", {})
     );
 
     // Act
@@ -366,7 +365,10 @@ describe("getChannelDetailsByDbIdAction", () => {
       published_at: "2020-01-01T00:00:00Z",
     };
 
-    mockSingle.mockResolvedValueOnce({ data: mockDbChannel, error: null });
+    mockSingle.mockResolvedValueOnce({
+      data: mockDbChannel as any,
+      error: null,
+    });
 
     // Act
     const result = await getChannelDetailsByDbIdAction(
@@ -398,7 +400,10 @@ describe("getChannelDetailsByDbIdAction", () => {
       published_at: "2020-01-01T00:00:00Z",
     };
 
-    mockSingle.mockResolvedValueOnce({ data: mockDbChannel, error: null });
+    mockSingle.mockResolvedValueOnce({
+      data: mockDbChannel as any,
+      error: null,
+    });
 
     // Act
     const result = await getChannelDetailsByDbIdAction(
@@ -434,7 +439,7 @@ describe("getChannelDetailsByDbIdAction", () => {
     // DB query returns not found
     mockSingle.mockResolvedValueOnce({
       data: null,
-      error: { message: "Not found" },
+      error: { message: "Not found" } as any,
     });
     // Then upsert succeeds
     mockUpsert.mockResolvedValueOnce({ data: null, error: null });
@@ -458,7 +463,7 @@ describe("getChannelDetailsByDbIdAction", () => {
     // Arrange
     mockSingle.mockResolvedValueOnce({
       data: null,
-      error: { message: "Not found" },
+      error: { message: "Not found" } as any,
     });
 
     // Act
@@ -505,7 +510,10 @@ describe("getChannelDetailsByDbIdAction", () => {
       published_at: "2020-01-01T00:00:00Z",
     };
 
-    mockSingle.mockResolvedValueOnce({ data: mockDbChannel, error: null });
+    mockSingle.mockResolvedValueOnce({
+      data: mockDbChannel as any,
+      error: null,
+    });
 
     // Act
     const result = await getChannelDetailsByDbIdAction(
