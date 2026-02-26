@@ -37,7 +37,6 @@ export async function searchChannelsAction(
       return {
         success: false,
         error: err.issues[0]?.message || "Validation error",
-        details: err.issues,
       };
     }
 
@@ -46,7 +45,6 @@ export async function searchChannelsAction(
       return {
         success: false,
         error: getErrorMessage(err.code),
-        details: err.details,
       };
     }
 
@@ -113,7 +111,6 @@ export async function getChannelDetailsAction(
       return {
         success: false,
         error: err.issues[0]?.message || "Validation error",
-        details: err.issues,
       };
     }
 
@@ -122,7 +119,6 @@ export async function getChannelDetailsAction(
       return {
         success: false,
         error: getErrorMessage(err.code),
-        details: err.details,
       };
     }
 
