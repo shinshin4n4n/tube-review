@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import type { ApiResponse, ApiErrorCode } from '@/lib/types/api';
+import { z } from "zod";
+import type { ApiResponse, ApiErrorCode } from "@/lib/types/api";
 
 /**
  * APIエラークラス
@@ -11,7 +11,7 @@ export class ApiError extends Error {
     public statusCode: number = 500
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 
@@ -29,14 +29,13 @@ export function handleApiError(error: unknown): ApiResponse<never> {
   if (error instanceof z.ZodError) {
     return {
       success: false,
-      error: 'Validation error',
-      details: error.issues,
+      error: error.issues[0]?.message || "Validation error",
     };
   }
 
-  console.error('Unexpected error:', error);
+  console.error("Unexpected error:", error);
   return {
     success: false,
-    error: 'Internal server error',
+    error: "Internal server error",
   };
 }
