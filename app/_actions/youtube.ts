@@ -10,6 +10,7 @@ import { searchChannels, getChannelDetails } from "@/lib/youtube/api";
 import type { ChannelSearchResult, ChannelDetails } from "@/lib/youtube/types";
 import { YouTubeApiError, YouTubeErrorCode } from "@/lib/youtube/types";
 import { createClient } from "@/lib/supabase/server";
+import { isUUID } from "@/lib/validation-utils";
 
 /**
  * YouTubeチャンネルを検索
@@ -142,10 +143,7 @@ export async function getChannelDetailsByDbIdAction(
     const supabase = await createClient();
 
     // UUIDかYouTube IDかを判定
-    const isUUID =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        channelId
-      );
+    const isChannelUUID = isUUID(channelId);
 
     // データベースからチャンネル情報を取得
     let query = supabase
@@ -155,7 +153,7 @@ export async function getChannelDetailsByDbIdAction(
       );
 
     // UUIDの場合はIDで検索、そうでない場合はYouTube IDで検索
-    if (isUUID) {
+    if (isChannelUUID) {
       query = query.eq("id", channelId);
     } else {
       query = query.eq("youtube_channel_id", channelId);
@@ -166,7 +164,7 @@ export async function getChannelDetailsByDbIdAction(
     if (dbError || !channel) {
       console.error("Channel not found in database:", dbError);
       // データベースにない場合は、YouTube APIから取得
-      if (!isUUID) {
+      if (!isChannelUUID) {
         return await getChannelDetailsAction(channelId);
       }
       return {

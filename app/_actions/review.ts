@@ -7,6 +7,7 @@ import { ApiError, handleApiError } from "@/lib/api/error";
 import { API_ERROR_CODES, type ApiResponse } from "@/lib/types/api";
 import { DB_ERROR_CODES } from "@/lib/constants/database-errors";
 import { extractYoutubeChannelId } from "@/lib/types/guards";
+import { isUUID } from "@/lib/validation-utils";
 import {
   createReviewSchema,
   updateReviewSchema,
@@ -46,14 +47,11 @@ export async function createReviewAction(
     const supabase = await createClient();
 
     // channelIdがUUID形式かどうかをチェック
-    const isUUID =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        validated.channelId
-      );
+    const isChannelUUID = isUUID(validated.channelId);
 
     let channelDbId: string;
 
-    if (isUUID) {
+    if (isChannelUUID) {
       // UUID形式の場合は直接データベースIDとして使用
       channelDbId = validated.channelId;
 
@@ -158,14 +156,11 @@ export async function getChannelReviewsAction(
     const user = await getUser();
 
     // channelIdがUUID形式かどうかをチェック
-    const isUUID =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        youtubeChannelId
-      );
+    const isChannelUUID = isUUID(youtubeChannelId);
 
     let channelDbId: string;
 
-    if (isUUID) {
+    if (isChannelUUID) {
       // UUID形式の場合は直接データベースIDとして使用
       channelDbId = youtubeChannelId;
 
