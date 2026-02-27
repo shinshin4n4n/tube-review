@@ -1,10 +1,10 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Star } from 'lucide-react';
-import type { RecentReviewWithChannel } from '@/lib/types/ranking';
-import Pagination from '@/components/common/pagination';
+import Link from "next/link";
+import Image from "next/image";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MessageSquare, Star } from "lucide-react";
+import type { RecentReviewWithChannel } from "@/lib/types/ranking";
+import Pagination from "@/components/common/pagination";
 
 type ReviewWithFormattedDate = RecentReviewWithChannel & {
   formattedDate?: string;
@@ -18,6 +18,8 @@ interface RecentReviewsProps {
     total: number;
     totalPages: number;
   };
+  /** セクション見出し（新着レビュー）を表示するか。デフォルト true */
+  showHeader?: boolean;
 }
 
 /**
@@ -25,15 +27,23 @@ interface RecentReviewsProps {
  * トップページに最新20件のレビューを表示
  * レビュー一覧ページではページネーション対応
  */
-export function RecentReviews({ reviews, pagination }: RecentReviewsProps) {
+export function RecentReviews({
+  reviews,
+  pagination,
+  showHeader = true,
+}: RecentReviewsProps) {
   if (reviews.length === 0) {
     return (
       <section className="space-y-6">
-        <div className="flex items-center gap-2">
-          <MessageSquare className="text-primary" size={28} />
-          <h2 className="text-2xl md:text-3xl font-bold text-content">新着レビュー</h2>
-        </div>
-        <p className="text-content-secondary text-center py-12">
+        {showHeader && (
+          <div className="flex items-center gap-2">
+            <MessageSquare className="text-primary" size={28} />
+            <h2 className="text-content text-2xl font-bold md:text-3xl">
+              新着レビュー
+            </h2>
+          </div>
+        )}
+        <p className="text-content-secondary py-12 text-center">
           まだレビューがありません。
         </p>
       </section>
@@ -42,29 +52,33 @@ export function RecentReviews({ reviews, pagination }: RecentReviewsProps) {
 
   return (
     <section className="space-y-6">
-      {/* セクションタイトル */}
-      <div className="flex items-center gap-2">
-        <MessageSquare className="text-primary" size={28} />
-        <h2 className="text-2xl md:text-3xl font-bold text-content">新着レビュー</h2>
-        <Badge variant="outline" className="ml-2">
-          {reviews.length}件
-        </Badge>
-      </div>
+      {/* セクションタイトル（トップページ用） */}
+      {showHeader && (
+        <div className="flex items-center gap-2">
+          <MessageSquare className="text-primary" size={28} />
+          <h2 className="text-content text-2xl font-bold md:text-3xl">
+            新着レビュー
+          </h2>
+          <Badge variant="outline" className="ml-2">
+            {reviews.length}件
+          </Badge>
+        </div>
+      )}
 
       {/* レビューリスト */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {reviews.map((review) => (
           <Link
             key={review.id}
             href={`/channels/${review.channel.id}`}
-            className="block group"
+            className="group block"
           >
-            <Card className="h-full transition-all duration-200 hover:shadow-md hover:-translate-y-1 bg-surface border-stroke">
+            <Card className="bg-surface border-stroke h-full transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
               <CardHeader className="pb-3">
                 {/* チャンネル情報 */}
                 <div className="flex items-center gap-3">
                   {/* チャンネルサムネイル */}
-                  <div className="relative w-12 h-12 rounded-full overflow-hidden bg-elevated flex-shrink-0">
+                  <div className="bg-elevated relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full">
                     {review.channel.thumbnail_url ? (
                       <Image
                         src={review.channel.thumbnail_url}
@@ -75,26 +89,33 @@ export function RecentReviews({ reviews, pagination }: RecentReviewsProps) {
                         unoptimized
                       />
                     ) : (
-                      <div className="w-full h-full bg-secondary" />
+                      <div className="bg-secondary h-full w-full" />
                     )}
                   </div>
 
                   {/* チャンネル名 + ユーザー情報 */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-content text-sm truncate group-hover:text-primary transition-colors">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-content group-hover:text-primary truncate text-sm font-bold transition-colors">
                       {review.channel.title}
                     </h3>
-                    <div className="flex items-center gap-2 text-xs text-content-secondary">
-                      <span>{review.user.display_name || review.user.username}</span>
+                    <div className="text-content-secondary flex items-center gap-2 text-xs">
+                      <span>
+                        {review.user.display_name || review.user.username}
+                      </span>
                       <span>•</span>
                       <span>{review.formattedDate}</span>
                     </div>
                   </div>
 
                   {/* 星評価 */}
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <Star size={16} className="fill-star-filled text-star-filled" />
-                    <span className="text-sm font-medium text-content">{review.rating}</span>
+                  <div className="flex flex-shrink-0 items-center gap-1">
+                    <Star
+                      size={16}
+                      className="fill-star-filled text-star-filled"
+                    />
+                    <span className="text-content text-sm font-medium">
+                      {review.rating}
+                    </span>
                   </div>
                 </div>
               </CardHeader>
@@ -102,13 +123,13 @@ export function RecentReviews({ reviews, pagination }: RecentReviewsProps) {
               <CardContent className="pt-0">
                 {/* レビュータイトル */}
                 {review.title && (
-                  <h4 className="font-semibold text-content mb-1 text-sm line-clamp-1">
+                  <h4 className="text-content mb-1 line-clamp-1 text-sm font-semibold">
                     {review.title}
                   </h4>
                 )}
 
                 {/* レビュー本文（抜粋） */}
-                <p className="text-sm text-content-secondary line-clamp-2">
+                <p className="text-content-secondary line-clamp-2 text-sm">
                   {review.is_spoiler ? (
                     <span className="text-yellow-600">⚠️ ネタバレあり</span>
                   ) : (
@@ -133,7 +154,7 @@ export function RecentReviews({ reviews, pagination }: RecentReviewsProps) {
         )
       ) : (
         // トップページの場合: もっと見るリンク表示
-        <div className="text-center pt-4">
+        <div className="pt-4 text-center">
           <Link
             href="/reviews"
             className="text-primary hover:text-primary-hover font-medium transition-colors"

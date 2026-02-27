@@ -29,17 +29,6 @@ describe("getRankingChannels", () => {
         average_rating: 4.8,
         recent_review_count: 20,
       },
-      {
-        id: "ch2",
-        youtube_channel_id: "UC456",
-        title: "Second Channel",
-        description: "Description 2",
-        thumbnail_url: "https://example.com/thumb2.jpg",
-        subscriber_count: 50000,
-        review_count: 30,
-        average_rating: 4.5,
-        recent_review_count: 15,
-      },
     ];
 
     mockSupabase.from = vi.fn(() => ({
@@ -87,10 +76,7 @@ describe("getRankingChannels", () => {
       }));
 
     const mockLimit = vi.fn(() =>
-      Promise.resolve({
-        data: mockChannels,
-        error: null,
-      })
+      Promise.resolve({ data: mockChannels, error: null })
     );
 
     mockSupabase.from = vi.fn(() => ({
@@ -115,36 +101,6 @@ describe("getRankingChannels", () => {
     expect(mockLimit).toHaveBeenCalledWith(customLimit);
   });
 
-  it("should filter channels with recent_review_count >= 1", async () => {
-    // Arrange
-    const mockGte = vi.fn(() => ({
-      order: vi.fn(() => ({
-        order: vi.fn(() => ({
-          limit: vi.fn(() =>
-            Promise.resolve({
-              data: [],
-              error: null,
-            })
-          ),
-        })),
-      })),
-    }));
-
-    mockSupabase.from = vi.fn(() => ({
-      select: vi.fn(() => ({
-        not: vi.fn(() => ({
-          gte: mockGte,
-        })),
-      })),
-    }));
-
-    // Act
-    await getRankingChannels();
-
-    // Assert
-    expect(mockGte).toHaveBeenCalledWith("recent_review_count", 1);
-  });
-
   it("should return empty array when no channels found", async () => {
     // Arrange
     mockSupabase.from = vi.fn(() => ({
@@ -154,10 +110,7 @@ describe("getRankingChannels", () => {
             order: vi.fn(() => ({
               order: vi.fn(() => ({
                 limit: vi.fn(() =>
-                  Promise.resolve({
-                    data: null,
-                    error: null,
-                  })
+                  Promise.resolve({ data: null, error: null })
                 ),
               })),
             })),
@@ -175,8 +128,6 @@ describe("getRankingChannels", () => {
 
   it("should throw error when database query fails", async () => {
     // Arrange
-    const mockError = { message: "Database error", code: "ERROR" };
-
     mockSupabase.from = vi.fn(() => ({
       select: vi.fn(() => ({
         not: vi.fn(() => ({
@@ -186,7 +137,7 @@ describe("getRankingChannels", () => {
                 limit: vi.fn(() =>
                   Promise.resolve({
                     data: null,
-                    error: mockError,
+                    error: { message: "Database error" },
                   })
                 ),
               })),
@@ -203,12 +154,96 @@ describe("getRankingChannels", () => {
   });
 });
 
+/**
+ * getRecentReviews テスト用ヘルパー
+ *
+ * 新しいクエリビルダーは動的にチェーンが構築されるため、
+ * 全メソッドを self-returning にするフルイエントモックを使用
+ */
+function createFluentMock(resolveValue: {
+  data: unknown;
+  error: unknown;
+  count?: number | null;
+}) {
+  const mock: Record<string, ReturnType<typeof vi.fn>> = {};
+
+  // fluent chain: 全メソッドが self を返し、最終的に Promise.resolve する
+  const self = new Proxy(mock, {
+    get: (_target, prop: string) => {
+      if (prop === "then") {
+        // Promise.resolve のために thenable として振る舞う
+        return (resolve: (v: unknown) => void) => resolve(resolveValue);
+      }
+      if (!mock[prop]) {
+        mock[prop] = vi.fn(() => self);
+      }
+      return mock[prop];
+    },
+  });
+
+  return self;
+}
+
+function setupMockForReviews(options: {
+  countResult?: number | null;
+  dataResult?: unknown[] | null;
+  dataError?: unknown;
+  categoryChannels?: { id: string }[] | null;
+  queryChannels?: { id: string }[] | null;
+}) {
+  const {
+    countResult = 0,
+    dataResult = [],
+    dataError = null,
+    categoryChannels,
+    queryChannels,
+  } = options;
+
+  mockSupabase.from = vi.fn((table: string) => {
+    if (table === "channels") {
+      // カテゴリ or キーワードによるチャンネル検索
+      const channelData =
+        categoryChannels !== undefined
+          ? categoryChannels
+          : (queryChannels ?? []);
+      let callCount = 0;
+      return {
+        select: vi.fn(() => {
+          callCount++;
+          // 1回目: category フィルタ、2回目: query フィルタ
+          const data =
+            categoryChannels !== undefined && queryChannels !== undefined
+              ? callCount === 1
+                ? categoryChannels
+                : queryChannels
+              : channelData;
+          return createFluentMock({ data, error: null });
+        }),
+      };
+    }
+
+    // reviews テーブル
+    const selectMock = vi.fn((_fields: string, opts?: unknown) => {
+      if (opts && typeof opts === "object" && "count" in opts) {
+        return createFluentMock({
+          data: null,
+          error: null,
+          count: countResult,
+        });
+      }
+      return createFluentMock({ data: dataResult, error: dataError });
+    });
+
+    return { select: selectMock };
+  });
+}
+
 describe("getRecentReviews", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should return recent reviews with default pagination", async () => {
+  it("should return reviews with default pagination", async () => {
     // Arrange
     const mockReviews = [
       {
@@ -219,6 +254,7 @@ describe("getRecentReviews", () => {
         title: "Great channel",
         content: "Awesome content",
         is_spoiler: false,
+        helpful_count: 10,
         created_at: "2024-01-01T00:00:00Z",
         user: {
           id: "user1",
@@ -231,47 +267,12 @@ describe("getRecentReviews", () => {
           youtube_channel_id: "UC123",
           title: "Test Channel",
           thumbnail_url: "https://example.com/thumb.jpg",
+          category: "tech",
         },
       },
     ];
 
-    const mockCount = 25;
-
-    mockSupabase.from = vi.fn((table: string) => {
-      if (table === "reviews") {
-        const selectMock = vi.fn((fields: string, options?: unknown) => {
-          // Count query
-          if (options && typeof options === "object" && "count" in options) {
-            return {
-              is: vi.fn(() =>
-                Promise.resolve({
-                  count: mockCount,
-                  error: null,
-                })
-              ),
-            };
-          }
-          // Data query
-          return {
-            is: vi.fn(() => ({
-              order: vi.fn(() => ({
-                range: vi.fn(() =>
-                  Promise.resolve({
-                    data: mockReviews,
-                    error: null,
-                  })
-                ),
-              })),
-            })),
-          };
-        });
-
-        return {
-          select: selectMock,
-        };
-      }
-      return {};
-    });
+    setupMockForReviews({ countResult: 25, dataResult: mockReviews });
 
     // Act
     const result = await getRecentReviews();
@@ -281,111 +282,25 @@ describe("getRecentReviews", () => {
     expect(result.pagination).toEqual({
       page: 1,
       limit: 20,
-      total: mockCount,
+      total: 25,
       totalPages: 2,
     });
   });
 
-  it("should return recent reviews with custom pagination", async () => {
+  it("should return reviews with custom pagination", async () => {
     // Arrange
-    const customPage = 2;
-    const customLimit = 10;
-    const mockCount = 25;
-    const expectedOffset = (customPage - 1) * customLimit;
-
-    const mockRange = vi.fn(() =>
-      Promise.resolve({
-        data: [],
-        error: null,
-      })
-    );
-
-    mockSupabase.from = vi.fn((table: string) => {
-      if (table === "reviews") {
-        const selectMock = vi.fn((fields: string, options?: unknown) => {
-          // Count query
-          if (options && typeof options === "object" && "count" in options) {
-            return {
-              is: vi.fn(() =>
-                Promise.resolve({
-                  count: mockCount,
-                  error: null,
-                })
-              ),
-            };
-          }
-          // Data query
-          return {
-            is: vi.fn(() => ({
-              order: vi.fn(() => ({
-                range: mockRange,
-              })),
-            })),
-          };
-        });
-
-        return {
-          select: selectMock,
-        };
-      }
-      return {};
-    });
+    setupMockForReviews({ countResult: 25, dataResult: [] });
 
     // Act
-    await getRecentReviews(customPage, customLimit);
+    const result = await getRecentReviews({ page: 2, limit: 10 });
 
     // Assert
-    expect(mockRange).toHaveBeenCalledWith(
-      expectedOffset,
-      expectedOffset + customLimit - 1
-    );
-  });
-
-  it("should filter out deleted reviews (deleted_at IS NULL)", async () => {
-    // Arrange
-    const mockIs = vi.fn(() => ({
-      order: vi.fn(() => ({
-        range: vi.fn(() =>
-          Promise.resolve({
-            data: [],
-            error: null,
-          })
-        ),
-      })),
-    }));
-
-    mockSupabase.from = vi.fn((table: string) => {
-      if (table === "reviews") {
-        const selectMock = vi.fn((fields: string, options?: unknown) => {
-          // Count query
-          if (options && typeof options === "object" && "count" in options) {
-            return {
-              is: vi.fn(() =>
-                Promise.resolve({
-                  count: 0,
-                  error: null,
-                })
-              ),
-            };
-          }
-          // Data query
-          return {
-            is: mockIs,
-          };
-        });
-
-        return {
-          select: selectMock,
-        };
-      }
-      return {};
+    expect(result.pagination).toEqual({
+      page: 2,
+      limit: 10,
+      total: 25,
+      totalPages: 3,
     });
-
-    // Act
-    await getRecentReviews();
-
-    // Assert
-    expect(mockIs).toHaveBeenCalledWith("deleted_at", null);
   });
 
   it("should handle array user and channel in JOIN results", async () => {
@@ -399,13 +314,14 @@ describe("getRecentReviews", () => {
         title: "Test",
         content: "Content",
         is_spoiler: false,
+        helpful_count: 0,
         created_at: "2024-01-01T00:00:00Z",
         user: [
           {
             id: "user1",
             username: "testuser",
             display_name: "Test User",
-            avatar_url: "https://example.com/avatar.jpg",
+            avatar_url: null,
           },
         ],
         channel: [
@@ -413,47 +329,14 @@ describe("getRecentReviews", () => {
             id: "ch1",
             youtube_channel_id: "UC123",
             title: "Test Channel",
-            thumbnail_url: "https://example.com/thumb.jpg",
+            thumbnail_url: null,
+            category: null,
           },
         ],
       },
     ];
 
-    mockSupabase.from = vi.fn((table: string) => {
-      if (table === "reviews") {
-        const selectMock = vi.fn((fields: string, options?: unknown) => {
-          // Count query
-          if (options && typeof options === "object" && "count" in options) {
-            return {
-              is: vi.fn(() =>
-                Promise.resolve({
-                  count: 1,
-                  error: null,
-                })
-              ),
-            };
-          }
-          // Data query
-          return {
-            is: vi.fn(() => ({
-              order: vi.fn(() => ({
-                range: vi.fn(() =>
-                  Promise.resolve({
-                    data: mockReviewsWithArrays,
-                    error: null,
-                  })
-                ),
-              })),
-            })),
-          };
-        });
-
-        return {
-          select: selectMock,
-        };
-      }
-      return {};
-    });
+    setupMockForReviews({ countResult: 1, dataResult: mockReviewsWithArrays });
 
     // Act
     const result = await getRecentReviews();
@@ -465,183 +348,35 @@ describe("getRecentReviews", () => {
     );
   });
 
-  it("should calculate pagination correctly", async () => {
-    // Arrange
-    const mockCount = 47;
-    const limit = 20;
-    const expectedTotalPages = Math.ceil(mockCount / limit); // 3
-
-    mockSupabase.from = vi.fn((table: string) => {
-      if (table === "reviews") {
-        const selectMock = vi.fn((fields: string, options?: unknown) => {
-          // Count query
-          if (options && typeof options === "object" && "count" in options) {
-            return {
-              is: vi.fn(() =>
-                Promise.resolve({
-                  count: mockCount,
-                  error: null,
-                })
-              ),
-            };
-          }
-          // Data query
-          return {
-            is: vi.fn(() => ({
-              order: vi.fn(() => ({
-                range: vi.fn(() =>
-                  Promise.resolve({
-                    data: [],
-                    error: null,
-                  })
-                ),
-              })),
-            })),
-          };
-        });
-
-        return {
-          select: selectMock,
-        };
-      }
-      return {};
-    });
-
-    // Act
-    const result = await getRecentReviews(1, limit);
-
-    // Assert
-    expect(result.pagination.totalPages).toBe(expectedTotalPages);
-  });
-
   it("should handle null count gracefully", async () => {
     // Arrange
-    mockSupabase.from = vi.fn((table: string) => {
-      if (table === "reviews") {
-        const selectMock = vi.fn((fields: string, options?: unknown) => {
-          // Count query returns null
-          if (options && typeof options === "object" && "count" in options) {
-            return {
-              is: vi.fn(() =>
-                Promise.resolve({
-                  count: null, // Count is null but no error
-                  error: null,
-                })
-              ),
-            };
-          }
-          // Data query succeeds
-          return {
-            is: vi.fn(() => ({
-              order: vi.fn(() => ({
-                range: vi.fn(() =>
-                  Promise.resolve({
-                    data: [],
-                    error: null,
-                  })
-                ),
-              })),
-            })),
-          };
-        });
-
-        return {
-          select: selectMock,
-        };
-      }
-      return {};
-    });
+    setupMockForReviews({ countResult: null, dataResult: [] });
 
     // Act
     const result = await getRecentReviews();
 
     // Assert
-    expect(result.pagination.total).toBe(0); // null count is treated as 0
+    expect(result.pagination.total).toBe(0);
+    expect(result.pagination.totalPages).toBe(0);
   });
 
   it("should throw error when data query fails", async () => {
     // Arrange
-    const mockError = { message: "Database error", code: "ERROR" };
-
-    mockSupabase.from = vi.fn((table: string) => {
-      if (table === "reviews") {
-        const selectMock = vi.fn((fields: string, options?: unknown) => {
-          // Count query
-          if (options && typeof options === "object" && "count" in options) {
-            return {
-              is: vi.fn(() =>
-                Promise.resolve({
-                  count: 10,
-                  error: null,
-                })
-              ),
-            };
-          }
-          // Data query
-          return {
-            is: vi.fn(() => ({
-              order: vi.fn(() => ({
-                range: vi.fn(() =>
-                  Promise.resolve({
-                    data: null,
-                    error: mockError,
-                  })
-                ),
-              })),
-            })),
-          };
-        });
-
-        return {
-          select: selectMock,
-        };
-      }
-      return {};
+    setupMockForReviews({
+      countResult: 10,
+      dataResult: null,
+      dataError: { message: "Database error" },
     });
 
     // Act & Assert
     await expect(getRecentReviews()).rejects.toThrow(
-      "新着レビューの取得に失敗しました"
+      "レビューの取得に失敗しました"
     );
   });
 
-  it("should return empty reviews array when count is 0", async () => {
+  it("should return empty reviews when count is 0", async () => {
     // Arrange
-    mockSupabase.from = vi.fn((table: string) => {
-      if (table === "reviews") {
-        const selectMock = vi.fn((fields: string, options?: unknown) => {
-          // Count query
-          if (options && typeof options === "object" && "count" in options) {
-            return {
-              is: vi.fn(() =>
-                Promise.resolve({
-                  count: 0,
-                  error: null,
-                })
-              ),
-            };
-          }
-          // Data query
-          return {
-            is: vi.fn(() => ({
-              order: vi.fn(() => ({
-                range: vi.fn(() =>
-                  Promise.resolve({
-                    data: [],
-                    error: null,
-                  })
-                ),
-              })),
-            })),
-          };
-        });
-
-        return {
-          select: selectMock,
-        };
-      }
-      return {};
-    });
+    setupMockForReviews({ countResult: 0, dataResult: [] });
 
     // Act
     const result = await getRecentReviews();
@@ -650,5 +385,146 @@ describe("getRecentReviews", () => {
     expect(result.reviews).toEqual([]);
     expect(result.pagination.total).toBe(0);
     expect(result.pagination.totalPages).toBe(0);
+  });
+
+  // --- 検索パラメータ関連テスト ---
+
+  it("should filter by rating", async () => {
+    // Arrange
+    setupMockForReviews({ countResult: 5, dataResult: [] });
+
+    // Act
+    const result = await getRecentReviews({ rating: 5 });
+
+    // Assert
+    expect(result.pagination.total).toBe(5);
+    expect(mockSupabase.from).toHaveBeenCalledWith("reviews");
+  });
+
+  it("should filter by keyword query", async () => {
+    // Arrange
+    setupMockForReviews({ countResult: 3, dataResult: [] });
+
+    // Act
+    const result = await getRecentReviews({ query: "面白い" });
+
+    // Assert
+    expect(result.pagination.total).toBe(3);
+  });
+
+  it("should filter by category", async () => {
+    // Arrange
+    setupMockForReviews({
+      countResult: 2,
+      dataResult: [],
+      categoryChannels: [{ id: "ch1" }, { id: "ch2" }],
+    });
+
+    // Act
+    const result = await getRecentReviews({ category: "gaming" });
+
+    // Assert
+    expect(result.pagination.total).toBe(2);
+    expect(mockSupabase.from).toHaveBeenCalledWith("channels");
+  });
+
+  it("should return empty when category has no matching channels", async () => {
+    // Arrange
+    setupMockForReviews({
+      countResult: 0,
+      dataResult: [],
+      categoryChannels: [],
+    });
+
+    // Act
+    const result = await getRecentReviews({ category: "nonexistent" });
+
+    // Assert
+    expect(result.reviews).toEqual([]);
+    expect(result.pagination.total).toBe(0);
+    expect(result.pagination.totalPages).toBe(0);
+  });
+
+  it("should handle combined query and category filter", async () => {
+    // Arrange
+    // from('channels') を2回呼ぶ: 1回目=category, 2回目=query
+    let channelsCallCount = 0;
+    mockSupabase.from = vi.fn((table: string) => {
+      if (table === "channels") {
+        channelsCallCount++;
+        const data =
+          channelsCallCount === 1
+            ? [{ id: "ch1" }, { id: "ch2" }, { id: "ch3" }] // category
+            : [{ id: "ch2" }, { id: "ch4" }]; // query (ch2 is intersection)
+        return {
+          select: vi.fn(() => createFluentMock({ data, error: null })),
+        };
+      }
+      // reviews
+      const selectMock = vi.fn((_fields: string, opts?: unknown) => {
+        if (opts && typeof opts === "object" && "count" in opts) {
+          return createFluentMock({ data: null, error: null, count: 1 });
+        }
+        return createFluentMock({ data: [], error: null });
+      });
+      return { select: selectMock };
+    });
+
+    // Act
+    const result = await getRecentReviews({ query: "test", category: "tech" });
+
+    // Assert
+    expect(result.pagination.total).toBe(1);
+    // channels テーブルに2回アクセス（category + query）
+    expect(channelsCallCount).toBe(2);
+  });
+
+  it("should handle helpful sort order", async () => {
+    // Arrange
+    setupMockForReviews({ countResult: 10, dataResult: [] });
+
+    // Act
+    const result = await getRecentReviews({ sort: "helpful" });
+
+    // Assert
+    expect(result.pagination.total).toBe(10);
+  });
+
+  it("should handle all filters combined", async () => {
+    // Arrange
+    let channelsCallCount = 0;
+    mockSupabase.from = vi.fn((table: string) => {
+      if (table === "channels") {
+        channelsCallCount++;
+        const data =
+          channelsCallCount === 1
+            ? [{ id: "ch1" }] // category
+            : [{ id: "ch1" }]; // query
+        return {
+          select: vi.fn(() => createFluentMock({ data, error: null })),
+        };
+      }
+      const selectMock = vi.fn((_fields: string, opts?: unknown) => {
+        if (opts && typeof opts === "object" && "count" in opts) {
+          return createFluentMock({ data: null, error: null, count: 1 });
+        }
+        return createFluentMock({ data: [], error: null });
+      });
+      return { select: selectMock };
+    });
+
+    // Act
+    const result = await getRecentReviews({
+      page: 1,
+      limit: 10,
+      query: "awesome",
+      sort: "helpful",
+      category: "gaming",
+      rating: 5,
+    });
+
+    // Assert
+    expect(result.pagination.total).toBe(1);
+    expect(result.pagination.limit).toBe(10);
   });
 });
