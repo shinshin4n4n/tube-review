@@ -1,29 +1,51 @@
-import { Layout } from '@/components/layout';
-import { RecentReviews } from '@/app/_components/recent-reviews';
-import { getRecentReviews } from '@/app/_actions/ranking';
-import { MessageSquare } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { ja } from 'date-fns/locale';
+import { Suspense } from "react";
+import { Layout } from "@/components/layout";
+import { RecentReviews } from "@/app/_components/recent-reviews";
+import { ReviewSearchForm } from "@/app/_components/review-search-form";
+import { getRecentReviews } from "@/app/_actions/ranking";
+import { MessageSquare } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { ja } from "date-fns/locale";
+import type { ReviewSortType } from "@/lib/types/ranking";
 
 export const metadata = {
-  title: 'すべてのレビュー | TubeReview',
-  description: '新着レビュー一覧',
+  title: "すべてのレビュー | TubeReview",
+  description: "レビューを検索・フィルタリングして閲覧できます",
 };
 
 type ReviewsPageProps = {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    sort?: string;
+    category?: string;
+    rating?: string;
+  }>;
 };
 
 /**
  * レビュー一覧ページ
- * 全てのレビューをページネーション付きで表示
+ * 検索・フィルタリング・ページネーション対応
  */
 export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
+  const query = params.q?.trim() || "";
+  const sort = (
+    params.sort === "helpful" ? "helpful" : "recent"
+  ) as ReviewSortType;
+  const category = params.category || "";
+  const rating = Number(params.rating) || undefined;
 
-  // レビューを取得（20件/ページ）
-  const data = await getRecentReviews(page, 20);
+  // レビューを取得
+  const data = await getRecentReviews({
+    page,
+    limit: 20,
+    query: query || undefined,
+    sort,
+    category: category || undefined,
+    rating,
+  });
 
   // 日付を事前フォーマット
   const reviewsWithFormattedDates = data.reviews.map((review) => ({
@@ -36,22 +58,39 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
 
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto">
+      <div className="mx-auto max-w-6xl">
         {/* ページタイトル */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="mb-6">
+          <div className="mb-2 flex items-center gap-2">
             <MessageSquare className="text-primary" size={32} />
-            <h1 className="text-3xl md:text-4xl font-bold text-content">
+            <h1 className="text-content text-3xl font-bold md:text-4xl">
               すべてのレビュー
             </h1>
           </div>
           <p className="text-content-secondary">
-            ユーザーの投稿したレビューを新着順に表示しています（全{data.pagination.total}件）
+            ユーザーの投稿したレビューを検索・フィルタリングできます（全
+            {data.pagination.total}件）
           </p>
         </div>
 
-        {/* レビュー一覧 */}
-        <RecentReviews reviews={reviewsWithFormattedDates} pagination={data.pagination} />
+        {/* 検索・フィルタフォーム */}
+        <div className="mb-8">
+          <Suspense fallback={null}>
+            <ReviewSearchForm
+              initialQuery={query}
+              initialSort={sort}
+              initialCategory={category}
+              initialRating={rating?.toString() || ""}
+            />
+          </Suspense>
+        </div>
+
+        {/* レビュー一覧（見出し非表示） */}
+        <RecentReviews
+          reviews={reviewsWithFormattedDates}
+          pagination={data.pagination}
+          showHeader={false}
+        />
       </div>
     </Layout>
   );

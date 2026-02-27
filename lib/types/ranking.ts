@@ -23,7 +23,7 @@ export interface RankingChannel {
  */
 export interface RankingResponse {
   channels: RankingChannel[];
-  period: 'week' | 'month' | 'all';
+  period: "week" | "month" | "all";
 }
 
 /**
@@ -37,6 +37,7 @@ export interface RecentReviewWithChannel {
   title: string | null;
   content: string;
   is_spoiler: boolean;
+  helpful_count: number;
   created_at: string;
   user: {
     id: string;
@@ -49,5 +50,20 @@ export interface RecentReviewWithChannel {
     youtube_channel_id: string;
     title: string;
     thumbnail_url: string | null;
+    category: string | null;
   };
+}
+
+/**
+ * レビュー検索パラメータ
+ */
+export type ReviewSortType = "recent" | "helpful";
+
+export interface ReviewSearchParams {
+  page?: number;
+  limit?: number;
+  query?: string;
+  sort?: ReviewSortType;
+  category?: string;
+  rating?: number;
 }
