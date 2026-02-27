@@ -12,9 +12,11 @@
 ## 背景
 
 ### 問題点
+
 Supabaseのデフォルトメール送信は、無料プランでは **1時間に2通まで** という厳しい制限があり、開発・テストが困難でした。
 
 ### 解決策
+
 - **Resend** を使用してカスタムSMTP設定
 - 無料プラン: **月3,000通** まで送信可能
 - 独自ドメインを認証することで、任意のユーザーにメール送信可能
@@ -92,11 +94,11 @@ Supabaseのデフォルトメール送信は、無料プランでは **1時間�
 
 **例:**
 
-| Type | Name | Value | Priority |
-|------|------|-------|----------|
-| TXT | @ | `v=spf1 include:_spf.resend.com ~all` | - |
-| TXT | resend._domainkey | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4...` | - |
-| MX | @ | `feedback-smtp.resend.com` | 10 |
+| Type | Name               | Value                                 | Priority |
+| ---- | ------------------ | ------------------------------------- | -------- |
+| TXT  | @                  | `v=spf1 include:_spf.resend.com ~all` | -        |
+| TXT  | resend.\_domainkey | `p=MIGfMA0GCSqGSIb3DQEBAQUAA4...`     | -        |
+| MX   | @                  | `feedback-smtp.resend.com`            | 10       |
 
 5. **保存**して、Resend Dashboardで **「Verify」** をクリック
 6. 数分～数時間で **「Verified」** になる
@@ -136,37 +138,46 @@ Sender name: ちゅぶれびゅ！
 
 <p>こんにちは、</p>
 
-<p>ちゅぶれびゅ！へのログインリンクをお送りします。<br>
-以下のボタンをクリックしてログインしてください。</p>
+<p>
+  ちゅぶれびゅ！へのログインリンクをお送りします。<br />
+  以下のボタンをクリックしてログインしてください。
+</p>
 
 <p style="margin: 30px 0;">
-  <a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=magiclink"
-     style="display: inline-block;
+  <a
+    href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=magiclink"
+    style="display: inline-block;
             padding: 12px 24px;
             background-color: #3B82F6;
             color: white;
             text-decoration: none;
             border-radius: 6px;
-            font-weight: bold;">
+            font-weight: bold;"
+  >
     ログインする
   </a>
 </p>
 
-<p>ボタンが動作しない場合は、以下のURLをコピーしてブラウザに貼り付けてください:</p>
-<p style="word-break: break-all; color: #666;">{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=magiclink</p>
+<p>
+  ボタンが動作しない場合は、以下のURLをコピーしてブラウザに貼り付けてください:
+</p>
+<p style="word-break: break-all; color: #666;">
+  {{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=magiclink
+</p>
 
 <p style="margin-top: 30px; font-size: 14px; color: #666;">
-  このリンクは1時間有効です。<br>
+  このリンクは1時間有効です。<br />
   もしこのメールに心当たりがない場合は、無視してください。
 </p>
 
 <p style="margin-top: 40px; font-size: 14px;">
-  よろしくお願いいたします。<br>
+  よろしくお願いいたします。<br />
   <strong>ちゅぶれびゅ！チーム</strong>
 </p>
 ```
 
 **件名:**
+
 ```
 ちゅぶれびゅ！ - ログインリンクのご案内
 ```
@@ -178,11 +189,13 @@ Sender name: ちゅぶれびゅ！
 1. [Supabase Dashboard - URL Configuration](https://supabase.com/dashboard/project/hhpvymgwuonvzqbflfqz/auth/url-configuration)
 
 **Site URL:**
+
 ```
 https://tube-review.vercel.app
 ```
 
 **Redirect URLs:**
+
 ```
 https://tube-review.vercel.app/auth/callback
 https://tube-review.vercel.app/**
@@ -190,6 +203,7 @@ http://localhost:3000/**
 ```
 
 独自ドメインを使用する場合は追加：
+
 ```
 https://your-domain.com/auth/callback
 https://your-domain.com/**
@@ -211,15 +225,18 @@ https://your-domain.com/**
 ## 重要なポイント
 
 ### Vercel DNSを使う理由
+
 - Vercelでのデプロイ設定とメール認証のDNS設定を一元化
 - Vercel Dashboard内でDNSレコードを簡単に管理
 - ムームードメインのDNS設定より柔軟
 
 ### メールテンプレート修正の理由
+
 - Supabaseのデフォルト `{{ .ConfirmationURL }}` では `/auth/callback` が含まれない
 - `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=magiclink` を直接指定することで確実に `/auth/callback` を経由
 
 ### なぜnoreply@your-domain.comで受信不要？
+
 - Magic Linkは送信専用
 - Resendが送信を代行してくれる
 - 実際にメールサーバーを立てる必要はない
@@ -253,10 +270,6 @@ https://your-domain.com/**
 2. **Supabase URL Configurationを確認**
    - Site URLが正しいか
    - Redirect URLsに `/auth/callback` が含まれているか
-
-3. **`/debug-auth` で状態確認**
-   - Cookie情報を確認
-   - セッション情報を確認
 
 ---
 
