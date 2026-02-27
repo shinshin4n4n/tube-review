@@ -220,6 +220,14 @@ test.describe("Feature Name", () => {
   - `docs:` ドキュメント更新
   - `chore:` ビルド/設定変更
 
+### PR Scoping
+
+- **推奨サイズ**: 300行以下 / 10ファイル以下
+- **ドキュメント・テストのみ**: 500行まで許容
+- **300行超**: PR description に分割不可の理由を明記
+- **大規模変更**: Phase分割・スコープ分割・Feature Flagで対応
+- **1PR = 1責務**: 関連のない変更を混在させない
+
 ### Lint & Format
 
 - **ESLint + Prettier** (pre-commit 強制)
