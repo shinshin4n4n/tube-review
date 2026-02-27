@@ -29,6 +29,7 @@ jobs:
 
   typecheck:
     name: Type Check
+    needs: lint
     runs-on: ubuntu-latest
 
     steps:
@@ -49,6 +50,7 @@ jobs:
 
   test:
     name: Unit Tests
+    needs: typecheck
     runs-on: ubuntu-latest
 
     steps:
@@ -71,7 +73,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key
           YOUTUBE_API_KEY=dummy-youtube-api-key
           SUPABASE_SERVICE_ROLE_KEY=dummy-service-role-key
-          NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_SECRET=dummy-nextauth-secret-for-ci-testing
           NEXTAUTH_URL=http://localhost:3000
           EOF
 
@@ -80,6 +82,7 @@ jobs:
 
   build:
     name: Build
+    needs: typecheck
     runs-on: ubuntu-latest
 
     steps:
@@ -102,7 +105,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY=dummy-anon-key
           YOUTUBE_API_KEY=dummy-youtube-api-key
           SUPABASE_SERVICE_ROLE_KEY=dummy-service-role-key
-          NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_SECRET=dummy-nextauth-secret-for-ci-build
           NEXTAUTH_URL=http://localhost:3000
           EOF
 
