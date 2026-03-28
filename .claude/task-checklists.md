@@ -11,25 +11,37 @@
 - [ ] `.claude/architecture.md` でアーキテクチャパターンを確認
 - [ ] `.claude/examples.md` でコード例を確認
 - [ ] 技術スタックを確認（新しいライブラリが必要か？）
+- [ ] **Plan mode で推定サイズを記載**（300行超は分割計画必須）
 - [ ] ブランチ作成: `git checkout -b feature/feature-name`
 
-### During Development
+### During Development（TDD Red-Green-Refactor）
+
+#### 🔴 RED: 失敗するテストを先に書く
+
+- [ ] テストファイル作成: `{対象ファイルのパス}/__tests__/{ファイル名}.test.ts`
+- [ ] 正常系・異常系・エッジケースのテストを記述
+- [ ] `npm run test:unit` で FAIL を確認
+
+#### 🟢 GREEN: テストを通す最小限の実装
 
 - [ ] Server Actions は `ApiResponse<T>` を返す
 - [ ] エラーは `handleApiError()` で処理
 - [ ] 入力は Zod でバリデーション
 - [ ] 認証が必要な場合は `requireAuth()` を使用
-- [ ] データ更新後は `revalidatePath()` を呼ぶ
 - [ ] RLS ポリシーを確認
-- [ ] TypeScript strict mode に準拠
-- [ ] `any` 型を使用しない
+- [ ] `npm run test:unit` で PASS を確認
+
+#### 🔵 REFACTOR: テストを維持しながら改善
+
+- [ ] 重複除去、命名改善
+- [ ] `any` 型があれば型ガードに置き換え
+- [ ] データ更新後は `revalidatePath()` を呼ぶ
+- [ ] `npm run test:unit` で PASS を維持
 
 ### Testing
 
-- [ ] ユニットテスト作成（80%以上カバレッジ）
+- [ ] カバレッジ 80%以上: `npm run test:coverage`
 - [ ] E2Eテスト作成（主要フロー）
-- [ ] エッジケースのテスト
-- [ ] エラーケースのテスト
 - [ ] `npm run test:unit` が通過
 - [ ] `npm run test:e2e` が通過
 
@@ -142,16 +154,50 @@
 2. **スコープ分割**: ディレクトリ単位やドメイン単位で分離
 3. **Feature Flag**: 未完成機能はフラグで隠す
 
-### PR作成前のサイズチェック
+### 🚨 チェックポイント1: Plan mode（見積もり段階）
 
-```bash
-# 変更行数を確認
-git diff --stat main...HEAD
+実装計画を作成する際、**必ず**以下のセクションを含めること:
 
-# 300行超の場合は分割を検討
-git diff --stat main...HEAD | tail -1
+```markdown
+## 推定サイズ
+
+- 推定変更行数: XXX行
+- 推定変更ファイル数: XX ファイル
+- 300行超の場合の分割計画: （該当する場合のみ）
 ```
 
+**判定基準**:
+
+- 推定300行以下 → そのまま続行
+- 推定300行超 → ExitPlanMode前に分割計画を記載
+- 分割不可能な場合 → 理由を明記し、ユーザーの承認を得る
+
+### 🚨 チェックポイント2: PR作成前（実測段階）
+
+`gh pr create` を実行する**直前**に、以下を**必ず**実行:
+
+```bash
+# Step 1: サイズを実測
+git diff --stat main...HEAD | tail -1
+
+# Step 2: 結果を確認
+# 例: "7 files changed, 250 insertions(+), 30 deletions(-)" → OK
+# 例: "12 files changed, 420 insertions(+), 50 deletions(-)" → NG
+```
+
+**判定基準**:
+
+- 300行以下 & 10ファイル以下 → PR作成を続行
+- ドキュメント・テストのみ → 500行まで許容
+- **上記以外** → PR作成を**中断**し、以下を実施:
+  1. ユーザーにサイズ超過を報告（実測値を表示）
+  2. 分割案を提示（Phase分割 or スコープ分割）
+  3. ユーザーの明示的な承認なしにPRを作成しない
+
+### PR作成前のサイズチェック（チェックリスト）
+
+- [ ] Plan mode で推定サイズを記載済み
+- [ ] `git diff --stat main...HEAD | tail -1` でサイズを実測済み
 - [ ] 変更行数が300行以下（または分割不可の理由を記載）
 - [ ] 変更ファイル数が10以下
 - [ ] 1つのPRで1つの責務のみ扱っている
@@ -166,6 +212,8 @@ git diff --stat main...HEAD | tail -1
 - [ ] ビルドが成功
 - [ ] 自分のコードをレビュー
 - [ ] コミットメッセージを確認
+- [ ] **`git diff --stat main...HEAD | tail -1` でサイズを実測**
+- [ ] **300行以下 & 10ファイル以下であることを確認**（超過時は中断・分割）
 - [ ] PRサイズが適切（上記「PR Scoping Guidelines」参照）
 
 ### PR Description
