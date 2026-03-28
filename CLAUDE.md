@@ -152,6 +152,23 @@ const channels = await searchChannels(query, limit);
 - コード例: `.claude/examples.md` を参照
 - タスクチェックリスト: `.claude/task-checklists.md` を参照
 
+## PR Scoping Enforcement
+
+PRサイズは2つのチェックポイントで強制チェックされる。詳細手順は `.claude/task-checklists.md` を参照。
+
+### チェックポイント1: Plan mode（見積もり段階）
+
+- 実装計画に「推定変更行数・ファイル数」を必須記載
+- 推定300行超 → 分割計画を記載してから ExitPlanMode
+- 分割不可能な場合 → 理由を明記し、ユーザー承認を得る
+
+### チェックポイント2: PR作成前（実測段階）
+
+- `git diff --stat main...HEAD | tail -1` でサイズを実測
+- 300行以下 & 10ファイル以下 → PR作成続行
+- ドキュメント・テストのみ → 500行まで許容
+- 超過時 → PR作成を中断し、分割を提案
+
 ## Best Practices
 
 1. **Server Components First**: デフォルトは Server Component
