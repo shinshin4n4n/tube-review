@@ -18,7 +18,6 @@
       "Bash(mv *)",
       "Bash(mkdir *)",
       "Bash(rm *)",
-      "Bash(cd *)",
       "Bash(echo *)",
       "Bash(head *)",
       "Bash(tail *)",
@@ -36,7 +35,7 @@
       "Bash(whoami)",
       "Bash(which *)"
     ],
-    "deny": ["Bash(rm -rf *)", "Bash(curl * | bash)", "Bash(sudo *)"]
+    "deny": ["Bash(rm -r*)", "Bash(curl * | bash)", "Bash(sudo *)"]
   },
   "hooks": {
     "PostToolUse": [
