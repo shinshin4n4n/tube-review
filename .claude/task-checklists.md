@@ -9,7 +9,7 @@
 - [ ] Issue を確認し、要件を理解する
 - [ ] 既存の類似機能を確認
 - [ ] `.claude/architecture.md` でアーキテクチャパターンを確認
-- [ ] `.claude/examples.md` でコード例を確認
+- [ ] `.claude/architecture.md` でコード例を確認
 - [ ] 技術スタックを確認（新しいライブラリが必要か？）
 - [ ] **Plan mode で推定サイズを記載**（300行超は分割計画必須）
 - [ ] ブランチ作成: `git checkout -b feature/feature-name`
@@ -49,7 +49,7 @@
 
 - [ ] コード内コメント追加（複雑なロジックのみ）
 - [ ] 必要に応じて CLAUDE.md 更新
-- [ ] 新しいパターンは `.claude/examples.md` に追加
+- [ ] 新しいパターンは `.claude/architecture.md` に追加
 
 ### Before Committing
 
