@@ -119,6 +119,46 @@ jobs:
           path: .next
           retention-days: 1
 
+  security:
+    name: Security Scan
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+
+      - name: Detect leaked secrets in NEXT_PUBLIC_ variables
+        run: |
+          echo "Checking for secrets exposed via NEXT_PUBLIC_ variables..."
+          if grep -r --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' \
+            'NEXT_PUBLIC_.*SECRET\|NEXT_PUBLIC_.*SERVICE_ROLE\|NEXT_PUBLIC_.*API_KEY' \
+            src/ ; then
+            echo "❌ NEXT_PUBLIC_ に SECRET / SERVICE_ROLE / API_KEY が含まれています"
+            exit 1
+          else
+            echo "✓ NEXT_PUBLIC_ に機密情報は検出されませんでした"
+          fi
+
   db-migration:
     name: DB Migration Verification
     runs-on: ubuntu-latest
