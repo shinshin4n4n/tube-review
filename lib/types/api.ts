@@ -3,19 +3,19 @@
  */
 export type ApiResponse<T> =
   | { success: true; data: T }
-  | { success: false; error: string; details?: unknown };
+  | { success: false; error: string; code?: ApiErrorCode };
 
 /**
  * APIエラーコード
  */
 export const API_ERROR_CODES = {
-  UNAUTHORIZED: 'UNAUTHORIZED',
-  FORBIDDEN: 'FORBIDDEN',
-  NOT_FOUND: 'NOT_FOUND',
-  VALIDATION_ERROR: 'VALIDATION_ERROR',
-  DUPLICATE: 'DUPLICATE',
-  RATE_LIMIT: 'RATE_LIMIT',
-  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  UNAUTHORIZED: "UNAUTHORIZED",
+  FORBIDDEN: "FORBIDDEN",
+  NOT_FOUND: "NOT_FOUND",
+  VALIDATION_ERROR: "VALIDATION_ERROR",
+  DUPLICATE: "DUPLICATE",
+  RATE_LIMIT: "RATE_LIMIT",
+  INTERNAL_ERROR: "INTERNAL_ERROR",
 } as const;
 
 export type ApiErrorCode =
