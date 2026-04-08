@@ -82,10 +82,13 @@ gh pr review <PR番号> --approve --body "LGTM ✅"
 
 ### TubeReview 固有
 
-- YouTube Data API はキャッシュ（Upstash Redis）経由で使用しているか
+- YouTube Data API はキャッシュ（Upstash Redis）経由で使用しているか（TTL: 24時間）
+- 2層キャッシュ（メモリ + Redis）パターンに従っているか
 - Materialized Views（`channel_stats_mv` 等）に影響する変更か → リフレッシュの考慮が必要
 - API Routes のレスポンスは `NextResponse.json` + 適切なステータスコードか
 - `scripts/` 配下は ESM 形式（`import`/`export`）か
+- 認証チェックは `lib/auth.ts` の `getUser()` を使用しているか（Supabase Auth）
+- クライアント側から直接 Supabase クエリを実行していないか（Server Actions 経由が必須）
 
 ### コード品質
 

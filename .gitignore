@@ -37,6 +37,7 @@ next-env.d.ts
 # claude
 .claude/settings.local.json
 .claude/worktrees/
+.claude/last-session-state.md
 all_migrations.sql
 
 # playwright/vitest
