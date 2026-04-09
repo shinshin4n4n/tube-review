@@ -16,6 +16,50 @@ export class ApiError extends Error {
 }
 
 /**
+ * ZodError 型ガード（instanceof + fallback check）
+ */
+function isZodError(error: unknown): boolean {
+  if (error instanceof z.ZodError) return true;
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    (error as { name: unknown }).name === "ZodError" &&
+    "issues" in error &&
+    Array.isArray((error as { issues: unknown }).issues)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+interface SupabaseErrorLike {
+  code: string;
+  message: string;
+}
+
+/**
+ * Supabase エラー型ガード
+ */
+function isSupabaseError(error: unknown): error is SupabaseErrorLike {
+  if (
+    typeof error !== "object" ||
+    error === null ||
+    !("code" in error) ||
+    typeof (error as { code: unknown }).code !== "string" ||
+    !("message" in error) ||
+    typeof (error as { message: unknown }).message !== "string" ||
+    isZodError(error) ||
+    error instanceof ApiError
+  ) {
+    return false;
+  }
+  const code = (error as { code: string }).code;
+  // PostgreSQL エラーコード (5文字英数字: e.g. 42501, 23505, 42P01) または PostgREST エラーコード
+  return /^[0-9A-Z]{5}$/i.test(code) || code.startsWith("PGRST");
+}
+
+/**
  * エラーをAPIレスポンスに変換
  */
 export function handleApiError(error: unknown): ApiResponse<never> {
@@ -23,19 +67,46 @@ export function handleApiError(error: unknown): ApiResponse<never> {
     return {
       success: false,
       error: error.message,
+      code: error.code,
     };
   }
 
-  if (error instanceof z.ZodError) {
+  if (isZodError(error)) {
     return {
       success: false,
-      error: error.issues[0]?.message || "Validation error",
+      error: "入力内容を確認してください。",
+      code: "VALIDATION_ERROR",
     };
+  }
+
+  if (isSupabaseError(error)) {
+    console.error("Supabase error:", error.code, error.message);
+    switch (error.code) {
+      case "42501":
+        return {
+          success: false,
+          error: "この操作を行う権限がありません。",
+          code: "FORBIDDEN",
+        };
+      case "23505":
+        return {
+          success: false,
+          error: "この項目は既に存在します。",
+          code: "DUPLICATE",
+        };
+      default:
+        return {
+          success: false,
+          error: "データベースエラーが発生しました。",
+          code: "INTERNAL_ERROR",
+        };
+    }
   }
 
   console.error("Unexpected error:", error);
   return {
     success: false,
-    error: "Internal server error",
+    error: "予期しないエラーが発生しました。",
+    code: "INTERNAL_ERROR",
   };
 }
