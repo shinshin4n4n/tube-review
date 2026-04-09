@@ -2,18 +2,40 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST } from "../route";
 import type { NextRequest } from "next/server";
 
-// Mock Supabase client
-vi.mock("@/lib/supabase/server", () => ({
-  createClient: vi.fn(() => ({
-    auth: {
-      signInWithOtp: vi.fn().mockResolvedValue({ error: null }),
-    },
+// Mock logger to prevent console output in tests
+vi.mock("@/lib/logger", () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+// Mock handleApiError
+vi.mock("@/lib/api/error", () => ({
+  handleApiError: vi.fn((error: unknown) => ({
+    success: false,
+    error: error instanceof Error ? error.message : "Internal server error",
   })),
+}));
+
+// Mock Supabase route handler client
+const mockSignInWithOtp = vi.fn().mockResolvedValue({ error: null });
+
+vi.mock("@/lib/supabase/route-handler", () => ({
+  createRouteHandlerClient: vi.fn(() =>
+    Promise.resolve({
+      auth: {
+        signInWithOtp: mockSignInWithOtp,
+      },
+    })
+  ),
 }));
 
 // Mock Next.js Request
 class MockNextRequest extends Request {
-  constructor(body: any) {
+  constructor(body: Record<string, unknown>) {
     super("http://localhost:3000/api/auth/magic-link", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -25,6 +47,7 @@ class MockNextRequest extends Request {
 describe("POST /api/auth/magic-link", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSignInWithOtp.mockResolvedValue({ error: null });
   });
 
   it("有効なメールアドレスでMagic Linkを送信", async () => {
