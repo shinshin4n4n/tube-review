@@ -2,12 +2,8 @@
  * ランキングのキャッシュヘルパー
  */
 
-import {
-  getRedisClient,
-  isCacheEnabled,
-  CACHE_KEYS,
-  CACHE_TTL,
-} from './redis';
+import { getRedisClient, isCacheEnabled, CACHE_KEYS, CACHE_TTL } from "./redis";
+import { logger } from "@/lib/logger";
 
 /**
  * ランキングデータの型
@@ -36,14 +32,18 @@ export async function getCachedTotalRanking(
     const cached = await redis.get<RankingData>(key);
 
     if (cached) {
-      console.log(`[Cache HIT] Total ranking: page ${page}`);
+      logger.debug(`[Cache HIT] Total ranking: page ${page}`, { page, limit });
       return cached;
     }
 
-    console.log(`[Cache MISS] Total ranking: page ${page}`);
+    logger.debug(`[Cache MISS] Total ranking: page ${page}`, { page, limit });
     return null;
   } catch (error) {
-    console.error('Failed to get cached total ranking:', error);
+    logger.error(
+      "Failed to get cached total ranking",
+      error instanceof Error ? error : undefined,
+      { page, limit }
+    );
     return null;
   }
 }
@@ -69,9 +69,13 @@ export async function setCachedTotalRanking(
       ex: CACHE_TTL.RANKING,
     });
 
-    console.log(`[Cache SET] Total ranking: page ${page}`);
+    logger.debug(`[Cache SET] Total ranking: page ${page}`, { page, limit });
   } catch (error) {
-    console.error('Failed to set cached total ranking:', error);
+    logger.error(
+      "Failed to set cached total ranking",
+      error instanceof Error ? error : undefined,
+      { page, limit }
+    );
   }
 }
 
@@ -95,16 +99,24 @@ export async function getCachedCategoryRanking(
     const cached = await redis.get<RankingData>(key);
 
     if (cached) {
-      console.log(`[Cache HIT] Category ranking: ${categorySlug}, page ${page}`);
+      logger.debug(
+        `[Cache HIT] Category ranking: ${categorySlug}, page ${page}`,
+        { categorySlug, page, limit }
+      );
       return cached;
     }
 
-    console.log(
-      `[Cache MISS] Category ranking: ${categorySlug}, page ${page}`
+    logger.debug(
+      `[Cache MISS] Category ranking: ${categorySlug}, page ${page}`,
+      { categorySlug, page, limit }
     );
     return null;
   } catch (error) {
-    console.error('Failed to get cached category ranking:', error);
+    logger.error(
+      "Failed to get cached category ranking",
+      error instanceof Error ? error : undefined,
+      { categorySlug, page, limit }
+    );
     return null;
   }
 }
@@ -131,9 +143,16 @@ export async function setCachedCategoryRanking(
       ex: CACHE_TTL.RANKING,
     });
 
-    console.log(`[Cache SET] Category ranking: ${categorySlug}, page ${page}`);
+    logger.debug(
+      `[Cache SET] Category ranking: ${categorySlug}, page ${page}`,
+      { categorySlug, page, limit }
+    );
   } catch (error) {
-    console.error('Failed to set cached category ranking:', error);
+    logger.error(
+      "Failed to set cached category ranking",
+      error instanceof Error ? error : undefined,
+      { categorySlug, page, limit }
+    );
   }
 }
 
@@ -160,8 +179,11 @@ export async function invalidateAllRankingCache(): Promise<void> {
 
     await Promise.all(keysToDelete.map((key) => redis.del(key)));
 
-    console.log('[Cache INVALIDATE] All ranking cache');
+    logger.info("[Cache INVALIDATE] All ranking cache");
   } catch (error) {
-    console.error('Failed to invalidate ranking cache:', error);
+    logger.error(
+      "Failed to invalidate ranking cache",
+      error instanceof Error ? error : undefined
+    );
   }
 }

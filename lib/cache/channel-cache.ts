@@ -2,13 +2,9 @@
  * チャンネル情報のキャッシュヘルパー
  */
 
-import {
-  getRedisClient,
-  isCacheEnabled,
-  CACHE_KEYS,
-  CACHE_TTL,
-} from './redis';
-import type { ChannelDetails } from '@/lib/youtube/types';
+import { getRedisClient, isCacheEnabled, CACHE_KEYS, CACHE_TTL } from "./redis";
+import { logger } from "@/lib/logger";
+import type { ChannelDetails } from "@/lib/youtube/types";
 
 /**
  * チャンネル基本情報をキャッシュから取得
@@ -28,14 +24,18 @@ export async function getCachedChannelInfo(
     const cached = await redis.get<ChannelDetails>(key);
 
     if (cached) {
-      console.log(`[Cache HIT] Channel info: ${channelId}`);
+      logger.debug(`[Cache HIT] Channel info: ${channelId}`, { channelId });
       return cached;
     }
 
-    console.log(`[Cache MISS] Channel info: ${channelId}`);
+    logger.debug(`[Cache MISS] Channel info: ${channelId}`, { channelId });
     return null;
   } catch (error) {
-    console.error('Failed to get cached channel info:', error);
+    logger.error(
+      "Failed to get cached channel info",
+      error instanceof Error ? error : undefined,
+      { channelId }
+    );
     return null;
   }
 }
@@ -60,9 +60,13 @@ export async function setCachedChannelInfo(
       ex: CACHE_TTL.CHANNEL_INFO,
     });
 
-    console.log(`[Cache SET] Channel info: ${channelId}`);
+    logger.debug(`[Cache SET] Channel info: ${channelId}`, { channelId });
   } catch (error) {
-    console.error('Failed to set cached channel info:', error);
+    logger.error(
+      "Failed to set cached channel info",
+      error instanceof Error ? error : undefined,
+      { channelId }
+    );
   }
 }
 
@@ -84,14 +88,18 @@ export async function getCachedChannelStats(
     const cached = await redis.get<ChannelDetails>(key);
 
     if (cached) {
-      console.log(`[Cache HIT] Channel stats: ${channelId}`);
+      logger.debug(`[Cache HIT] Channel stats: ${channelId}`, { channelId });
       return cached;
     }
 
-    console.log(`[Cache MISS] Channel stats: ${channelId}`);
+    logger.debug(`[Cache MISS] Channel stats: ${channelId}`, { channelId });
     return null;
   } catch (error) {
-    console.error('Failed to get cached channel stats:', error);
+    logger.error(
+      "Failed to get cached channel stats",
+      error instanceof Error ? error : undefined,
+      { channelId }
+    );
     return null;
   }
 }
@@ -116,18 +124,20 @@ export async function setCachedChannelStats(
       ex: CACHE_TTL.CHANNEL_STATS,
     });
 
-    console.log(`[Cache SET] Channel stats: ${channelId}`);
+    logger.debug(`[Cache SET] Channel stats: ${channelId}`, { channelId });
   } catch (error) {
-    console.error('Failed to set cached channel stats:', error);
+    logger.error(
+      "Failed to set cached channel stats",
+      error instanceof Error ? error : undefined,
+      { channelId }
+    );
   }
 }
 
 /**
  * チャンネル情報のキャッシュを無効化
  */
-export async function invalidateChannelCache(
-  channelId: string
-): Promise<void> {
+export async function invalidateChannelCache(channelId: string): Promise<void> {
   if (!isCacheEnabled()) {
     return;
   }
@@ -141,8 +151,12 @@ export async function invalidateChannelCache(
 
     await Promise.all([redis.del(infoKey), redis.del(statsKey)]);
 
-    console.log(`[Cache INVALIDATE] Channel: ${channelId}`);
+    logger.info(`[Cache INVALIDATE] Channel: ${channelId}`, { channelId });
   } catch (error) {
-    console.error('Failed to invalidate channel cache:', error);
+    logger.error(
+      "Failed to invalidate channel cache",
+      error instanceof Error ? error : undefined,
+      { channelId }
+    );
   }
 }
