@@ -1,17 +1,20 @@
 import type { NextConfig } from "next";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const isDev = process.env.NODE_ENV === "development";
 
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+  // TODO: nonce-based CSP に移行して unsafe-inline を排除する
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: blob: https://lh3.googleusercontent.com https://yt3.googleusercontent.com https://yt3.ggpht.com https://hhpvymgwuonvzqbflfqz.supabase.co https://i.pravatar.cc`,
+  `img-src 'self' data: blob: https://lh3.googleusercontent.com https://yt3.googleusercontent.com https://yt3.ggpht.com ${SUPABASE_URL}${isDev ? " https://i.pravatar.cc" : ""}`,
   "font-src 'self'",
   `connect-src 'self' ${SUPABASE_URL} https://www.googleapis.com`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
+  "upgrade-insecure-requests",
 ];
 
 const securityHeaders = [
