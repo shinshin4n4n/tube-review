@@ -1,0 +1,101 @@
+name: PR Size Check
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  check-size:
+    name: Check PR Size
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check PR size
+        env:
+          MAX_LINES: 300
+          MAX_FILES: 10
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # 除外パターン
+          EXCLUDE_PATTERNS=(
+            "package-lock.json"
+            "*.snap"
+            "*.generated.*"
+            "coverage/*"
+            "*.md"
+            "supabase/config.toml"
+            "types/supabase.ts"
+            "*/__tests__/*"
+            "*/tests/*"
+            "components/ui/*"
+            "components.json"
+            "globals.css"
+            "hooks/use-toast.ts"
+            "playwright-report/*"
+          )
+
+          # pathspec 除外引数を配列で構築
+          EXCLUDE_ARGS=()
+          for pattern in "${EXCLUDE_PATTERNS[@]}"; do
+            EXCLUDE_ARGS+=( ":!${pattern}" )
+          done
+
+          DIFF_STAT=$(git diff --stat "$BASE_SHA...$HEAD_SHA" -- . "${EXCLUDE_ARGS[@]}")
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA...$HEAD_SHA" -- . "${EXCLUDE_ARGS[@]}" | wc -l | tr -d ' ')
+          CHANGED_LINES=$(git diff --numstat "$BASE_SHA...$HEAD_SHA" -- . "${EXCLUDE_ARGS[@]}" | awk '{ added += $1; removed += $2 } END { print added + removed }')
+
+          CHANGED_FILES=${CHANGED_FILES:-0}
+          CHANGED_LINES=${CHANGED_LINES:-0}
+
+          {
+            echo "## PR Size Report"
+            echo ""
+            echo "| Metric | Value | Limit | Status |"
+            echo "|--------|-------|-------|--------|"
+
+            FILE_STATUS="✅"
+            if [ "$CHANGED_FILES" -gt "$MAX_FILES" ]; then
+              FILE_STATUS="❌"
+            fi
+
+            LINE_STATUS="✅"
+            if [ "$CHANGED_LINES" -gt "$MAX_LINES" ]; then
+              LINE_STATUS="❌"
+            fi
+
+            echo "| Changed files | $CHANGED_FILES | $MAX_FILES | $FILE_STATUS |"
+            echo "| Changed lines | $CHANGED_LINES | $MAX_LINES | $LINE_STATUS |"
+            echo ""
+            echo "### Excluded patterns"
+            for pattern in "${EXCLUDE_PATTERNS[@]}"; do
+              echo "- \`$pattern\`"
+            done
+            echo ""
+            echo "### Changed files"
+            echo "$DIFF_STAT"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # 判定
+          FAILED=false
+          if [ "$CHANGED_FILES" -gt "$MAX_FILES" ]; then
+            echo "❌ PR exceeds file limit: $CHANGED_FILES files (max: $MAX_FILES)"
+            FAILED=true
+          fi
+          if [ "$CHANGED_LINES" -gt "$MAX_LINES" ]; then
+            echo "❌ PR exceeds line limit: $CHANGED_LINES lines (max: $MAX_LINES)"
+            FAILED=true
+          fi
+
+          if [ "$FAILED" = true ]; then
+            echo "💡 PRを分割してください。ドキュメント・テストのみの場合は 500行まで許容されます。"
+            exit 1
+          fi
+
+          echo "✅ PR size is within limits. ($CHANGED_LINES lines, $CHANGED_FILES files)"
