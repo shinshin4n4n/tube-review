@@ -20,10 +20,9 @@ jobs:
         env:
           MAX_LINES: 300
           MAX_FILES: 10
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          BASE_SHA=${{ github.event.pull_request.base.sha }}
-          HEAD_SHA=${{ github.event.pull_request.head.sha }}
-
           # 除外パターン
           EXCLUDE_PATTERNS=(
             "package-lock.json"
@@ -42,60 +41,61 @@ jobs:
             "playwright-report/*"
           )
 
-          # diff 取得（除外パターン適用）
-          EXCLUDE_ARGS=""
+          # pathspec 除外引数を配列で構築
+          EXCLUDE_ARGS=()
           for pattern in "${EXCLUDE_PATTERNS[@]}"; do
-            EXCLUDE_ARGS="$EXCLUDE_ARGS ':!${pattern}'"
+            EXCLUDE_ARGS+=( ":!${pattern}" )
           done
 
-          DIFF_STAT=$(eval git diff --stat "$BASE_SHA...$HEAD_SHA" -- . $EXCLUDE_ARGS)
-          CHANGED_FILES=$(eval git diff --name-only "$BASE_SHA...$HEAD_SHA" -- . $EXCLUDE_ARGS | wc -l)
-          CHANGED_LINES=$(eval git diff --numstat "$BASE_SHA...$HEAD_SHA" -- . $EXCLUDE_ARGS | awk '{ added += $1; removed += $2 } END { print added + removed }')
+          DIFF_STAT=$(git diff --stat "$BASE_SHA...$HEAD_SHA" -- . "${EXCLUDE_ARGS[@]}")
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA...$HEAD_SHA" -- . "${EXCLUDE_ARGS[@]}" | wc -l | tr -d ' ')
+          CHANGED_LINES=$(git diff --numstat "$BASE_SHA...$HEAD_SHA" -- . "${EXCLUDE_ARGS[@]}" | awk '{ added += $1; removed += $2 } END { print added + removed }')
 
-          echo "## PR Size Report"
-          echo ""
-          echo "| Metric | Value | Limit | Status |"
-          echo "|--------|-------|-------|--------|"
+          CHANGED_FILES=${CHANGED_FILES:-0}
+          CHANGED_LINES=${CHANGED_LINES:-0}
 
-          FILE_STATUS="✅"
-          if [ "$CHANGED_FILES" -gt "$MAX_FILES" ]; then
-            FILE_STATUS="❌"
-          fi
+          {
+            echo "## PR Size Report"
+            echo ""
+            echo "| Metric | Value | Limit | Status |"
+            echo "|--------|-------|-------|--------|"
 
-          LINE_STATUS="✅"
-          if [ "$CHANGED_LINES" -gt "$MAX_LINES" ]; then
-            LINE_STATUS="❌"
-          fi
+            FILE_STATUS="✅"
+            if [ "$CHANGED_FILES" -gt "$MAX_FILES" ]; then
+              FILE_STATUS="❌"
+            fi
 
-          echo "| Changed files | $CHANGED_FILES | $MAX_FILES | $FILE_STATUS |"
-          echo "| Changed lines | $CHANGED_LINES | $MAX_LINES | $LINE_STATUS |"
-          echo ""
-          echo "### Excluded patterns"
-          for pattern in "${EXCLUDE_PATTERNS[@]}"; do
-            echo "- \`$pattern\`"
-          done
-          echo ""
-          echo "### Changed files"
-          echo "$DIFF_STAT"
+            LINE_STATUS="✅"
+            if [ "$CHANGED_LINES" -gt "$MAX_LINES" ]; then
+              LINE_STATUS="❌"
+            fi
+
+            echo "| Changed files | $CHANGED_FILES | $MAX_FILES | $FILE_STATUS |"
+            echo "| Changed lines | $CHANGED_LINES | $MAX_LINES | $LINE_STATUS |"
+            echo ""
+            echo "### Excluded patterns"
+            for pattern in "${EXCLUDE_PATTERNS[@]}"; do
+              echo "- \`$pattern\`"
+            done
+            echo ""
+            echo "### Changed files"
+            echo "$DIFF_STAT"
+          } >> "$GITHUB_STEP_SUMMARY"
 
           # 判定
           FAILED=false
           if [ "$CHANGED_FILES" -gt "$MAX_FILES" ]; then
-            echo ""
             echo "❌ PR exceeds file limit: $CHANGED_FILES files (max: $MAX_FILES)"
             FAILED=true
           fi
           if [ "$CHANGED_LINES" -gt "$MAX_LINES" ]; then
-            echo ""
             echo "❌ PR exceeds line limit: $CHANGED_LINES lines (max: $MAX_LINES)"
             FAILED=true
           fi
 
           if [ "$FAILED" = true ]; then
-            echo ""
             echo "💡 PRを分割してください。ドキュメント・テストのみの場合は 500行まで許容されます。"
             exit 1
           fi
 
-          echo ""
-          echo "✅ PR size is within limits."
+          echo "✅ PR size is within limits. ($CHANGED_LINES lines, $CHANGED_FILES files)"
