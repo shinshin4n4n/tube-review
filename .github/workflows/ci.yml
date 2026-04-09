@@ -152,7 +152,7 @@ jobs:
           echo "Checking for secrets exposed via NEXT_PUBLIC_ variables..."
           if grep -r --include='*.ts' --include='*.tsx' --include='*.js' --include='*.jsx' \
             'NEXT_PUBLIC_.*SECRET\|NEXT_PUBLIC_.*SERVICE_ROLE\|NEXT_PUBLIC_.*API_KEY' \
-            src/ ; then
+            app/ lib/ ; then
             echo "❌ NEXT_PUBLIC_ に SECRET / SERVICE_ROLE / API_KEY が含まれています"
             exit 1
           else
