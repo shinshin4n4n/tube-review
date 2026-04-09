@@ -144,7 +144,18 @@ YouTube Data API v3には1日あたりのクォータ制限（デフォルト10,
 ```
 scripts/
 ├── README.md                          # このファイル
-└── sync-channels-from-youtube.ts      # 同期スクリプト
+├── add-channels-by-category.ts        # カテゴリ別チャンネル追加
+├── add-reviews-to-all-channels.ts     # 全チャンネルにレビュー追加
+├── apply-seed.ts / execute-seed.ts / run-seed.ts / seed.ts  # シード関連
+├── classify-channels.ts              # チャンネル自動分類
+├── generate-demo-data.ts             # デモデータ生成
+├── list-categories.ts                # カテゴリ一覧表示
+├── refresh-channel-stats.ts          # チャンネル統計リフレッシュ
+├── refresh-materialized-view(s)      # MV リフレッシュ
+├── search-and-add-channels.ts        # チャンネル検索・追加
+├── sync-channels-from-youtube.ts     # YouTube 同期
+├── update-*.ts                       # サムネイル・再生回数更新
+└── archive/                          # one-off スクリプト (check-*, find-*, fix-* 等)
 ```
 
 ## 関連ファイル
