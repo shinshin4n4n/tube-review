@@ -16,8 +16,6 @@ export default defineConfig({
       "**/.next/**",
       "**/.claude/**",
       "**/*.spec.ts", // Exclude Playwright spec files
-      "app/api/auth/magic-link/__tests__/**", // Exclude route tests (need env vars)
-      "lib/youtube/__tests__/rate-limiter.test.ts", // Exclude (needs env vars)
     ],
     coverage: {
       provider: "v8",
