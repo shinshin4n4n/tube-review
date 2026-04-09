@@ -2,12 +2,8 @@
  * レビュー集計のキャッシュヘルパー
  */
 
-import {
-  getRedisClient,
-  isCacheEnabled,
-  CACHE_KEYS,
-  CACHE_TTL,
-} from './redis';
+import { getRedisClient, isCacheEnabled, CACHE_KEYS, CACHE_TTL } from "./redis";
+import { logger } from "@/lib/logger";
 
 /**
  * レビュー統計の型
@@ -38,14 +34,18 @@ export async function getCachedReviewStats(
     const cached = await redis.get<ReviewStats>(key);
 
     if (cached) {
-      console.log(`[Cache HIT] Review stats: ${channelId}`);
+      logger.debug(`[Cache HIT] Review stats: ${channelId}`, { channelId });
       return cached;
     }
 
-    console.log(`[Cache MISS] Review stats: ${channelId}`);
+    logger.debug(`[Cache MISS] Review stats: ${channelId}`, { channelId });
     return null;
   } catch (error) {
-    console.error('Failed to get cached review stats:', error);
+    logger.error(
+      "Failed to get cached review stats",
+      error instanceof Error ? error : undefined,
+      { channelId }
+    );
     return null;
   }
 }
@@ -70,9 +70,13 @@ export async function setCachedReviewStats(
       ex: CACHE_TTL.REVIEW_STATS,
     });
 
-    console.log(`[Cache SET] Review stats: ${channelId}`);
+    logger.debug(`[Cache SET] Review stats: ${channelId}`, { channelId });
   } catch (error) {
-    console.error('Failed to set cached review stats:', error);
+    logger.error(
+      "Failed to set cached review stats",
+      error instanceof Error ? error : undefined,
+      { channelId }
+    );
   }
 }
 
@@ -94,8 +98,12 @@ export async function invalidateReviewStatsCache(
     const key = `${CACHE_KEYS.REVIEW_STATS}:${channelId}`;
     await redis.del(key);
 
-    console.log(`[Cache INVALIDATE] Review stats: ${channelId}`);
+    logger.info(`[Cache INVALIDATE] Review stats: ${channelId}`, { channelId });
   } catch (error) {
-    console.error('Failed to invalidate review stats cache:', error);
+    logger.error(
+      "Failed to invalidate review stats cache",
+      error instanceof Error ? error : undefined,
+      { channelId }
+    );
   }
 }
