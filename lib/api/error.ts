@@ -42,16 +42,21 @@ interface SupabaseErrorLike {
  * Supabase エラー型ガード
  */
 function isSupabaseError(error: unknown): error is SupabaseErrorLike {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    typeof (error as { code: unknown }).code === "string" &&
-    "message" in error &&
-    typeof (error as { message: unknown }).message === "string" &&
-    !isZodError(error) &&
-    !(error instanceof ApiError)
-  );
+  if (
+    typeof error !== "object" ||
+    error === null ||
+    !("code" in error) ||
+    typeof (error as { code: unknown }).code !== "string" ||
+    !("message" in error) ||
+    typeof (error as { message: unknown }).message !== "string" ||
+    isZodError(error) ||
+    error instanceof ApiError
+  ) {
+    return false;
+  }
+  const code = (error as { code: string }).code;
+  // PostgreSQL エラーコード (5文字英数字: e.g. 42501, 23505, 42P01) または PostgREST エラーコード
+  return /^[0-9A-Z]{5}$/i.test(code) || code.startsWith("PGRST");
 }
 
 /**
