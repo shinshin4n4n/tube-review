@@ -19,6 +19,14 @@ updates:
       prefix: "chore"
       prefix-development: "chore"
       include: "scope"
+    # メジャーアップデートは手動対応（破壊的変更を含むため）
+    ignore:
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "prettier"
+        update-types: ["version-update:semver-major"]
     # グループ化設定（関連する依存関係をまとめる）
     groups:
       # Next.js関連
