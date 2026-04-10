@@ -35,6 +35,12 @@ globs: "app/_actions/**"
 
 - `revalidatePath()` を呼んでキャッシュを無効化
 
+## バレルファイル（re-export）の注意点
+
+- re-export のみのバレルファイルには "use server" を付けない
+- "use server" は実際にロジックを含む分割先ファイル（-queries.ts, -commands.ts）にのみ付ける
+- Turbopack は "use server" + re-export の組み合わせでモジュールのエクスポートを認識できない
+
 ## クライアントからの呼び出し
 
 - 呼び出し元で戻り値チェック + ユーザーフィードバック（toast/alert）必須
