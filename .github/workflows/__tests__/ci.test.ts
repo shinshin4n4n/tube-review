@@ -15,6 +15,8 @@ describe("ci.yml security job", () => {
     );
 
     expect(auditStep).toBeDefined();
-    expect(auditStep["continue-on-error"]).toBeUndefined();
+    expect(
+      (auditStep as Record<string, unknown>)["continue-on-error"]
+    ).toBeUndefined();
   });
 });
