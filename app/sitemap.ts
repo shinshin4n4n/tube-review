@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
 import { clientEnv } from "@/lib/env.client";
+import { logger } from "@/lib/logger";
 
 /**
  * サイトマップ生成
@@ -64,7 +65,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }));
     }
   } catch (error) {
-    console.error("Failed to generate sitemap for channels:", error);
+    logger.error(
+      "Failed to generate sitemap for channels",
+      error instanceof Error ? error : undefined
+    );
     // エラーが発生しても静的ページは返す
   }
 
