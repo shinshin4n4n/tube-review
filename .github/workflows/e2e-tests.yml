@@ -88,7 +88,7 @@ jobs:
           fi
 
       - name: Comment PR with test results
-        uses: daun/playwright-report-comment@v3
+        uses: daun/playwright-report-comment@v4
         if: github.event_name == 'pull_request' && steps.check_results.outputs.exists == 'true'
         with:
           report-file: playwright-report/results.json
